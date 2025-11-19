@@ -142,7 +142,7 @@ export default function Home() {
       </section>
       
       {/* Featured Merch Section */}
-      <section className="py-16 md:py-24 bg-card">
+      <section className="py-16 md:py-24 bg-black/50">
         <div className="container max-w-5xl">
           <div className="text-center mb-12">
             <h2 className="font-headline text-3xl md:text-4xl font-bold">Featured Merch</h2>
@@ -152,7 +152,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-12">
             {featuredMerch.map((item) => (
-              <Card key={item.id} className="overflow-hidden bg-background group border-2 border-primary/20 hover:border-primary transition-all duration-300 transform hover:-translate-y-2">
+              <Card key={item.id} className="overflow-hidden bg-background group border-2 border-primary/20 hover:border-primary transition-all duration-300 transform hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/30">
                 <CardContent className="p-0 relative">
                   {item.image && (
                     <div className="aspect-square relative">
