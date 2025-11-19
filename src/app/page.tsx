@@ -85,45 +85,33 @@ export default function Home() {
               View All <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-          <Carousel
-            opts={{
-              align: "start",
-              loop: true,
-            }}
-            className="w-full"
-          >
-            <CarouselContent>
+           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {latestReleases.map((release) => (
-                <CarouselItem key={release.id} className="sm:basis-1/2 lg:basis-1/3">
-                   <Card className="group overflow-hidden">
-                    <CardContent className="p-0">
-                      {release.image && (
-                        <div className="aspect-square relative">
-                          <Image
-                            src={release.image.imageUrl}
-                            alt={release.image.description}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                            data-ai-hint={release.image.imageHint}
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          />
-                        </div>
-                      )}
-                    </CardContent>
-                    <CardFooter className="p-4 flex justify-between items-center bg-background">
-                      <div>
-                        <p className="font-semibold">{release.title}</p>
-                        <p className="text-sm text-muted-foreground">{release.artist}</p>
+                <Card key={release.id} className="group overflow-hidden">
+                  <CardContent className="p-0">
+                    {release.image && (
+                      <div className="aspect-square relative">
+                        <Image
+                          src={release.image.imageUrl}
+                          alt={release.image.description}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          data-ai-hint={release.image.imageHint}
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        />
                       </div>
-                      <Button variant="ghost" size="icon" className="text-primary"><Disc className="h-6 w-6" /></Button>
-                    </CardFooter>
-                  </Card>
-                </CarouselItem>
+                    )}
+                  </CardContent>
+                  <CardFooter className="p-4 flex justify-between items-center bg-background">
+                    <div>
+                      <p className="font-semibold">{release.title}</p>
+                      <p className="text-sm text-muted-foreground">{release.artist}</p>
+                    </div>
+                    <Button variant="ghost" size="icon" className="text-primary"><Disc className="h-6 w-6" /></Button>
+                  </CardFooter>
+                </Card>
               ))}
-            </CarouselContent>
-            <CarouselPrevious className="absolute left-[-1rem] top-1/2 -translate-y-1/2" />
-            <CarouselNext className="absolute right-[-1rem] top-1/2 -translate-y-1/2" />
-          </Carousel>
+            </div>
         </div>
       </section>
 
