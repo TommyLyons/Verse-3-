@@ -75,7 +75,7 @@ export default function Home() {
       {/* About Section */}
        <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-5xl text-center">
-            <h2 className="font-headline text-4xl md:text-5xl font-bold mb-4 text-primary">Our Story</h2>
+            <h2 className="font-headline text-4xl md:text-5xl font-bold mb-4 text-chart-2">Our Story</h2>
             <p className="text-muted-foreground md:text-lg">
              Verse Three Records is a UK-based independent electronic label founded by three lifelong friends — Keith Doyle, Steve Liddle (Lofty), and Alvin Koumetio. United by more than 15 years of friendship and a deep-rooted passion for music, the trio created Verse Three Records to champion emotionally driven, forward-thinking electronic music. From their roots as childhood friends to their evolution into founders of a forward-thinking label, Verse Three Records stands as a testament to collaboration, emotional expression, and the belief that music is most powerful when crafted from real stories.
             </p>
@@ -86,7 +86,7 @@ export default function Home() {
       <section className="py-16 md:py-24 bg-card">
         <div className="container max-w-7xl">
          <div className="text-center mb-12">
-            <h2 className="font-headline text-4xl md:text-5xl font-bold text-primary">The Verse Three Vision</h2>
+            <h2 className="font-headline text-4xl md:text-5xl font-bold text-chart-3">The Verse Three Vision</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
             {features.map((feature) => (
@@ -106,7 +106,7 @@ export default function Home() {
       <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-7xl">
           <div className="flex justify-between items-baseline mb-8">
-            <h2 className="font-headline text-4xl md:text-5xl font-bold text-primary">Latest Releases</h2>
+            <h2 className="font-headline text-4xl md:text-5xl font-bold text-chart-4">Latest Releases</h2>
             <Link href="/music" className="flex items-center gap-2 text-sm text-primary hover:underline">
               View All <ArrowRight className="h-4 w-4" />
             </Link>
