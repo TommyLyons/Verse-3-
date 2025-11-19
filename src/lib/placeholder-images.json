@@ -1,3 +1,58 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-studio",
+      "description": "A modern recording studio with a mixing desk and warm lighting.",
+      "imageUrl": "https://images.unsplash.com/photo-1618609377864-68609b857e90?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxyZWNvcmRpbmclMjBzdHVkaW98ZW58MHx8fHwxNzYzNTQ5NTIyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "recording studio"
+    },
+    {
+      "id": "album-art-1",
+      "description": "Abstract neon lines on a dark background.",
+      "imageUrl": "https://images.unsplash.com/photo-1511447333015-45b65e60f6d5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMG5lb258ZW58MHx8fHwxNzYzNDgwOTQ0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "abstract neon"
+    },
+    {
+      "id": "album-art-2",
+      "description": "A close-up of a vinyl record.",
+      "imageUrl": "https://images.unsplash.com/photo-1603048588665-791ca8aea617?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx2aW55bCUyMHJlY29yZHxlbnwwfHx8fDE3NjM1MDM5NTN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "vinyl record"
+    },
+    {
+      "id": "album-art-3",
+      "description": "Cityscape at night with light trails.",
+      "imageUrl": "https://images.unsplash.com/photo-1580895456895-cfdf02e4c23f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjaXR5JTIwbmlnaHR8ZW58MHx8fHwxNzYzNDk3NDk3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "city night"
+    },
+    {
+      "id": "merch-hoodie",
+      "description": "A black hoodie with a yellow logo.",
+      "imageUrl": "https://images.unsplash.com/photo-1610582144787-eda2e6f293b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxibGFjayUyMGhvb2RpZXxlbnwwfHx8fDE3NjM1NDQ0Njl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "black hoodie"
+    },
+    {
+      "id": "merch-vinyl",
+      "description": "A special edition vinyl record in its sleeve.",
+      "imageUrl": "https://images.unsplash.com/photo-1760274741733-21a64eed83c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx2aW55bCUyMHNsZWV2ZXxlbnwwfHx8fDE3NjM1NzY4MjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "vinyl sleeve"
+    },
+    {
+      "id": "merch-cap",
+      "description": "A black cap with an embroidered logo.",
+      "imageUrl": "https://images.unsplash.com/photo-1680455084452-94ff3fd6209d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8YmxhY2slMjBjYXB8ZW58MHx8fHwxNzYzNTI0MjYyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "black cap"
+    },
+    {
+      "id": "artist-lofty",
+      "description": "Portrait of DJ Lofty in a dimly lit room.",
+      "imageUrl": "https://images.unsplash.com/photo-1683166689835-a5f9dd264a01?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkaiUyMHBvcnRyYWl0fGVufDB8fHx8MTc2MzQ5MjU1Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "dj portrait"
+    },
+    {
+      "id": "event-1",
+      "description": "A crowd at a music event.",
+      "imageUrl": "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtdXNpYyUyMGV2ZW50fGVufDB8fHx8MTc2MzU1NTMzMHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "music event"
+    }
+  ]
 }
