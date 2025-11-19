@@ -1,9 +1,14 @@
 
+'use client';
+
+import React from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export default function BookingPage() {
+  const [date, setDate] = React.useState<Date | undefined>(new Date());
+
   return (
     <div className="container max-w-5xl py-12 md:py-24">
       <div className="text-center mb-12">
@@ -21,13 +26,21 @@ export default function BookingPage() {
             <CardContent className="flex justify-center">
               <Calendar
                 mode="single"
+                selected={date}
+                onSelect={setDate}
                 className="p-0"
                 classNames={{
-                    caption: "text-primary",
+                    caption_label: "flex items-center text-sm font-medium",
+                    caption_dropdowns: "flex items-center gap-2",
+                    vhidden: "hidden",
+                    caption: "text-primary flex justify-center pt-1 relative items-center",
                     head_cell: "text-muted-foreground",
                     day: "hover:bg-primary/20",
                     day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
                 }}
+                fromYear={new Date().getFullYear()}
+                toYear={new Date().getFullYear() + 5}
+                captionLayout="dropdown-buttons"
               />
             </CardContent>
           </Card>
