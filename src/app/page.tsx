@@ -57,11 +57,21 @@ export default function Home() {
 
       {/* About & Vision Section */}
        <section className="py-16 md:py-24 bg-background">
-        <div className="container max-w-5xl text-center">
-            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Our Story & Vision</h2>
-            <p className="mt-6 max-w-3xl mx-auto text-muted-foreground md:text-lg">
-                Verse Three Records is a UK-based independent electronic label founded by three lifelong friends — Keith Doyle, Steve Liddle (Lofty), and Alvin Koumetio. United by more than 15 years of friendship and a deep-rooted passion for music, the trio created Verse Three to champion emerging talent, deliver emotionally powerful records, and build a community grounded in creativity and shared passion. Our mission stands as a testament to collaboration and the belief that music is most powerful when crafted from real stories.
-            </p>
+        <div className="container max-w-6xl">
+           <div className="grid md:grid-cols-2 gap-12 items-center">
+                <div className="space-y-4 text-center md:text-left">
+                    <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">Our Story</h2>
+                    <p className="text-muted-foreground md:text-lg">
+                        Verse Three Records is a UK-based independent electronic label founded by three lifelong friends — Keith Doyle, Steve Liddle (Lofty), and Alvin Koumetio. United by more than 15 years of friendship and a deep-rooted passion for music, the trio created Verse Three to build a community grounded in creativity and shared passion.
+                    </p>
+                </div>
+                <div className="space-y-4 text-center md:text-left">
+                     <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">Our Vision</h2>
+                    <p className="text-muted-foreground md:text-lg">
+                        Our mission is to champion emerging talent and deliver emotionally powerful records that resonate. We believe that music is most powerful when crafted from real stories, and we stand as a testament to the power of collaboration and artistic integrity.
+                    </p>
+                </div>
+            </div>
         </div>
        </section>
 
