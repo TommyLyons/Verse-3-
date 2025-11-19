@@ -146,9 +146,11 @@ export default function Home() {
         <div className="container max-w-5xl">
           <div className="text-center mb-12">
             <h2 className="font-headline text-3xl md:text-4xl font-bold text-primary">Featured Merch</h2>
-             <Link href="/store" className="flex items-center justify-center gap-2 text-sm text-primary hover:underline mt-2">
-              Shop All <ArrowRight className="h-4 w-4" />
-            </Link>
+             <Button variant="link" asChild className="mt-2 text-base">
+                <Link href="/store">
+                    Shop All <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+            </Button>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-12">
             {featuredMerch.map((item) => (
