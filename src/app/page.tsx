@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { ArrowRight, Calendar, Disc, Mic, CheckCircle } from 'lucide-react';
+import { ArrowRight, Disc, CheckCircle } from 'lucide-react';
 
 const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
 
@@ -18,7 +18,6 @@ const latestReleases = [
 const featuredMerch = [
   { id: 1, name: 'Verse3 Logo Hoodie', price: '$59.99', image: getImage('merch-hoodie') },
   { id: 2, name: 'DJ Lofty - Midnight Drive Vinyl', price: '$29.99', image: getImage('merch-vinyl') },
-  { id: 3, name: 'Verse3 Embroidered Cap', price: '$24.99', image: getImage('merch-cap') },
 ];
 
 const features = [
@@ -144,16 +143,16 @@ export default function Home() {
       
       {/* Featured Merch Section */}
       <section className="py-16 md:py-24 bg-card">
-        <div className="container max-w-7xl">
-          <div className="flex justify-between items-baseline mb-8">
+        <div className="container max-w-5xl">
+          <div className="text-center mb-12">
             <h2 className="font-headline text-3xl md:text-4xl font-bold">Featured Merch</h2>
-            <Link href="/store" className="flex items-center gap-2 text-sm text-primary hover:underline">
+             <Link href="/store" className="flex items-center justify-center gap-2 text-sm text-primary hover:underline mt-2">
               Shop All <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-12">
             {featuredMerch.map((item) => (
-              <Card key={item.id} className="overflow-hidden bg-background">
+              <Card key={item.id} className="overflow-hidden bg-background group border-2 border-primary/20 hover:border-primary transition-all duration-300 transform hover:-translate-y-2">
                 <CardContent className="p-0">
                   {item.image && (
                     <div className="aspect-square relative">
@@ -161,19 +160,20 @@ export default function Home() {
                         src={item.image.imageUrl}
                         alt={item.image.description}
                         fill
-                        className="object-cover"
+                        className="object-cover group-hover:scale-105 transition-transform"
                         data-ai-hint={item.image.imageHint}
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        sizes="(max-width: 768px) 100vw, 50vw"
                       />
+                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     </div>
                   )}
                 </CardContent>
-                <CardFooter className="p-4 flex justify-between items-center">
+                <CardFooter className="p-6 flex justify-between items-center">
                   <div>
-                    <p className="font-semibold">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">{item.price}</p>
+                    <p className="font-headline text-xl font-semibold">{item.name}</p>
+                    <p className="text-lg text-primary">{item.price}</p>
                   </div>
-                  <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">Add to Cart</Button>
+                  <Button>Add to Cart</Button>
                 </CardFooter>
               </Card>
             ))}
