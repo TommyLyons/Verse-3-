@@ -71,6 +71,12 @@
       "description": "Footprints in the sand, representing quiet steps.",
       "imageUrl": "https://images.unsplash.com/photo-1506929562872-bb421503ef21?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxxdWlldCUyMHN0ZXBzfGVufDB8fHx8MTc2Mzc0NjQzN3ww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "quiet steps"
+    },
+    {
+      "id": "placeholder-audio",
+      "description": "A placeholder audio file.",
+      "imageUrl": "https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-1.mp3",
+      "imageHint": "audio file"
     }
   ]
 }
