@@ -4,7 +4,6 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ArrowRight, Disc } from 'lucide-react';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 
 const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
 
@@ -58,21 +57,11 @@ export default function Home() {
 
       {/* About & Vision Section */}
        <section className="py-16 md:py-24 bg-background">
-        <div className="container max-w-7xl">
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16">
-                <div className="flex flex-col justify-center">
-                    <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Our Story</h2>
-                    <p className="mt-4 text-muted-foreground md:text-lg">
-                        Verse Three Records is a UK-based independent electronic label founded by three lifelong friends — Keith Doyle, Steve Liddle (Lofty), and Alvin Koumetio. United by more than 15 years of friendship and a deep-rooted passion for music, the trio created Verse Three Records to champion emotionally driven, forward-thinking electronic music.
-                    </p>
-                </div>
-                 <div className="flex flex-col justify-center">
-                    <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">The Verse Three Vision</h2>
-                     <p className="mt-4 text-muted-foreground md:text-lg">
-                        Our mission is built on three pillars: championing emerging talent, delivering emotionally powerful records, and building a community grounded in creativity and shared passion. Verse Three stands as a testament to collaboration and the belief that music is most powerful when crafted from real stories.
-                    </p>
-                </div>
-            </div>
+        <div className="container max-w-5xl text-center">
+            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Our Story & Vision</h2>
+            <p className="mt-6 max-w-3xl mx-auto text-muted-foreground md:text-lg">
+                Verse Three Records is a UK-based independent electronic label founded by three lifelong friends — Keith Doyle, Steve Liddle (Lofty), and Alvin Koumetio. United by more than 15 years of friendship and a deep-rooted passion for music, the trio created Verse Three to champion emerging talent, deliver emotionally powerful records, and build a community grounded in creativity and shared passion. Our mission stands as a testament to collaboration and the belief that music is most powerful when crafted from real stories.
+            </p>
         </div>
        </section>
 
