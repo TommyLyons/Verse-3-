@@ -5,12 +5,14 @@ import React from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { BackButton } from '@/components/ui/back-button';
 
 export default function BookingPage() {
   const [date, setDate] = React.useState<Date | undefined>(new Date());
 
   return (
     <div className="container max-w-5xl py-12 md:py-24">
+      <BackButton />
       <div className="text-center mb-12">
         <h1 className="font-headline text-4xl md:text-5xl font-bold">Book The Studio</h1>
         <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
