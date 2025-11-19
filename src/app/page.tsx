@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { ArrowRight, Disc, CheckCircle } from 'lucide-react';
+import { ArrowRight, Disc, CheckCircle, ShoppingCart } from 'lucide-react';
 
 const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
 
@@ -153,7 +153,7 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-12">
             {featuredMerch.map((item) => (
               <Card key={item.id} className="overflow-hidden bg-background group border-2 border-primary/20 hover:border-primary transition-all duration-300 transform hover:-translate-y-2">
-                <CardContent className="p-0">
+                <CardContent className="p-0 relative">
                   {item.image && (
                     <div className="aspect-square relative">
                       <Image
@@ -164,7 +164,7 @@ export default function Home() {
                         data-ai-hint={item.image.imageHint}
                         sizes="(max-width: 768px) 100vw, 50vw"
                       />
-                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                   )}
                 </CardContent>
@@ -173,7 +173,10 @@ export default function Home() {
                     <p className="font-headline text-xl font-semibold">{item.name}</p>
                     <p className="text-lg text-primary">{item.price}</p>
                   </div>
-                  <Button>Add to Cart</Button>
+                  <Button className="group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-primary/30 transition-all">
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    Add to Cart
+                  </Button>
                 </CardFooter>
               </Card>
             ))}
