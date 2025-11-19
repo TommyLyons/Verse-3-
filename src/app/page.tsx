@@ -3,14 +3,14 @@ import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { ArrowRight, Calendar, Disc, Mic } from 'lucide-react';
+import { ArrowRight, Calendar, Disc, Mic, CheckCircle } from 'lucide-react';
 
 const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
 
 const heroImage = getImage('hero-studio');
 
 const latestReleases = [
-  { id: 1, title: 'Midnight Drive', artist: 'DJ Lofty', image: getImage('album-art-1') },
+  { id: 1, title: 'Quiet Steps', artist: 'Lofty, Keith Doyle, Alvin Koumetio', image: getImage('album-art-1') },
   { id: 2, title: 'Echoes in Rain', artist: 'Synthwave Kid', image: getImage('album-art-2') },
   { id: 3, title: 'City Lights', artist: 'Urban Explorer', image: getImage('album-art-3') },
 ];
@@ -23,19 +23,19 @@ const featuredMerch = [
 
 const features = [
   {
-    icon: Mic,
-    title: 'Pro-Level Recording',
-    description: 'Our studio is equipped with state-of-the-art gear to capture your sound perfectly.',
+    icon: CheckCircle,
+    title: 'Champion Talent',
+    description: 'Championing emerging and established talent across the electronic spectrum.',
   },
   {
-    icon: Disc,
-    title: 'Music Production',
-    description: 'From beat making to final mastering, our in-house producers are here to help.',
+    icon: CheckCircle,
+    title: 'Deliver Powerful Records',
+    description: 'Delivering emotionally powerful records shaped by authenticity.',
   },
   {
-    icon: Calendar,
-    title: 'Flexible Booking',
-    description: 'Book studio time that fits your schedule with our easy-to-use online calendar.',
+    icon: CheckCircle,
+    title: 'Build Community',
+    description: 'Building a community-driven platform grounded in creativity, friendship, and shared passion.',
   },
 ];
 
@@ -43,7 +43,7 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative h-[60vh] min-h-[500px] w-full flex items-center justify-center text-center text-white">
+      <section className="relative h-[70vh] min-h-[500px] w-full flex items-center justify-center text-center text-white">
         {heroImage && (
           <Image
             src={heroImage.imageUrl}
@@ -54,28 +54,41 @@ export default function Home() {
             data-ai-hint={heroImage.imageHint}
           />
         )}
-        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-black/70" />
         <div className="relative z-10 max-w-4xl px-4">
           <h1 className="font-headline text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter">
-            Craft Your Sound at <span className="text-primary">Verse3 Records</span>
+             <span className="text-primary">Verse3 Records</span>
           </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-foreground/80">
-            A professional recording studio and independent record label dedicated to bringing your musical vision to life.
+          <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-foreground/80">
+            A UK-based independent electronic label championing emotionally driven, forward-thinking music. Founded on friendship, powered by passion.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Button size="lg" asChild>
               <Link href="/booking">Book a Session</Link>
             </Button>
-            <Button size="lg" variant="outline" className="bg-transparent border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-              Explore Music
+            <Button size="lg" variant="outline" className="bg-transparent border-primary text-primary hover:bg-primary hover:text-primary-foreground" asChild>
+              <Link href="/music">Explore Music</Link>
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 md:py-24 bg-background">
+      {/* About Section */}
+       <section className="py-16 md:py-24 bg-background">
+        <div className="container max-w-5xl text-center">
+            <h2 className="font-headline text-3xl md:text-4xl font-bold mb-4">Our Story</h2>
+            <p className="text-muted-foreground md:text-lg">
+             Verse Three Records is a UK-based independent electronic label founded by three lifelong friends — Keith Doyle, Steve Liddle (Lofty), and Alvin Koumetio. United by more than 15 years of friendship and a deep-rooted passion for music, the trio created Verse Three Records to champion emotionally driven, forward-thinking electronic music. From their roots as childhood friends to their evolution into founders of a forward-thinking label, Verse Three Records stands as a testament to collaboration, emotional expression, and the belief that music is most powerful when crafted from real stories.
+            </p>
+        </div>
+       </section>
+
+      {/* Vision Section */}
+      <section className="py-16 md:py-24 bg-card">
         <div className="container max-w-7xl">
+         <div className="text-center mb-12">
+            <h2 className="font-headline text-3xl md:text-4xl font-bold">The Verse Three Vision</h2>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
             {features.map((feature) => (
               <div key={feature.title} className="flex flex-col items-center">
@@ -91,7 +104,7 @@ export default function Home() {
       </section>
 
       {/* Latest Releases Section */}
-      <section className="py-16 md:py-24 bg-card">
+      <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-7xl">
           <div className="flex justify-between items-baseline mb-8">
             <h2 className="font-headline text-3xl md:text-4xl font-bold">Latest Releases</h2>
@@ -130,7 +143,7 @@ export default function Home() {
       </section>
       
       {/* Featured Merch Section */}
-      <section className="py-16 md:py-24 bg-background">
+      <section className="py-16 md:py-24 bg-card">
         <div className="container max-w-7xl">
           <div className="flex justify-between items-baseline mb-8">
             <h2 className="font-headline text-3xl md:text-4xl font-bold">Featured Merch</h2>
@@ -140,7 +153,7 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredMerch.map((item) => (
-              <Card key={item.id} className="overflow-hidden bg-card">
+              <Card key={item.id} className="overflow-hidden bg-background">
                 <CardContent className="p-0">
                   {item.image && (
                     <div className="aspect-square relative">

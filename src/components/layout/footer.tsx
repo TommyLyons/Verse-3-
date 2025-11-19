@@ -11,7 +11,7 @@ export function Footer() {
           <div className="flex flex-col items-center gap-4 md:items-start">
             <Logo />
             <p className="text-sm text-muted-foreground">
-              The heart of your sound. Professional recording studio and record label.
+              Championing emotionally driven, forward-thinking electronic music.
             </p>
           </div>
           <div className="flex flex-col gap-2 items-center">
