@@ -6,7 +6,7 @@ export function Logo() {
     <Link href="/" className="flex items-center space-x-2">
       <Disc
         className="h-6 w-6 text-primary animate-spin"
-        style={{ animationDuration: '3s' }}
+        style={{ animationDuration: '1.5s' }}
       />
       <span className="font-headline text-xl font-bold text-foreground">
         Verse3 Records
