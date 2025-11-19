@@ -145,7 +145,7 @@ export default function Home() {
       <section className="py-16 md:py-24 bg-black/50">
         <div className="container max-w-5xl">
           <div className="text-center mb-12">
-            <h2 className="font-headline text-3xl md:text-4xl font-bold">Featured Merch</h2>
+            <h2 className="font-headline text-3xl md:text-4xl font-bold text-primary">Featured Merch</h2>
              <Link href="/store" className="flex items-center justify-center gap-2 text-sm text-primary hover:underline mt-2">
               Shop All <ArrowRight className="h-4 w-4" />
             </Link>
