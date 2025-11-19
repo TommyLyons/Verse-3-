@@ -1,9 +1,17 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ArrowRight, Disc } from 'lucide-react';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 
 const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
 
@@ -55,7 +63,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Our Story Section */}
+      {/* Who Are The 3 Section */}
       <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-4xl text-center">
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">Who Are The 3</h2>
@@ -63,16 +71,6 @@ export default function Home() {
                 Verse Three Records is a UK-based independent electronic label founded by three lifelong friends — Keith Doyle, Steve Liddle (Lofty), and Alvin Koumetio. United by more than 15 years of friendship and a deep-rooted passion for music, the trio created Verse Three to build a community grounded in creativity and shared passion.
             </p>
         </div>
-      </section>
-
-       {/* Our Vision Section */}
-      <section className="py-16 md:py-24 bg-card">
-          <div className="container max-w-4xl text-center">
-              <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">Our Vision</h2>
-              <p className="mt-4 text-muted-foreground md:text-lg max-w-3xl mx-auto">
-                  Our mission is to champion emerging talent and deliver emotionally powerful records that resonate. We believe that music is most powerful when crafted from real stories, and we stand as a testament to the power of collaboration and artistic integrity.
-              </p>
-          </div>
       </section>
 
       {/* Latest Releases Section */}
@@ -84,38 +82,59 @@ export default function Home() {
               View All <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {latestReleases.map((release) => (
-                <Card key={release.id} className="group overflow-hidden">
-                  <CardContent className="p-0">
-                    {release.image && (
-                      <div className="aspect-square relative">
-                        <Image
-                          src={release.image.imageUrl}
-                          alt={release.image.description}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          data-ai-hint={release.image.imageHint}
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                        />
-                      </div>
-                    )}
-                  </CardContent>
-                  <CardFooter className="p-4 flex justify-between items-center bg-card">
-                    <div>
-                      <p className="font-semibold">{release.title}</p>
-                      <p className="text-sm text-muted-foreground">{release.artist}</p>
-                    </div>
-                    <Button variant="ghost" size="icon" className="text-primary"><Disc className="h-6 w-6" /></Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
+          <Carousel
+              opts={{
+                align: "start",
+              }}
+              className="w-full"
+            >
+              <CarouselContent>
+                {latestReleases.map((release) => (
+                   <CarouselItem key={release.id} className="sm:basis-1/2 lg:basis-1/4">
+                      <Card className="group overflow-hidden h-full flex flex-col">
+                        <CardContent className="p-0 flex-grow">
+                          {release.image && (
+                            <div className="aspect-square relative">
+                              <Image
+                                src={release.image.imageUrl}
+                                alt={release.image.description}
+                                fill
+                                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                data-ai-hint={release.image.imageHint}
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                              />
+                            </div>
+                          )}
+                        </CardContent>
+                        <CardFooter className="p-4 flex justify-between items-center bg-card">
+                          <div>
+                            <p className="font-semibold">{release.title}</p>
+                            <p className="text-sm text-muted-foreground">{release.artist}</p>
+                          </div>
+                          <Button variant="ghost" size="icon" className="text-primary"><Disc className="h-6 w-6" /></Button>
+                        </CardFooter>
+                      </Card>
+                   </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden lg:inline-flex" />
+              <CarouselNext className="hidden lg:inline-flex" />
+            </Carousel>
         </div>
       </section>
 
-      {/* Featured Merch Section */}
+      {/* Our Vision Section */}
       <section className="py-16 md:py-24 bg-card">
+          <div className="container max-w-4xl text-center">
+              <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">Our Vision</h2>
+              <p className="mt-4 text-muted-foreground md:text-lg max-w-3xl mx-auto">
+                  Our mission is to champion emerging talent and deliver emotionally powerful records that resonate. We believe that music is most powerful when crafted from real stories, and we stand as a testament to the power of collaboration and artistic integrity.
+              </p>
+          </div>
+      </section>
+
+      {/* Featured Merch Section */}
+      <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-5xl">
           <div className="text-center mb-12">
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Featured Merch</h2>
@@ -139,7 +158,7 @@ export default function Home() {
                     </div>
                   )}
                 </CardContent>
-                <CardFooter className="p-4 flex justify-between items-center bg-background/80 backdrop-blur-sm absolute bottom-0 w-full">
+                <CardFooter className="p-4 flex justify-between items-center bg-card/80 backdrop-blur-sm absolute bottom-0 w-full">
                   <div>
                     <p className="font-semibold">{item.name}</p>
                     <p className="text-sm text-primary">{item.price}</p>
