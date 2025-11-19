@@ -55,28 +55,28 @@ export default function Home() {
         </div>
       </section>
 
-      {/* About & Vision Section */}
-       <section className="py-16 md:py-24 bg-background">
-        <div className="container max-w-6xl">
-           <div className="grid md:grid-cols-2 gap-12 items-center">
-                <div className="space-y-4 text-center md:text-left">
-                    <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">Our Story</h2>
-                    <p className="text-muted-foreground md:text-lg">
-                        Verse Three Records is a UK-based independent electronic label founded by three lifelong friends — Keith Doyle, Steve Liddle (Lofty), and Alvin Koumetio. United by more than 15 years of friendship and a deep-rooted passion for music, the trio created Verse Three to build a community grounded in creativity and shared passion.
-                    </p>
-                </div>
-                <div className="space-y-4 text-center md:text-left">
-                     <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">Our Vision</h2>
-                    <p className="text-muted-foreground md:text-lg">
-                        Our mission is to champion emerging talent and deliver emotionally powerful records that resonate. We believe that music is most powerful when crafted from real stories, and we stand as a testament to the power of collaboration and artistic integrity.
-                    </p>
-                </div>
-            </div>
+      {/* Our Story Section */}
+      <section className="py-16 md:py-24 bg-background">
+        <div className="container max-w-4xl text-center">
+            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">Our Story</h2>
+            <p className="mt-4 text-muted-foreground md:text-lg max-w-3xl mx-auto">
+                Verse Three Records is a UK-based independent electronic label founded by three lifelong friends — Keith Doyle, Steve Liddle (Lofty), and Alvin Koumetio. United by more than 15 years of friendship and a deep-rooted passion for music, the trio created Verse Three to build a community grounded in creativity and shared passion.
+            </p>
         </div>
-       </section>
+      </section>
+
+       {/* Our Vision Section */}
+      <section className="py-16 md:py-24 bg-card">
+          <div className="container max-w-4xl text-center">
+              <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">Our Vision</h2>
+              <p className="mt-4 text-muted-foreground md:text-lg max-w-3xl mx-auto">
+                  Our mission is to champion emerging talent and deliver emotionally powerful records that resonate. We believe that music is most powerful when crafted from real stories, and we stand as a testament to the power of collaboration and artistic integrity.
+              </p>
+          </div>
+      </section>
 
       {/* Latest Releases Section */}
-      <section className="py-16 md:py-24 bg-card">
+      <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-7xl">
           <div className="flex justify-between items-baseline mb-8">
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Latest Releases</h2>
@@ -101,7 +101,7 @@ export default function Home() {
                       </div>
                     )}
                   </CardContent>
-                  <CardFooter className="p-4 flex justify-between items-center bg-background">
+                  <CardFooter className="p-4 flex justify-between items-center bg-card">
                     <div>
                       <p className="font-semibold">{release.title}</p>
                       <p className="text-sm text-muted-foreground">{release.artist}</p>
@@ -115,7 +115,7 @@ export default function Home() {
       </section>
 
       {/* Featured Merch Section */}
-      <section className="py-16 md:py-24 bg-background">
+      <section className="py-16 md:py-24 bg-card">
         <div className="container max-w-5xl">
           <div className="text-center mb-12">
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Featured Merch</h2>
@@ -139,7 +139,7 @@ export default function Home() {
                     </div>
                   )}
                 </CardContent>
-                <CardFooter className="p-4 flex justify-between items-center bg-card/80 backdrop-blur-sm absolute bottom-0 w-full">
+                <CardFooter className="p-4 flex justify-between items-center bg-background/80 backdrop-blur-sm absolute bottom-0 w-full">
                   <div>
                     <p className="font-semibold">{item.name}</p>
                     <p className="text-sm text-primary">{item.price}</p>
