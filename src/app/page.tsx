@@ -55,7 +55,7 @@ export default function Home() {
         )}
         <div className="absolute inset-0 bg-black/70" />
         <div className="relative z-10 max-w-4xl px-4">
-          <h1 className="font-headline text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter">
+          <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter">
              <span className="text-primary">Verse3 Records</span>
           </h1>
           <p className="mt-4 max-w-3xl mx-auto text-lg md:text-xl text-foreground/80">
@@ -75,7 +75,7 @@ export default function Home() {
       {/* About Section */}
        <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-5xl text-center">
-            <h2 className="font-headline text-3xl md:text-4xl font-bold mb-4">Our Story</h2>
+            <h2 className="font-headline text-4xl md:text-5xl font-bold mb-4 text-primary">Our Story</h2>
             <p className="text-muted-foreground md:text-lg">
              Verse Three Records is a UK-based independent electronic label founded by three lifelong friends — Keith Doyle, Steve Liddle (Lofty), and Alvin Koumetio. United by more than 15 years of friendship and a deep-rooted passion for music, the trio created Verse Three Records to champion emotionally driven, forward-thinking electronic music. From their roots as childhood friends to their evolution into founders of a forward-thinking label, Verse Three Records stands as a testament to collaboration, emotional expression, and the belief that music is most powerful when crafted from real stories.
             </p>
@@ -86,7 +86,7 @@ export default function Home() {
       <section className="py-16 md:py-24 bg-card">
         <div className="container max-w-7xl">
          <div className="text-center mb-12">
-            <h2 className="font-headline text-3xl md:text-4xl font-bold">The Verse Three Vision</h2>
+            <h2 className="font-headline text-4xl md:text-5xl font-bold text-primary">The Verse Three Vision</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
             {features.map((feature) => (
@@ -94,7 +94,7 @@ export default function Home() {
                 <div className="bg-primary/10 p-4 rounded-full mb-4">
                   <feature.icon className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="font-headline text-xl font-semibold mb-2">{feature.title}</h3>
+                <h3 className="font-headline text-2xl font-bold mb-2">{feature.title}</h3>
                 <p className="text-muted-foreground">{feature.description}</p>
               </div>
             ))}
@@ -106,7 +106,7 @@ export default function Home() {
       <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-7xl">
           <div className="flex justify-between items-baseline mb-8">
-            <h2 className="font-headline text-3xl md:text-4xl font-bold">Latest Releases</h2>
+            <h2 className="font-headline text-4xl md:text-5xl font-bold text-primary">Latest Releases</h2>
             <Link href="/music" className="flex items-center gap-2 text-sm text-primary hover:underline">
               View All <ArrowRight className="h-4 w-4" />
             </Link>
@@ -130,7 +130,7 @@ export default function Home() {
                 </CardContent>
                 <CardFooter className="p-4 flex justify-between items-center bg-card">
                   <div>
-                    <p className="font-semibold">{release.title}</p>
+                    <p className="font-semibold text-lg">{release.title}</p>
                     <p className="text-sm text-muted-foreground">{release.artist}</p>
                   </div>
                   <Button variant="ghost" size="icon" className="text-primary"><Disc className="h-6 w-6" /></Button>
@@ -145,7 +145,7 @@ export default function Home() {
       <section className="py-16 md:py-24 bg-black/50">
         <div className="container max-w-5xl">
           <div className="text-center mb-12">
-            <h2 className="font-headline text-3xl md:text-4xl font-bold text-primary">Featured Merch</h2>
+            <h2 className="font-headline text-4xl md:text-5xl font-bold text-primary">Featured Merch</h2>
              <Button variant="link" asChild className="mt-2 text-base">
                 <Link href="/store">
                     Shop All <ArrowRight className="ml-2 h-4 w-4" />
@@ -172,7 +172,7 @@ export default function Home() {
                 </CardContent>
                 <CardFooter className="p-6 flex justify-between items-center">
                   <div>
-                    <p className="font-headline text-xl font-semibold">{item.name}</p>
+                    <p className="font-headline text-2xl font-bold">{item.name}</p>
                     <p className="text-lg text-primary">{item.price}</p>
                   </div>
                   <Button className="group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-primary/30 transition-all">

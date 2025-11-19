@@ -31,7 +31,7 @@ export default function ArtistsPage() {
     <div className="container max-w-7xl py-12 md:py-24">
       <BackButton />
       <div className="text-center mb-12">
-        <h1 className="font-headline text-4xl md:text-5xl font-bold">The Founders</h1>
+        <h1 className="font-headline text-4xl md:text-5xl font-bold text-primary">The Founders</h1>
         <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">Meet the talent and visionaries behind Verse3 Records.</p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -50,7 +50,7 @@ export default function ArtistsPage() {
                   />
                 </div>
               )}
-              <CardTitle className="text-center">{artist.name}</CardTitle>
+              <CardTitle className="text-center text-2xl">{artist.name}</CardTitle>
               <CardDescription className="text-center text-primary">{artist.role}</CardDescription>
             </CardHeader>
             <CardContent className="text-center text-muted-foreground flex-grow">

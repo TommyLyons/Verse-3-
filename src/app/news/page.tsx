@@ -30,7 +30,7 @@ export default function NewsPage() {
     <div className="container max-w-4xl py-12 md:py-24">
       <BackButton />
       <div className="text-center mb-12">
-        <h1 className="font-headline text-4xl md:text-5xl font-bold">News & Events</h1>
+        <h1 className="font-headline text-4xl md:text-5xl font-bold text-primary">News & Events</h1>
         <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">Stay up to date with the latest from Verse3.</p>
       </div>
       <div className="space-y-12">
@@ -50,7 +50,7 @@ export default function NewsPage() {
                 )}
                 <div className="md:w-2/3">
                     <CardHeader>
-                        <CardTitle>{article.title}</CardTitle>
+                        <CardTitle className="text-2xl">{article.title}</CardTitle>
                         <CardDescription>{article.date}</CardDescription>
                     </CardHeader>
                     <CardContent>
