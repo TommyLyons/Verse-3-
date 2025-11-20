@@ -14,7 +14,7 @@ export function Logo() {
           alt={headerLogo.description}
           width={120}
           height={24}
-          className="object-contain"
+          className="object-contain rounded-md"
           priority
           data-ai-hint={headerLogo.imageHint}
         />
