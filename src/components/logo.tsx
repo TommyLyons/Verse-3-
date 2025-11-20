@@ -8,6 +8,10 @@ const headerLogo = PlaceHolderImages.find((img) => img.id === 'header-logo');
 export function Logo() {
   return (
     <Link href="/" className="flex items-center space-x-2">
+       <Disc3
+        className="h-6 w-6 text-primary animate-spin"
+        style={{ animationDuration: '3s' }}
+      />
       {headerLogo && (
         <Image
           src={headerLogo.imageUrl}
