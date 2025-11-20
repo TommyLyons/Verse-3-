@@ -17,6 +17,14 @@ const newsArticles = [
         slug: "/news/debut-release"
     },
     {
+        title: "Northamptonshire's Own Verse Three Records Launches",
+        date: "November 20, 2023",
+        excerpt: "Verse Three Records, a new independent electronic label founded in Northamptonshire, has officially launched. The label aims to champion emotionally driven, forward-thinking music from emerging artists.",
+        image: getImage('hero-studio'),
+        slug: "/news/northants-telegraph-feature",
+        externalLink: "https://www.northantstelegraph.co.uk/whats-on/arts-and-entertainment/northamptonshire-founded-record-label-verse-three-records-ltd-launches-with-debut-single-quiet-steps-5410222"
+    },
+    {
         title: "Studio Showcase: The Gear Behind The Sound",
         date: "October 15, 2023",
         excerpt: "A sneak peek into the state-of-the-art equipment at Verse3 Studios that helps artists craft their unique sound.",
@@ -56,7 +64,7 @@ export default function NewsPage() {
                     <CardContent>
                         <p className="text-muted-foreground mb-4">{article.excerpt}</p>
                         <Button variant="link" asChild className="p-0 h-auto text-primary">
-                           <Link href={article.slug}>
+                           <Link href={article.externalLink || article.slug} target={article.externalLink ? "_blank" : "_self"}>
                                 Read More <ArrowRight className="ml-2 h-4 w-4" />
                            </Link>
                         </Button>
