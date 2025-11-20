@@ -1,5 +1,9 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Disc3 } from 'lucide-react';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+
+const headerLogo = PlaceHolderImages.find((img) => img.id === 'header-logo');
 
 export function Logo() {
   return (
@@ -8,9 +12,17 @@ export function Logo() {
         className="h-6 w-6 text-primary animate-spin"
         style={{ animationDuration: '3s' }}
       />
-      <span className="font-headline text-xl font-bold text-foreground">
-        Verse3 Records
-      </span>
+      {headerLogo && (
+        <Image
+          src={headerLogo.imageUrl}
+          alt={headerLogo.description}
+          width={120}
+          height={24}
+          className="object-contain"
+          priority
+          data-ai-hint={headerLogo.imageHint}
+        />
+       )}
     </Link>
   );
 }
