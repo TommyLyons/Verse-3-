@@ -69,7 +69,7 @@ export default function Home() {
           <div className="container max-w-4xl text-center">
               <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">Our Vision</h2>
               <p className="mt-4 text-muted-foreground md:text-lg max-w-3xl mx-auto">
-                  Our mission is to champion emerging talent and deliver emotionally powerful records that resonate. We believe that music is most powerful when crafted from real stories, and we stand as a testament to the power of collaboration and artistic integrity.
+                  Our mission is to champion emerging talent and deliver emotionally powerful records that resonate. We believe that music is most powerful when crafted from real stories. At Verse Three, we are more than just a label; we are a creative hub where artists are encouraged to push boundaries and explore the depths of their sound. We stand as a testament to the power of collaboration and artistic integrity, fostering an environment where authentic storytelling and innovative electronic music thrive.
               </p>
           </div>
       </section>
