@@ -3,7 +3,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -15,6 +15,14 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+
 
 const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
 
@@ -38,6 +46,15 @@ const featuredMerch = [
 
 export default function Home() {
   const [activePlayer, setActivePlayer] = React.useState<number | null>(null);
+  const [isHotDropOpen, setIsHotDropOpen] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsHotDropOpen(true);
+    }, 15000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const togglePlayer = (id: number) => {
     setActivePlayer(activePlayer === id ? null : id);
@@ -46,6 +63,43 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
+
+      <Dialog open={isHotDropOpen} onOpenChange={setIsHotDropOpen}>
+        <DialogContent className="sm:max-w-[525px] bg-card border-primary/50">
+          <DialogHeader>
+            <DialogTitle className='font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl'>Hot Drop</DialogTitle>
+            <DialogDescription>
+              Check out the latest exclusive track from Verse3 Records.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="w-full">
+            <Card className="group overflow-hidden h-full flex flex-col border-none">
+                <CardContent className="p-0 flex-grow">
+                    {hotDrop.videoSrc && (
+                    <div className="aspect-square relative">
+                       <video
+                          src={hotDrop.videoSrc}
+                          controls
+                          className="w-full h-full object-cover"
+                        />
+                    </div>
+                    )}
+                </CardContent>
+                <CardFooter className="p-4 flex flex-col items-start bg-card/80 space-y-4">
+                    <div className='w-full flex justify-between items-center'>
+                    <div>
+                        <p className="font-semibold">{hotDrop.title}</p>
+                        <p className="text-sm text-muted-foreground">{hotDrop.artist}</p>
+                    </div>
+                    <Disc className="h-6 w-6 text-primary" />
+                    </div>
+                </CardFooter>
+            </Card>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+
       {/* Hero Section */}
       <section className="relative h-[60vh] min-h-[400px] w-full flex items-center justify-center text-center text-white">
         {heroImage && (
@@ -254,5 +308,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
