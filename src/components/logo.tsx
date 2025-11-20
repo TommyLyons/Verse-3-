@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Disc3 } from 'lucide-react';
@@ -8,7 +10,7 @@ const headerLogo = PlaceHolderImages.find((img) => img.id === 'header-logo');
 export function Logo() {
   return (
     <Link href="/" className="flex items-center space-x-2">
-       <Disc3
+      <Disc3
         className="h-6 w-6 text-primary animate-spin"
         style={{ animationDuration: '3s' }}
       />
@@ -22,7 +24,7 @@ export function Logo() {
           priority
           data-ai-hint={headerLogo.imageHint}
         />
-       )}
+      )}
       <Disc3
         className="h-6 w-6 text-primary animate-spin"
         style={{ animationDuration: '3s' }}
