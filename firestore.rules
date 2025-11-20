@@ -1,0 +1,211 @@
+/**
+ * This Firestore Security Ruleset implements a hybrid security model for the Verse3 Records application.
+ *
+ * Core Philosophy:
+ * The rules enforce two primary access control patterns:
+ * 1. Strict Ownership for User Data: All data created by a user and stored within their personal data tree is private. Only the authenticated owner of that data can read, write, or delete it.
+ * 2. Admin-Controlled Public Data: Top-level collections like merchandise, artists, and news are publicly readable by anyone (including unauthenticated visitors) to support the website's public-facing content. However, all write operations (create, update, delete) for this data are strictly limited to users with an administrative role.
+ *
+ * Data Structure:
+ * - /users/{userId}/... : This path contains all data specific to a user, such as their profile and studio bookings. Access is governed by the {userId} wildcard.
+ * - /merchandise/{merchandiseId}, /artists/{artistId}, etc.: These top-level collections store global, public-facing data.
+ * - /roles_admin/{userId}: This special collection manages administrative privileges. The existence of a document with a user's UID as its ID grants that user admin rights across the application.
+ *
+ * Key Security Decisions:
+ * - Default Deny: All operations are denied by default unless explicitly allowed by a rule.
+ * - User Privacy: Listing or reading other users' profile information or bookings is strictly forbidden.
+ * - Admin Privilege Management: Only existing administrators can add or remove other administrators, preventing privilege escalation.
+ * - Prototyping Flexibility: These rules focus on authorization (who can do what) rather than strict schema validation (the exact shape of the data). This allows for rapid development and iteration on the application's data models without needing to update security rules for every schema change. Only fields critical for establishing ownership or relationships are validated.
+ *
+ * Denormalization for Authorization:
+ * The rules rely on a dedicated `/roles_admin` collection to manage permissions for public data. An `exists()` check against this collection is used to verify a user's admin status. This is a simple and effective RBAC (Role-Based Access Control) pattern that avoids embedding roles in user documents, making role management a distinct and secure operation. For user-owned documents like 'StudioBooking', a `userId` field is denormalized onto the document to validate on creation that it's being placed in the correct user's subcollection.
+ *
+ * Structural Segregation:
+ * The separation between private user subcollections (e.g., `/users/{userId}/studioBookings`) and public top-level collections (e.g., `/merchandise`) is a core design choice. This ensures that queries for public data cannot accidentally leak private user information and simplifies the security rules for list operations.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    //----------------------------------------------------------------------
+    // Helper Functions
+    //----------------------------------------------------------------------
+
+    /**
+     * Checks if the user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the currently authenticated user's UID matches the provided userId.
+     * This is the foundation of the user-ownership model.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Checks if the authenticated user has an admin role.
+     * Admin status is granted by the existence of a document in the /roles_admin collection.
+     */
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    }
+
+    /**
+     * Validates that the user document being created has an 'id' field
+     * that matches the document's ID and the authenticated user's UID.
+     */
+    function isUserDataValidOnCreate(userId) {
+      return request.resource.data.id == userId;
+    }
+
+    /**
+     * Enforces that the 'id' field of a user document cannot be changed after creation.
+     */
+    function isUserDataImmutableOnUpdate() {
+      return request.resource.data.id == resource.data.id;
+    }
+    
+    /**
+     * Validates that the studio booking being created has a 'userId' field
+     * that matches the parent user document's ID.
+     */
+    function isStudioBookingDataValidOnCreate(userId) {
+      return request.resource.data.userId == userId;
+    }
+
+    /**
+     * Enforces that the 'userId' field of a booking cannot be changed after creation.
+     */
+    function isStudioBookingDataImmutableOnUpdate() {
+      return request.resource.data.userId == resource.data.userId;
+    }
+
+    //----------------------------------------------------------------------
+    // User Data Rules
+    //----------------------------------------------------------------------
+
+    /**
+     * @description Manages user profile documents. A user can create their own profile,
+     *              and can only read or update their own data. Listing users is disabled.
+     * @path        /users/{userId}
+     * @allow       A new user with UID 'user123' creating their own document at /users/user123. (create)
+     * @deny        User 'user123' trying to read data from /users/user456. (get)
+     * @principle   Enforces self-creation and strict data ownership. Prohibits user enumeration.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && isUserDataValidOnCreate(userId);
+      allow update: if isOwner(userId) && resource != null && isUserDataImmutableOnUpdate();
+      allow delete: if isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Secures studio bookings, which are nested under a user's document.
+     *              Only the user who owns the parent document can manage their bookings.
+     * @path        /users/{userId}/studioBookings/{studioBookingId}
+     * @allow       User 'user123' creating a new booking at /users/user123/studioBookings/bookingABC. (create)
+     * @deny        User 'user456' attempting to delete a booking at /users/user123/studioBookings/bookingABC. (delete)
+     * @principle   Restricts access to a user's own data tree using path-based ownership.
+     */
+    match /users/{userId}/studioBookings/{studioBookingId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && isStudioBookingDataValidOnCreate(userId);
+      allow update: if isOwner(userId) && resource != null && isStudioBookingDataImmutableOnUpdate();
+      allow delete: if isOwner(userId) && resource != null;
+    }
+
+    //----------------------------------------------------------------------
+    // Public Content Rules (Admin-Managed)
+    //----------------------------------------------------------------------
+
+    /**
+     * @description Manages merchandise items. Data is publicly readable by all users,
+     *              but can only be written (created, updated, deleted) by administrators.
+     * @path        /merchandise/{merchandiseId}
+     * @allow       Any anonymous user reading a document at /merchandise/itemXYZ. (get, list)
+     * @deny        A regular signed-in user trying to change the price of an item. (update)
+     * @principle   Implements public-read access with role-based write restrictions.
+     */
+    match /merchandise/{merchandiseId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Manages music tracks. Data is publicly readable by all users,
+     *              but can only be written by administrators.
+     * @path        /musicTracks/{musicTrackId}
+     * @allow       Any user viewing the list of available music tracks. (list)
+     * @deny        A regular signed-in user attempting to upload a new track. (create)
+     * @principle   Implements public-read access with role-based write restrictions.
+     */
+    match /musicTracks/{musicTrackId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Manages artist profiles. Data is publicly readable by all users,
+     *              but can only be written by administrators.
+     * @path        /artists/{artistId}
+     * @allow       An unauthenticated visitor reading an artist's bio. (get)
+     * @deny        A regular signed-in user trying to add a new artist profile. (create)
+     * @principle   Implements public-read access with role-based write restrictions.
+     */
+    match /artists/{artistId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Manages news and event posts. Data is publicly readable by all users,
+     *              but can only be written by administrators.
+     * @path        /newsEvents/{newsEventId}
+     * @allow       Any user reading the latest news article. (get)
+     * @deny        A regular signed-in user trying to delete an old event post. (delete)
+     * @principle   Implements public-read access with role-based write restrictions.
+     */
+    match /newsEvents/{newsEventId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
+    }
+
+    //----------------------------------------------------------------------
+    // Administrative Rules
+    //----------------------------------------------------------------------
+
+    /**
+     * @description Manages the admin role documents. Only existing admins can read or
+     *              write to this collection, preventing unauthorized privilege escalation.
+     * @path        /roles_admin/{userId}
+     * @allow       An existing admin creating a document at /roles_admin/newUserUID to make them an admin. (create)
+     * @deny        A regular user reading /roles_admin/adminUID to check if they are an admin. (get)
+     * @principle   Secures role management by restricting access to current role-holders only.
+     */
+    match /roles_admin/{userId} {
+      allow get: if isAdmin();
+      allow list: if isAdmin();
+      allow create: if isAdmin();
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
+    }
+  }
+}

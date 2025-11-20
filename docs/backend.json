@@ -1,0 +1,358 @@
+{
+  "entities": {
+    "StudioBooking": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "StudioBooking",
+      "type": "object",
+      "description": "Represents a studio booking made by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the studio booking."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N StudioBooking)"
+        },
+        "bookingDateTime": {
+          "type": "string",
+          "description": "The date and time the studio is booked for.",
+          "format": "date-time"
+        },
+        "durationMinutes": {
+          "type": "number",
+          "description": "The duration of the booking in minutes."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Any additional notes or requirements for the booking."
+        },
+        "status": {
+          "type": "string",
+          "description": "The status of the booking (e.g., 'pending', 'confirmed', 'cancelled')."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "bookingDateTime",
+        "durationMinutes",
+        "status"
+      ]
+    },
+    "Merchandise": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Merchandise",
+      "type": "object",
+      "description": "Represents a merchandise item for sale.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the merchandise item."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the merchandise item."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the merchandise item."
+        },
+        "price": {
+          "type": "number",
+          "description": "The price of the merchandise item."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the image for the merchandise item.",
+          "format": "uri"
+        },
+        "stockQuantity": {
+          "type": "number",
+          "description": "The number of items currently in stock."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of merchandise (e.g., 'record', 'EP', 'vinyl', 't-shirt')."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "price",
+        "imageUrl",
+        "stockQuantity",
+        "type"
+      ]
+    },
+    "MusicTrack": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MusicTrack",
+      "type": "object",
+      "description": "Represents a music track uploaded to the platform.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the music track."
+        },
+        "artistId": {
+          "type": "string",
+          "description": "Reference to Artist. (Relationship: Artist 1:N MusicTrack)"
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the music track."
+        },
+        "audioUrl": {
+          "type": "string",
+          "description": "URL of the audio file for the music track.",
+          "format": "uri"
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the image associated with the music track.",
+          "format": "uri"
+        },
+        "uploadDateTime": {
+          "type": "string",
+          "description": "The date and time the music track was uploaded.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "artistId",
+        "title",
+        "audioUrl",
+        "imageUrl",
+        "uploadDateTime"
+      ]
+    },
+    "Artist": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Artist",
+      "type": "object",
+      "description": "Represents an artist featured on Verse3 Records.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the artist."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the artist."
+        },
+        "bio": {
+          "type": "string",
+          "description": "A biography of the artist."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the artist's image.",
+          "format": "uri"
+        },
+        "genre": {
+          "type": "string",
+          "description": "The genre of music the artist performs."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "bio",
+        "imageUrl",
+        "genre"
+      ]
+    },
+    "NewsEvent": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "NewsEvent",
+      "type": "object",
+      "description": "Represents a news article or event announcement.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the news event."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the news event."
+        },
+        "content": {
+          "type": "string",
+          "description": "The content of the news event (e.g., article text, event details)."
+        },
+        "publishDateTime": {
+          "type": "string",
+          "description": "The date and time the news event was published.",
+          "format": "date-time"
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the image associated with the news event.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "content",
+        "publishDateTime"
+      ]
+    },
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the Verse3 Records website.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the user.",
+          "format": "email"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the user."
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "name"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile information. Accessible only to the user themselves and admins.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/studioBookings/{studioBookingId}",
+        "definition": {
+          "entityName": "StudioBooking",
+          "schema": {
+            "$ref": "#/backend/entities/StudioBooking"
+          },
+          "description": "Stores studio booking information for a specific user. Accessible only to the user who created the booking.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who owns the booking."
+            },
+            {
+              "name": "studioBookingId",
+              "description": "The unique identifier of the studio booking."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/merchandise/{merchandiseId}",
+        "definition": {
+          "entityName": "Merchandise",
+          "schema": {
+            "$ref": "#/backend/entities/Merchandise"
+          },
+          "description": "Stores merchandise items for sale. Publicly readable. Create/Update requires admin role.",
+          "params": [
+            {
+              "name": "merchandiseId",
+              "description": "The unique identifier of the merchandise item."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/musicTracks/{musicTrackId}",
+        "definition": {
+          "entityName": "MusicTrack",
+          "schema": {
+            "$ref": "#/backend/entities/MusicTrack"
+          },
+          "description": "Stores music tracks uploaded to the platform. Publicly readable. Create/Update requires admin role.",
+          "params": [
+            {
+              "name": "musicTrackId",
+              "description": "The unique identifier of the music track."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/artists/{artistId}",
+        "definition": {
+          "entityName": "Artist",
+          "schema": {
+            "$ref": "#/backend/entities/Artist"
+          },
+          "description": "Stores artist information. Publicly readable. Create/Update requires admin role.",
+          "params": [
+            {
+              "name": "artistId",
+              "description": "The unique identifier of the artist."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/newsEvents/{newsEventId}",
+        "definition": {
+          "entityName": "NewsEvent",
+          "schema": {
+            "$ref": "#/backend/entities/NewsEvent"
+          },
+          "description": "Stores news events and announcements. Publicly readable. Create/Update requires admin role.",
+          "params": [
+            {
+              "name": "newsEventId",
+              "description": "The unique identifier of the news event."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Documents in this collection represent admin users. Existence of a document implies admin role.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user (used as document ID)."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to support Verse3 Records' core features while prioritizing security, scalability, and ease of debugging. The structure adheres to the principles of Authorization Independence, Structural Segregation, Access Modeling, and Data Clarity. \n\n**Authorization Independence**:  Authorization independence is achieved by denormalizing authorization data (specifically, user IDs for ownership).  This avoids the need for `get()` calls in security rules, which simplifies rules, improves performance, and enables atomic operations.\n\n**Structural Segregation**: Data is segregated into collections based on access requirements. User-owned data (studio bookings) is stored under the `/users/{userId}` path, ensuring only the user has access. Global data like artists, news events, and merchandise is stored in top-level collections.\n\n**Access Modeling**:  Path-based ownership is used for user-specific data like studio bookings. Top-level collections like `artists`, `newsEvents`, and `merchandise` are publicly accessible (read-only for most users, writeable by admin), ensuring that all data in a collection has uniform access control.\n\n**QAPs Support**:  The structure enables secure `list` operations by ensuring that collections contain homogeneous data with consistent security requirements. For example, listing merchandise is secure because all documents in the `/merchandise` collection have the same public read access rules. User-owned data is namespaced under the user's ID, enabling secure listing of their own resources without exposing others'.\n\n**Justification for specific paths:**\n*   `/users/{userId}/studioBookings/{studioBookingId}`:  This path enforces ownership, ensuring that only the authenticated user (with `request.auth.uid == userId`) can create, read, update, and delete their studio bookings. No denormalization is needed here because access is solely based on path.\n*   `/artists/{artistId}`, `/newsEvents/{newsEventId}`, `/merchandise/{merchandiseId}`: These top-level collections store global data.  Creation/updates would be limited to admin roles (enforced via security rules – e.g., checking for existence in `/roles_admin/{uid}`).  List operations are inherently safe as no sensitive user data is stored alongside general data. The `artistId` ensures unique URLs for artists.\n* `/musicTracks/{musicTrackId}`: Stores music tracks, with `artistId` allowing filtering by artist. Create/Update would require `roles_admin` existence.\n\nThis structure provides a clear, secure, and scalable foundation for Verse3 Records' website."
+  }
+}
