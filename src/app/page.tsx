@@ -50,11 +50,16 @@ export default function Home() {
   const [isHotDropOpen, setIsHotDropOpen] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsHotDropOpen(true);
-    }, 15000);
+    const hasSeenHotDrop = localStorage.getItem('hotDropShown');
 
-    return () => clearTimeout(timer);
+    if (!hasSeenHotDrop) {
+      const timer = setTimeout(() => {
+        setIsHotDropOpen(true);
+        localStorage.setItem('hotDropShown', 'true');
+      }, 15000);
+
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   const togglePlayer = (id: number) => {
