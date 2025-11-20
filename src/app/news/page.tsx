@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -10,26 +11,12 @@ const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
 
 const newsArticles = [
     {
-        title: "Verse3 Records Launches with Debut Single 'Quiet Steps'",
-        date: "October 26, 2023",
-        excerpt: "The label’s debut release, “Quiet Steps,” produced by Liddle and written by Doyle and Koumetio, sets the tone for what Verse Three Records represents — heartfelt storytelling, expressive electronic sound, and innovative collaboration.",
-        image: getImage('news-debut'),
-        slug: "/news/debut-release"
-    },
-    {
         title: "Northamptonshire's Own Verse Three Records Launches",
         date: "November 20, 2023",
         excerpt: "Verse Three Records, a new independent electronic label founded in Northamptonshire, has officially launched. The label aims to champion emotionally driven, forward-thinking music from emerging artists.",
         image: getImage('hero-studio'),
         slug: "/news/northants-telegraph-feature",
         externalLink: "https://www.northantstelegraph.co.uk/whats-on/arts-and-entertainment/northamptonshire-founded-record-label-verse-three-records-ltd-launches-with-debut-single-quiet-steps-5410222"
-    },
-    {
-        title: "Studio Showcase: The Gear Behind The Sound",
-        date: "October 15, 2023",
-        excerpt: "A sneak peek into the state-of-the-art equipment at Verse3 Studios that helps artists craft their unique sound.",
-        image: getImage('hero-studio'),
-        slug: "/news/studio-showcase"
     }
 ]
 
