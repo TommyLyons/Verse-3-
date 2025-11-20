@@ -12,7 +12,7 @@ const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
 const newsArticles = [
     {
         title: "Northamptonshire's Own Verse Three Records Launches",
-        date: "July 26, 2024",
+        date: "November 20, 2025",
         excerpt: "Verse Three Records, a new independent electronic label founded in Northamptonshire, has officially launched. The label aims to champion emotionally driven, forward-thinking music from emerging artists.",
         image: getImage('hero-studio'),
         slug: "/news/northants-telegraph-feature",
