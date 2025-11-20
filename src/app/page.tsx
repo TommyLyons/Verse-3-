@@ -1,6 +1,9 @@
 
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
+import React from 'react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -19,10 +22,10 @@ const heroImage = getImage('hero-studio');
 const whoAreThe3Image = getImage('who-are-the-3-hero');
 
 const latestReleases = [
-  { id: 1, title: 'Quiet Steps', artist: 'Lofty, Keith Doyle, Alvin Koumetio', image: getImage('album-art-1') },
-  { id: 2, title: 'Echoes in Rain', artist: 'Synthwave Kid', image: getImage('album-art-2') },
-  { id: 3, title: 'City Lights', artist: 'Urban Explorer', image: getImage('album-art-3') },
-  { id: 4, title: 'Future Funk', artist: 'Groove Master', image: getImage('album-art-1') },
+  { id: 1, title: 'Quiet Steps', artist: 'Lofty, Keith Doyle, Alvin Koumetio', image: getImage('album-art-1'), audioSrc: 'https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-1.mp3' },
+  { id: 2, title: 'Echoes in Rain', artist: 'Synthwave Kid', image: getImage('album-art-2'), audioSrc: 'https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-2.mp3' },
+  { id: 3, title: 'City Lights', artist: 'Urban Explorer', image: getImage('album-art-3'), audioSrc: 'https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-3.mp3' },
+  { id: 4, title: 'Future Funk', artist: 'Groove Master', image: getImage('album-art-1'), audioSrc: 'https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-4.mp3' },
 ];
 
 const featuredMerch = [
@@ -31,6 +34,12 @@ const featuredMerch = [
 ];
 
 export default function Home() {
+  const [activePlayer, setActivePlayer] = React.useState<number | null>(null);
+
+  const togglePlayer = (id: number) => {
+    setActivePlayer(activePlayer === id ? null : id);
+  };
+
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -107,12 +116,26 @@ export default function Home() {
                             </div>
                           )}
                         </CardContent>
-                        <CardFooter className="p-4 flex justify-between items-center bg-card">
-                          <div>
-                            <p className="font-semibold">{release.title}</p>
-                            <p className="text-sm text-muted-foreground">{release.artist}</p>
+                        <CardFooter className="p-4 flex flex-col items-start bg-card space-y-4">
+                          <div className='w-full flex justify-between items-center'>
+                            <div>
+                              <p className="font-semibold">{release.title}</p>
+                              <p className="text-sm text-muted-foreground">{release.artist}</p>
+                            </div>
+                            <Button variant="ghost" size="icon" className="text-primary" onClick={() => togglePlayer(release.id)}>
+                              <Disc className="h-6 w-6" />
+                            </Button>
                           </div>
-                          <Button variant="ghost" size="icon" className="text-primary"><Disc className="h-6 w-6" /></Button>
+                          {activePlayer === release.id && release.audioSrc && (
+                            <audio
+                                controls
+                                src={release.audioSrc}
+                                className="w-full"
+                                autoPlay
+                            >
+                                Your browser does not support the audio element.
+                            </audio>
+                           )}
                         </CardFooter>
                       </Card>
                    </CarouselItem>
@@ -193,3 +216,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
