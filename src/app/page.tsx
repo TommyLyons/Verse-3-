@@ -91,6 +91,56 @@ export default function Home() {
           </div>
       </section>
 
+      {/* Hot Drops Section */}
+      <section className="py-16 md:py-24 bg-background">
+        <div className="container max-w-7xl">
+          <div className="text-center mb-8">
+            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Hot Drop</h2>
+          </div>
+          <div className="flex justify-center">
+            <div className="w-full max-w-sm">
+                <Card className="group overflow-hidden h-full flex flex-col">
+                    <CardContent className="p-0 flex-grow">
+                        {hotDrop.image && (
+                        <div className="aspect-square relative">
+                            <Image
+                            src={hotDrop.image.imageUrl}
+                            alt={hotDrop.image.description}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            data-ai-hint={hotDrop.image.imageHint}
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                            />
+                        </div>
+                        )}
+                    </CardContent>
+                    <CardFooter className="p-4 flex flex-col items-start bg-card space-y-4">
+                        <div className='w-full flex justify-between items-center'>
+                        <div>
+                            <p className="font-semibold">{hotDrop.title}</p>
+                            <p className="text-sm text-muted-foreground">{hotDrop.artist}</p>
+                        </div>
+                        <Button variant="ghost" size="icon" className="text-primary" onClick={toggleHotDropPlayer}>
+                            <Disc className="h-6 w-6" />
+                        </Button>
+                        </div>
+                        {isHotDropPlayerVisible && hotDrop.audioSrc && (
+                        <audio
+                            controls
+                            src={hotDrop.audioSrc}
+                            className="w-full"
+                            autoPlay
+                        >
+                            Your browser does not support the audio element.
+                        </audio>
+                        )}
+                    </CardFooter>
+                </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Latest Releases Section */}
       <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-7xl">
@@ -155,56 +205,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Hot Drops Section */}
-      <section className="py-16 md:py-24 bg-background">
-        <div className="container max-w-7xl">
-          <div className="text-center mb-8">
-            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Hot Drop</h2>
-          </div>
-          <div className="flex justify-center">
-            <div className="w-full max-w-sm">
-                <Card className="group overflow-hidden h-full flex flex-col">
-                    <CardContent className="p-0 flex-grow">
-                        {hotDrop.image && (
-                        <div className="aspect-square relative">
-                            <Image
-                            src={hotDrop.image.imageUrl}
-                            alt={hotDrop.image.description}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                            data-ai-hint={hotDrop.image.imageHint}
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                            />
-                        </div>
-                        )}
-                    </CardContent>
-                    <CardFooter className="p-4 flex flex-col items-start bg-card space-y-4">
-                        <div className='w-full flex justify-between items-center'>
-                        <div>
-                            <p className="font-semibold">{hotDrop.title}</p>
-                            <p className="text-sm text-muted-foreground">{hotDrop.artist}</p>
-                        </div>
-                        <Button variant="ghost" size="icon" className="text-primary" onClick={toggleHotDropPlayer}>
-                            <Disc className="h-6 w-6" />
-                        </Button>
-                        </div>
-                        {isHotDropPlayerVisible && hotDrop.audioSrc && (
-                        <audio
-                            controls
-                            src={hotDrop.audioSrc}
-                            className="w-full"
-                            autoPlay
-                        >
-                            Your browser does not support the audio element.
-                        </audio>
-                        )}
-                    </CardFooter>
-                </Card>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Who Are The 3 Section */}
       <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-4xl text-center">
@@ -256,6 +256,7 @@ export default function Home() {
                   <div>
                     <p className="font-semibold">{item.name}</p>
                     <p className="text-sm text-primary">{item.price}</p>
+
                   </div>
                   <Button className="group-hover:scale-110 transition-transform">
                     Add to Cart
