@@ -39,7 +39,7 @@
     {
       "id": "merch-cap",
       "description": "A black cap with an embroidered logo.",
-      "imageUrl": "https://images.unsplash.com/photo-1680455084452-94ff3fd6209d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8YmxhY2slMjBjYXB8ZW58MHx8fHwxNzYzNTI0MjYyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1680455084452-94ff3fd6209d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8YmxhY2slMjBjYXB8ZW58MHx8fHwxNzYzNTI0MjYyfDA&ixlibrb-4.1.0&q=80&w=1080",
       "imageHint": "black cap"
     },
     {
@@ -57,19 +57,19 @@
     {
       "id": "artist-alvin",
       "description": "Portrait of a songwriter with a notebook.",
-      "imageUrl": "https://images.unsplash.com/photo-1588700925704-5d5d8516b7c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzb25nd3JpdGVyJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzYzNzQ2MTE0fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1588700925704-5d5d8516b7c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzb25nd3JpdGVyJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzYzNzQ2MTE0fDA&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "songwriter portrait"
     },
     {
       "id": "event-1",
       "description": "A crowd at a music event.",
-      "imageUrl": "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtdXNpYyUyMGV2ZW50fGVufDB8fHx8MTc2MzU1NTMzMHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxtdXNpYyUyMGV2ZW50fGVufDB8fHx8MTc2MzU1NTMzMHww&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "music event"
     },
     {
       "id": "news-debut",
       "description": "Footprints in the sand, representing quiet steps.",
-      "imageUrl": "https://images.unsplash.com/photo-1506929562872-bb421503ef21?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxxdWlldCUyMHN0ZXBzfGVufDB8fHx8MTc2Mzc0NjQzN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1506929562872-bb421503ef21?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxxdWlldCUyMHN0ZXBzfGVufDB8fHx8MTc2Mzc0NjQzN3ww&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "quiet steps"
     },
     {
@@ -77,6 +77,12 @@
       "description": "A placeholder audio file.",
       "imageUrl": "https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-1.mp3",
       "imageHint": "audio file"
+    },
+    {
+      "id": "who-are-the-3-hero",
+      "description": "The Verse3 Records logo.",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/Verse3.jpeg?alt=media&token=6db702d9-38b1-4df3-9739-3078bb3878f7",
+      "imageHint": "Verse3 logo"
     }
   ]
 }

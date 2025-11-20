@@ -16,6 +16,7 @@ import {
 const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
 
 const heroImage = getImage('hero-studio');
+const whoAreThe3Image = getImage('who-are-the-3-hero');
 
 const latestReleases = [
   { id: 1, title: 'Quiet Steps', artist: 'Lofty, Keith Doyle, Alvin Koumetio', image: getImage('album-art-1') },
@@ -126,6 +127,18 @@ export default function Home() {
       {/* Who Are The 3 Section */}
       <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-4xl text-center">
+            {whoAreThe3Image && (
+              <div className="relative aspect-video rounded-lg overflow-hidden mb-8 max-w-3xl mx-auto">
+                <Image
+                  src={whoAreThe3Image.imageUrl}
+                  alt={whoAreThe3Image.description}
+                  fill
+                  className="object-cover"
+                  data-ai-hint={whoAreThe3Image.imageHint}
+                  sizes="(max-width: 768px) 100vw, 896px"
+                />
+              </div>
+            )}
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">Who Are The 3</h2>
             <p className="mt-4 text-muted-foreground md:text-lg max-w-3xl mx-auto">
                 Verse Three Records is a UK-based independent electronic label founded by three lifelong friends — Keith Doyle, Steve Liddle (Lofty), and Alvin Koumetio. United by more than 15 years of friendship and a deep-rooted passion for music, the trio created Verse Three to build a community grounded in creativity and shared passion.
