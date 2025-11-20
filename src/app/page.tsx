@@ -138,7 +138,7 @@ export default function Home() {
       </section>
 
       {/* Our Vision Section */}
-      <section className="py-16 md:py-24 bg-card">
+      <section className="py-12 md:py-16 bg-card">
           <div className="container max-w-4xl text-center">
               <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">Our Vision</h2>
               <p className="mt-4 text-muted-foreground md:text-lg max-w-3xl mx-auto">
@@ -148,7 +148,7 @@ export default function Home() {
       </section>
 
       {/* Video Section */}
-      <section className="py-16 md:py-24 bg-background">
+      <section className="py-12 md:py-16 bg-background">
         <div className="container max-w-4xl text-center">
             <div className="relative aspect-video rounded-lg overflow-hidden mb-8 max-w-3xl mx-auto">
               <video
@@ -164,7 +164,7 @@ export default function Home() {
       </section>
 
       {/* Hot Drops Section */}
-      <section className="py-16 md:py-24 bg-background">
+      <section className="py-12 md:py-16 bg-background">
         <div className="container max-w-7xl">
           <div className="text-center mb-8">
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Hot Drop</h2>
@@ -199,7 +199,7 @@ export default function Home() {
       </section>
 
       {/* Latest Releases Section */}
-      <section className="py-16 md:py-24 bg-background">
+      <section className="py-12 md:py-16 bg-background">
         <div className="container max-w-7xl">
           <div className="flex justify-between items-baseline mb-8">
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Latest Releases</h2>
@@ -263,7 +263,7 @@ export default function Home() {
       </section>
 
       {/* Who Are The 3 Section */}
-      <section className="py-16 md:py-24 bg-background">
+      <section className="py-12 md:py-16 bg-background">
         <div className="container max-w-4xl text-center">
             <div className="relative aspect-video rounded-lg overflow-hidden mb-8 max-w-3xl mx-auto">
               <video
@@ -283,7 +283,7 @@ export default function Home() {
       </section>
 
       {/* Featured Merch Section */}
-      <section className="py-16 md:py-24 bg-background">
+      <section className="py-12 md:py-16 bg-background">
         <div className="container max-w-5xl">
           <div className="text-center mb-12">
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Featured Merch</h2>
