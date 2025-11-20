@@ -65,7 +65,7 @@ export default function Home() {
     <div className="flex flex-col">
 
       <Dialog open={isHotDropOpen} onOpenChange={setIsHotDropOpen}>
-        <DialogContent className="sm:max-w-md bg-card border-primary/50">
+        <DialogContent className="sm:max-w-sm bg-card border-primary/50">
           <DialogHeader>
             <DialogTitle className='font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl'>Hot Drop</DialogTitle>
             <DialogDescription>
