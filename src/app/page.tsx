@@ -28,7 +28,7 @@ const latestReleases = [
   { id: 4, title: 'Future Funk', artist: 'Groove Master', image: getImage('album-art-1'), audioSrc: 'https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-4.mp3' },
 ];
 
-const hotDrop = { id: 5, title: 'Midnight Drive', artist: 'DJ Lofty', image: getImage('merch-vinyl'), audioSrc: 'https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-5.mp3' };
+const hotDrop = { id: 5, title: 'Midnight Drive', artist: 'DJ Lofty', videoSrc: 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85' };
 
 const featuredMerch = [
     { id: 1, name: 'Verse3 Logo Hoodie', price: '$59.99', image: getImage('merch-hoodie') },
@@ -37,16 +37,11 @@ const featuredMerch = [
 
 export default function Home() {
   const [activePlayer, setActivePlayer] = React.useState<number | null>(null);
-  const [isHotDropPlayerVisible, setHotDropPlayerVisible] = React.useState<boolean>(false);
 
   const togglePlayer = (id: number) => {
     setActivePlayer(activePlayer === id ? null : id);
   };
   
-  const toggleHotDropPlayer = () => {
-    setHotDropPlayerVisible(!isHotDropPlayerVisible);
-  };
-
 
   return (
     <div className="flex flex-col">
@@ -101,15 +96,12 @@ export default function Home() {
             <div className="w-full max-w-sm">
                 <Card className="group overflow-hidden h-full flex flex-col">
                     <CardContent className="p-0 flex-grow">
-                        {hotDrop.image && (
+                        {hotDrop.videoSrc && (
                         <div className="aspect-square relative">
-                            <Image
-                            src={hotDrop.image.imageUrl}
-                            alt={hotDrop.image.description}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                            data-ai-hint={hotDrop.image.imageHint}
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                           <video
+                              src={hotDrop.videoSrc}
+                              controls
+                              className="w-full h-full object-cover"
                             />
                         </div>
                         )}
@@ -120,20 +112,8 @@ export default function Home() {
                             <p className="font-semibold">{hotDrop.title}</p>
                             <p className="text-sm text-muted-foreground">{hotDrop.artist}</p>
                         </div>
-                        <Button variant="ghost" size="icon" className="text-primary" onClick={toggleHotDropPlayer}>
-                            <Disc className="h-6 w-6" />
-                        </Button>
+                        <Disc className="h-6 w-6 text-primary" />
                         </div>
-                        {isHotDropPlayerVisible && hotDrop.audioSrc && (
-                        <audio
-                            controls
-                            src={hotDrop.audioSrc}
-                            className="w-full"
-                            autoPlay
-                        >
-                            Your browser does not support the audio element.
-                        </audio>
-                        )}
                     </CardFooter>
                 </Card>
             </div>
