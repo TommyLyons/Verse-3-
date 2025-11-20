@@ -1,4 +1,19 @@
+
+import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
+
+const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
+
+const products = [
+    { id: 1, name: 'Verse3 Logo Hoodie', price: '$59.99', image: getImage('merch-hoodie') },
+    { id: 2, name: 'DJ Lofty - Midnight Drive Vinyl', price: '$29.99', image: getImage('merch-vinyl') },
+    { id: 3, name: 'Verse3 Logo Cap', price: '$24.99', image: getImage('merch-cap') },
+    { id: 4, name: 'Verse3 Album Art Poster', price: '$19.99', image: getImage('album-art-1') },
+];
+
 
 export default function StorePage() {
   return (
@@ -8,9 +23,35 @@ export default function StorePage() {
         <h1 className="font-headline text-4xl md:text-5xl font-bold text-chart-1">Store</h1>
         <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">Browse our collection of merchandise, vinyls, and more.</p>
        </div>
-      {/* Placeholder for product grid */}
        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {/* Products will be mapped here */}
+            {products.map((item) => (
+              <Card key={item.id} className="overflow-hidden group relative flex flex-col">
+                <CardContent className="p-0 flex-grow">
+                  {item.image && (
+                    <div className="aspect-square relative">
+                      <Image
+                        src={item.image.imageUrl}
+                        alt={item.image.description}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        data-ai-hint={item.image.imageHint}
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      />
+                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
+                    </div>
+                  )}
+                </CardContent>
+                <CardFooter className="p-4 flex justify-between items-center bg-card">
+                  <div>
+                    <p className="font-semibold">{item.name}</p>
+                    <p className="text-sm text-primary">{item.price}</p>
+                  </div>
+                  <Button size="sm">
+                    Add to Cart
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
        </div>
     </div>
   );
