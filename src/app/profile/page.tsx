@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { BackButton } from '@/components/ui/back-button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 export default function ProfilePage() {
   const { user, isUserLoading } = useUser();
@@ -36,6 +38,30 @@ export default function ProfilePage() {
       .map((n) => n[0])
       .join('');
   };
+
+  if (isUserLoading) {
+    return (
+        <div className="container py-12 md:py-24">
+            <Skeleton className="h-10 w-24 mb-8" />
+             <div className="flex justify-center items-center h-64">
+                <Skeleton className="h-12 w-12 rounded-full" />
+            </div>
+        </div>
+    )
+  }
+
+  if (!user) {
+    return (
+        <div className="container py-12 md:py-24 text-center">
+            <h2 className="text-2xl font-bold">Please sign in</h2>
+            <p className="text-muted-foreground mt-2">You need to be signed in to view your profile and bookings.</p>
+            <Button asChild className='mt-4'>
+                <Link href="/booking">Sign In</Link>
+            </Button>
+        </div>
+    )
+  }
+
 
   return (
     <div className="container py-12 md:py-24">

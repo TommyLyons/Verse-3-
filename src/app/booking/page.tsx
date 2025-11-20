@@ -4,11 +4,9 @@
 import React from 'react';
 import {
   collection,
-  doc,
   Timestamp,
   query,
   where,
-  getDocs,
 } from 'firebase/firestore';
 import {
   useFirestore,
@@ -18,26 +16,32 @@ import {
   addDocumentNonBlocking,
 } from '@/firebase';
 import { add, format, set } from 'date-fns';
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
 import { Calendar } from '@/components/ui/calendar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { BackButton } from '@/components/ui/back-button';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
 import {
-  signInWithPopup,
-  GoogleAuthProvider,
-} from 'firebase/auth';
-import { useAuth } from '@/firebase';
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
 
 const timeSlots = [
   '10:00',
@@ -52,15 +56,39 @@ const timeSlots = [
 ];
 const sessionDurationHours = 2;
 
+const bookingFormSchema = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  email: z.string().email({ message: "Please enter a valid email." }),
+  phone: z.string().optional(),
+})
+
+type BookingFormValues = z.infer<typeof bookingFormSchema>
+
 export default function BookingPage() {
   const [date, setDate] = React.useState<Date | undefined>(new Date());
   const [selectedSlot, setSelectedSlot] = React.useState<string | null>(null);
-  const [showConfirmation, setShowConfirmation] = React.useState(false);
+  const [isBookingDialogOpen, setIsBookingDialogOpen] = React.useState(false);
 
   const firestore = useFirestore();
-  const auth = useAuth();
   const { user } = useUser();
   const { toast } = useToast();
+
+  const form = useForm<BookingFormValues>({
+    resolver: zodResolver(bookingFormSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+    },
+  })
+
+  React.useEffect(() => {
+    if (user) {
+      form.setValue("name", user.displayName || "");
+      form.setValue("email", user.email || "");
+    }
+  }, [user, form]);
+
 
   const bookingsCollection = useMemoFirebase(
     () => (firestore ? collection(firestore, 'studioBookings') : null),
@@ -88,22 +116,39 @@ export default function BookingPage() {
     );
   }, [bookings]);
 
-  const handleBooking = async () => {
-    if (!user || !date || !selectedSlot) return;
+  const handleSlotSelect = (slot: string) => {
+    setSelectedSlot(slot);
+    setIsBookingDialogOpen(true);
+  };
+  
+  function onSubmit(values: BookingFormValues) {
+    if (!date || !selectedSlot) return;
 
     const bookingDateTime = new Date(date);
     const [hours, minutes] = selectedSlot.split(':').map(Number);
     bookingDateTime.setHours(hours, minutes, 0, 0);
 
-    const newBooking = {
-      userId: user.uid,
+    const newBooking: any = {
+      ...values,
       bookingDateTime: Timestamp.fromDate(bookingDateTime),
       durationMinutes: sessionDurationHours * 60,
       status: 'confirmed',
     };
+    
+    if (user) {
+      newBooking.userId = user.uid;
+    }
 
     if (bookingsCollection) {
       addDocumentNonBlocking(bookingsCollection, newBooking);
+      
+      const mailtoLink = `mailto:lofty@verse3.com?subject=New Studio Booking&body=A new booking has been made for ${format(
+        bookingDateTime,
+        'MMMM do, yyyy'
+      )} at ${selectedSlot} by ${values.name} (${values.email}).`;
+      
+      window.open(mailtoLink, '_blank');
+      
       toast({
         title: 'Booking Confirmed!',
         description: `Your session is booked for ${format(
@@ -113,16 +158,10 @@ export default function BookingPage() {
       });
     }
 
+    setIsBookingDialogOpen(false);
     setSelectedSlot(null);
-    setShowConfirmation(false);
-  };
-  
-  const handleGoogleSignIn = () => {
-    if (!auth) return;
-    const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider);
-  };
-
+    form.reset();
+  }
 
   return (
     <div className="container py-12 md:py-24">
@@ -188,17 +227,10 @@ export default function BookingPage() {
                     return (
                       <Button
                         key={slot}
-                        variant={selectedSlot === slot ? 'default' : 'outline'}
+                        variant={'outline'}
                         className="w-full justify-start"
                         disabled={isDisabled}
-                        onClick={() => {
-                          if (user) {
-                            setSelectedSlot(slot);
-                            setShowConfirmation(true);
-                          } else {
-                            handleGoogleSignIn();
-                          }
-                        }}
+                        onClick={() => handleSlotSelect(slot)}
                       >
                         {slot} - {format(add(slotDateTime, { hours: sessionDurationHours }), 'HH:mm')}
                         {isBooked && <span className="ml-auto text-xs text-destructive">Booked</span>}
@@ -215,21 +247,68 @@ export default function BookingPage() {
           </Card>
         </div>
       </div>
-      <AlertDialog open={showConfirmation} onOpenChange={setShowConfirmation}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirm your booking</AlertDialogTitle>
-            <AlertDialogDescription>
-              You are about to book a {sessionDurationHours}-hour session on{' '}
-              {date && format(date, 'MMMM do, yyyy')} at {selectedSlot}.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleBooking}>Confirm Booking</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <Dialog open={isBookingDialogOpen} onOpenChange={setIsBookingDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm your booking</DialogTitle>
+            <DialogDescription>
+              You are booking a {sessionDurationHours}-hour session on{' '}
+              {date && format(date, 'MMMM do, yyyy')} at {selectedSlot}. Please provide your details to reserve the slot.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Your Name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="your@email.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number (Optional)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Your phone number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button type="button" variant="outline">
+                    Cancel
+                  </Button>
+                </DialogClose>
+                <Button type="submit">Confirm Booking</Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

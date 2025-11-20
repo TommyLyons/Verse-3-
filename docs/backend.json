@@ -7,7 +7,20 @@
       "properties": {
         "userId": {
           "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N StudioBooking)"
+          "description": "Reference to User. (Relationship: User 1:N StudioBooking). Optional for guest bookings."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the person who booked the session."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email of the person who booked the session.",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string",
+          "description": "The phone number of the person who booked the session."
         },
         "bookingDateTime": {
           "type": "string",
@@ -28,10 +41,11 @@
         }
       },
       "required": [
-        "userId",
         "bookingDateTime",
         "durationMinutes",
-        "status"
+        "status",
+        "name",
+        "email"
       ]
     },
     "Merchandise": {
