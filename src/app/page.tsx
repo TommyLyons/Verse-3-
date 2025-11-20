@@ -33,7 +33,7 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative h-[60vh] min-h-[400px] w-full flex items-center justify-center text-center text-white -mx-4 sm:-mx-6 lg:-mx-8">
+      <section className="relative h-[60vh] min-h-[400px] w-full flex items-center justify-center text-center text-white">
         {heroImage && (
           <Image
             src={heroImage.imageUrl}
