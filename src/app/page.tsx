@@ -28,6 +28,13 @@ const latestReleases = [
   { id: 4, title: 'Future Funk', artist: 'Groove Master', image: getImage('album-art-1'), audioSrc: 'https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-4.mp3' },
 ];
 
+const hotDrops = [
+    { id: 5, title: 'Midnight Drive', artist: 'DJ Lofty', image: getImage('merch-vinyl'), audioSrc: 'https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-5.mp3' },
+    { id: 6, title: 'Lost in the Echo', artist: 'Alvin Koumetio', image: getImage('album-art-2'), audioSrc: 'https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-6.mp3' },
+    { id: 7, title: 'Quiet Steps', artist: 'Lofty, Keith Doyle, Alvin Koumetio', image: getImage('album-art-1'), audioSrc: 'https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-1.mp3' },
+    { id: 8, title: 'City Lights', artist: 'Urban Explorer', image: getImage('album-art-3'), audioSrc: 'https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-3.mp3' },
+];
+
 const featuredMerch = [
     { id: 1, name: 'Verse3 Logo Hoodie', price: '$59.99', image: getImage('merch-hoodie') },
     { id: 2, name: 'DJ Lofty - Midnight Drive Vinyl', price: '$29.99', image: getImage('merch-vinyl') },
@@ -35,9 +42,15 @@ const featuredMerch = [
 
 export default function Home() {
   const [activePlayer, setActivePlayer] = React.useState<number | null>(null);
+  const [activeHotDropPlayer, setActiveHotDropPlayer] = React.useState<number | null>(null);
+
 
   const togglePlayer = (id: number) => {
     setActivePlayer(activePlayer === id ? null : id);
+  };
+
+  const toggleHotDropPlayer = (id: number) => {
+    setActiveHotDropPlayer(activeHotDropPlayer === id ? null : id);
   };
 
   return (
@@ -147,6 +160,70 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Hot Drops Section */}
+      <section className="py-16 md:py-24 bg-background">
+        <div className="container max-w-7xl">
+          <div className="flex justify-between items-baseline mb-8">
+            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Hot Drops</h2>
+            <Link href="/music" className="flex items-center gap-2 text-sm text-primary hover:underline">
+              View All <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <Carousel
+              opts={{
+                align: "start",
+              }}
+              className="w-full"
+            >
+              <CarouselContent>
+                {hotDrops.map((release) => (
+                   <CarouselItem key={release.id} className="sm:basis-1/2 lg:basis-1/4">
+                      <Card className="group overflow-hidden h-full flex flex-col">
+                        <CardContent className="p-0 flex-grow">
+                          {release.image && (
+                            <div className="aspect-square relative">
+                              <Image
+                                src={release.image.imageUrl}
+                                alt={release.image.description}
+                                fill
+                                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                data-ai-hint={release.image.imageHint}
+                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                              />
+                            </div>
+                          )}
+                        </CardContent>
+                        <CardFooter className="p-4 flex flex-col items-start bg-card space-y-4">
+                          <div className='w-full flex justify-between items-center'>
+                            <div>
+                              <p className="font-semibold">{release.title}</p>
+                              <p className="text-sm text-muted-foreground">{release.artist}</p>
+                            </div>
+                            <Button variant="ghost" size="icon" className="text-primary" onClick={() => toggleHotDropPlayer(release.id)}>
+                              <Disc className="h-6 w-6" />
+                            </Button>
+                          </div>
+                          {activeHotDropPlayer === release.id && release.audioSrc && (
+                            <audio
+                                controls
+                                src={release.audioSrc}
+                                className="w-full"
+                                autoPlay
+                            >
+                                Your browser does not support the audio element.
+                            </audio>
+                           )}
+                        </CardFooter>
+                      </Card>
+                   </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden lg:inline-flex" />
+              <CarouselNext className="hidden lg:inline-flex" />
+            </Carousel>
+        </div>
+      </section>
+
       {/* Who Are The 3 Section */}
       <section className="py-16 md:py-24 bg-background">
         <div className="container max-w-4xl text-center">
@@ -216,5 +293,3 @@ export default function Home() {
     </div>
   );
 }
-
-    
