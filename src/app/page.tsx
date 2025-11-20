@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Image from 'next/image';
@@ -139,6 +140,26 @@ export default function Home() {
                   Our mission is to champion emerging talent and deliver emotionally powerful records that resonate. We believe that music is most powerful when crafted from real stories, and we are committed to fostering a community where artists can be vulnerable and authentic. At Verse Three, we are more than just a label; we are a creative hub where artists are encouraged to push boundaries, innovate their sound, and explore the depths of their artistic expression. We stand as a testament to the power of collaboration and artistic integrity, creating an environment where authentic storytelling and groundbreaking electronic music thrive.
               </p>
           </div>
+      </section>
+
+      {/* Video Section */}
+      <section className="py-16 md:py-24 bg-background">
+        <div className="container max-w-4xl text-center">
+            <div className="relative aspect-video rounded-lg overflow-hidden mb-8 max-w-3xl mx-auto">
+              <video
+                src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">Our Vision</h2>
+             <p className="mt-4 text-muted-foreground md:text-lg max-w-3xl mx-auto">
+                  Our mission is to champion emerging talent and deliver emotionally powerful records that resonate. We believe that music is most powerful when crafted from real stories, and we are committed to fostering a community where artists can be vulnerable and authentic. At Verse Three, we are more than just a label; we are a creative hub where artists are encouraged to push boundaries, innovate their sound, and explore the depths of their artistic expression. We stand as a testament to the power of collaboration and artistic integrity, creating an environment where authentic storytelling and groundbreaking electronic music thrive.
+              </p>
+        </div>
       </section>
 
       {/* Hot Drops Section */}
