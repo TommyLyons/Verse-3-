@@ -228,6 +228,52 @@
         "email",
         "name"
       ]
+    },
+    "DemoSubmission": {
+      "title": "DemoSubmission",
+      "type": "object",
+      "description": "Represents a demo submission from an artist.",
+      "properties": {
+        "artistName": {
+          "type": "string",
+          "description": "The name of the artist submitting the demo."
+        },
+        "artistEmail": {
+          "type": "string",
+          "description": "The email of the artist.",
+          "format": "email"
+        },
+        "trackTitle": {
+          "type": "string",
+          "description": "The title of the submitted track."
+        },
+        "audioUrl": {
+          "type": "string",
+          "description": "URL to the uploaded audio file in Firebase Storage.",
+          "format": "uri"
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL to the optional uploaded image file in Firebase Storage.",
+          "format": "uri"
+        },
+        "message": {
+          "type": "string",
+          "description": "An optional message from the artist."
+        },
+        "submittedAt": {
+          "type": "string",
+          "description": "The timestamp when the demo was submitted.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "artistName",
+        "artistEmail",
+        "trackTitle",
+        "audioUrl",
+        "submittedAt"
+      ]
     }
   },
   "auth": {
@@ -247,6 +293,12 @@
         "$ref": "#/backend/entities/StudioBooking"
       },
       "description": "Stores all studio bookings. This collection is readable by all authenticated users to check for slot availability, but writeable only by the user creating their own booking. An additional `userId` field on the document ensures ownership is correctly attributed and enforced."
+    },
+    "/demoSubmissions/{submissionId}": {
+      "schema": {
+        "$ref": "#/backend/entities/DemoSubmission"
+      },
+      "description": "Stores demo submissions from artists. Writeable by anyone, but not publicly readable to ensure privacy. Admins can view submissions in the Firebase Console."
     }
   }
 }

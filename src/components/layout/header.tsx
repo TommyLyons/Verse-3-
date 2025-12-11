@@ -31,6 +31,7 @@ const navLinks = [
   { href: '/music', label: 'Music' },
   { href: '/artists', label: 'Artists' },
   { href: '/news', label: 'News' },
+  { href: '/submit-music', label: 'Submit Music' },
 ];
 
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {

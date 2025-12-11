@@ -23,5 +23,12 @@ service cloud.firestore {
       // Allow only the owner to update or delete their booking.
       allow update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
     }
+
+    match /demoSubmissions/{submissionId} {
+      // Allow anyone to submit a demo.
+      allow create: if true;
+      // Disallow public reading of submissions.
+      allow read, list, update, delete: if false;
+    }
   }
 }
