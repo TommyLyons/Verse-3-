@@ -36,6 +36,10 @@ const instagramImages = [
   getImage('album-art-2'),
   getImage('merch-hoodie'),
   getImage('artist-lofty'),
+  getImage('artist-keith'),
+  getImage('artist-alvin'),
+  getImage('merch-cap'),
+  getImage('merch-vinyl')
 ].filter(Boolean);
 
 
