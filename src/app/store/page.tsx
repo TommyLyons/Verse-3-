@@ -12,7 +12,7 @@ const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
 const products = [
     { id: 1, name: 'Verse3 Logo Hoodie', price: '$59.99', image: getImage('merch-hoodie'), revolutLink: 'https://revolut.me/test-business-studio/50' },
     { id: 2, name: 'DJ Lofty - Midnight Drive Vinyl', price: '$29.99', image: getImage('merch-vinyl'), revolutLink: '#' },
-    { id: 3, name: 'Verse3 Logo Cap', price: '$24.99', image: getImage('merch-cap'), revolutLink: '#' },
+    { id: 3, name: 'Verse3 Logo Cap', price: '$24.99', image: getImage('merch-cap'), revolutLink: 'https://revolut.me/test-business-studio/25' },
     { id: 4, name: 'Verse3 Album Art Poster', price: '$19.99', image: getImage('album-art-1'), revolutLink: '#' },
 ];
 
