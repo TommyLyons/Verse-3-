@@ -8,7 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { ArrowRight, Disc } from 'lucide-react';
+import { ArrowRight, Disc, Headset, Library, ShoppingCart as ShoppingCartIcon } from 'lucide-react';
 import {
   Carousel,
   CarouselContent,
@@ -44,6 +44,12 @@ const featuredMerch = [
     { id: 1, name: 'Verse3 Logo Hoodie', price: '$59.99', image: getImage('merch-hoodie') },
     { id: 2, name: 'DJ Lofty - Midnight Drive Vinyl', price: '$29.99', image: getImage('merch-vinyl') },
 ];
+
+const hotLinks = [
+    { name: 'Beatport', url: '#', icon: Headset },
+    { name: 'Spotify', url: '#', icon: Disc },
+    { name: 'WAV Files', url: '#', icon: Library }
+]
 
 export default function Home() {
   const [activePlayer, setActivePlayer] = React.useState<number | null>(null);
@@ -128,7 +134,7 @@ export default function Home() {
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Button size="lg" asChild>
-              <Link href="/booking">Book a Session</Link>
+              <Link href="/store">Shop Merch</Link>
             </Button>
             <Button size="lg" variant="outline" asChild>
               <Link href="/music">Explore Music</Link>
@@ -138,7 +144,7 @@ export default function Home() {
       </section>
 
       {/* Our Vision Section */}
-      <section className="py-12 md:py-16 bg-card">
+      <section className="py-8 md:py-12 bg-card">
           <div className="container max-w-4xl text-center">
               <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">Our Vision</h2>
               <p className="mt-4 text-muted-foreground md:text-lg max-w-3xl mx-auto">
@@ -148,7 +154,7 @@ export default function Home() {
       </section>
 
       {/* Video Section */}
-      <section className="py-12 md:py-16 bg-background">
+      <section className="py-8 md:py-12 bg-background">
         <div className="container max-w-4xl text-center">
             <div className="relative aspect-video rounded-lg overflow-hidden mb-8 max-w-3xl mx-auto">
               <video
@@ -163,8 +169,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Hot Drops Section */}
-      <section className="py-12 md:py-16 bg-background">
+      {/* Hot Drop Section */}
+      <section className="py-8 md:py-12 bg-background">
         <div className="container max-w-7xl">
           <div className="text-center mb-8">
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Hot Drop</h2>
@@ -198,8 +204,31 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Hot Links Section */}
+       <section className="py-8 md:py-12 bg-card">
+          <div className="container max-w-5xl">
+            <div className="text-center mb-12">
+                <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Hot Links</h2>
+                <p className="mt-4 text-muted-foreground md:text-lg max-w-2xl mx-auto">Find our music on your favorite platforms.</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                {hotLinks.map((link) => {
+                    const Icon = link.icon;
+                    return (
+                        <Button key={link.name} size="lg" variant="outline" asChild className="h-24 text-2xl font-headline">
+                            <Link href={link.url}>
+                                <Icon className="mr-4 h-8 w-8" />
+                                {link.name}
+                            </Link>
+                        </Button>
+                    )
+                })}
+            </div>
+          </div>
+       </section>
+
       {/* Latest Releases Section */}
-      <section className="py-12 md:py-16 bg-background">
+      <section className="py-8 md:py-12 bg-background">
         <div className="container max-w-7xl">
           <div className="flex justify-between items-baseline mb-8">
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Latest Releases</h2>
@@ -263,7 +292,7 @@ export default function Home() {
       </section>
 
       {/* Who Are The 3 Section */}
-      <section className="py-12 md:py-16 bg-background">
+      <section className="py-8 md:py-12 bg-background">
         <div className="container max-w-4xl text-center">
             <div className="relative aspect-video rounded-lg overflow-hidden mb-8 max-w-3xl mx-auto">
               <video
@@ -283,7 +312,7 @@ export default function Home() {
       </section>
 
       {/* Featured Merch Section */}
-      <section className="py-12 md:py-16 bg-background">
+      <section className="py-8 md:py-12 bg-background">
         <div className="container max-w-5xl">
           <div className="text-center mb-12">
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Featured Merch</h2>
@@ -313,8 +342,11 @@ export default function Home() {
                     <p className="text-sm text-primary">{item.price}</p>
 
                   </div>
-                  <Button className="group-hover:scale-110 transition-transform">
-                    Add to Cart
+                  <Button asChild>
+                    <Link href="/store">
+                      <ShoppingCartIcon className="mr-2 h-4 w-4" />
+                      View
+                    </Link>
                   </Button>
                 </CardFooter>
               </Card>

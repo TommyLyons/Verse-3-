@@ -1,53 +1,6 @@
+
 {
   "entities": {
-    "StudioBooking": {
-      "title": "StudioBooking",
-      "type": "object",
-      "description": "Represents a studio booking made by a user.",
-      "properties": {
-        "userId": {
-          "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N StudioBooking). Optional for guest bookings."
-        },
-        "name": {
-          "type": "string",
-          "description": "The name of the person who booked the session."
-        },
-        "email": {
-          "type": "string",
-          "description": "The email of the person who booked the session.",
-          "format": "email"
-        },
-        "phone": {
-          "type": "string",
-          "description": "The phone number of the person who booked the session."
-        },
-        "bookingDateTime": {
-          "type": "string",
-          "description": "The date and time the studio is booked for.",
-          "format": "date-time"
-        },
-        "durationMinutes": {
-          "type": "number",
-          "description": "The duration of the booking in minutes."
-        },
-        "notes": {
-          "type": "string",
-          "description": "Any additional notes or requirements for the booking."
-        },
-        "status": {
-          "type": "string",
-          "description": "The status of the booking (e.g., 'pending', 'confirmed', 'cancelled')."
-        }
-      },
-      "required": [
-        "bookingDateTime",
-        "durationMinutes",
-        "status",
-        "name",
-        "email"
-      ]
-    },
     "Merchandise": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Merchandise",
@@ -287,12 +240,6 @@
         "$ref": "#/backend/entities/UserProfile"
       },
       "description": "Stores user profile information, including name and email. Only the authenticated user can access their own profile."
-    },
-    "/studioBookings/{bookingId}": {
-      "schema": {
-        "$ref": "#/backend/entities/StudioBooking"
-      },
-      "description": "Stores all studio bookings. This collection is readable by all authenticated users to check for slot availability, but writeable only by the user creating their own booking. An additional `userId` field on the document ensures ownership is correctly attributed and enforced."
     },
     "/demoSubmissions/{submissionId}": {
       "schema": {

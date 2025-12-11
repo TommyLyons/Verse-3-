@@ -1,3 +1,4 @@
+
 import { Twitter, Instagram, Facebook } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -16,14 +17,14 @@ export function Footer() {
           </div>
           <div className="flex flex-col gap-2 items-center">
             <h3 className="font-semibold font-headline text-foreground">Quick Links</h3>
-            <Link href="/booking" className="text-sm text-muted-foreground hover:text-primary">
-              Booking
-            </Link>
             <Link href="/store" className="text-sm text-muted-foreground hover:text-primary">
               Store
             </Link>
             <Link href="/music" className="text-sm text-muted-foreground hover:text-primary">
               Music
+            </Link>
+            <Link href="/submit-music" className="text-sm text-muted-foreground hover:text-primary">
+              Submit Music
             </Link>
           </div>
           <div className="flex flex-col gap-2 items-center md:items-end">

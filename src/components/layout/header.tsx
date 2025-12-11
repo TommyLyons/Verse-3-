@@ -26,7 +26,6 @@ import { cn } from '@/lib/utils';
 import { Logo } from '@/components/logo';
 
 const navLinks = [
-  { href: '/booking', label: 'Booking' },
   { href: '/store', label: 'Store' },
   { href: '/music', label: 'Music' },
   { href: '/artists', label: 'Artists' },
@@ -120,7 +119,7 @@ export function Header() {
 
         <div className="flex items-center space-x-2">
           <Button variant="ghost" size="icon" asChild>
-            <Link href="/store#cart">
+            <Link href="/store">
               <ShoppingCart className="h-5 w-5" />
               <span className="sr-only">Cart</span>
             </Link>
@@ -162,8 +161,8 @@ export function Header() {
             <Button onClick={handleGoogleSignIn} className="hidden sm:inline-flex">Sign In</Button>
           )}
 
-          <Button asChild className="hidden sm:inline-flex">
-            <Link href="/booking">Book Now</Link>
+          <Button asChild>
+            <Link href="/store">Shop Now</Link>
           </Button>
         </div>
       </div>
