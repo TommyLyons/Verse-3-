@@ -10,9 +10,10 @@ import { BackButton } from '@/components/ui/back-button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ShoppingCart, Eye, CheckCircle } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
-import { useState } from 'react';
+import { useState, use } from 'react';
 
-export default function ProductPage({ params }: { params: { slug: string } }) {
+export default function ProductPage({ params: paramsPromise }: { params: Promise<{ slug: string }> }) {
+  const params = use(paramsPromise);
   const product = getProductBySlug(params.slug);
   const { addToCart } = useCart();
   const [addedToCart, setAddedToCart] = useState(false);
