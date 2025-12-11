@@ -25,7 +25,7 @@ const hotDrop = { id: 5, title: 'Midnight Drive', artist: 'DJ Lofty', videoSrc: 
 
 const spotifyProfiles = [
     { name: 'Verse3', url: 'https://open.spotify.com/artist/4EVUQ7kHLkDjq92K6H3GNZ?si=4I1DDMvoSEOE_5J4wS4yJg', image: getImage('artist-lofty') },
-    { name: 'Lofty', url: '#', image: getImage('artist-lofty') },
+    { name: 'Lofty', url: 'https://open.spotify.com/artist/4EVUQ7kHLkDjq92K6H3GNZ?si=4I1DDMvoSEOE_5J4wS4yJg', image: getImage('artist-lofty') },
     { name: 'Artist Three', url: '#', image: getImage('artist-alvin') }
 ];
 
