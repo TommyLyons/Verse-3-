@@ -1,24 +1,14 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { products } from '@/lib/products';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
-import { ShoppingCart } from 'lucide-react';
+import { Eye } from 'lucide-react';
 
-const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
-
-const merchProducts = [
-    { id: 1, name: 'Verse3 Logo Hoodie', price: '$59.99', image: getImage('merch-hoodie'), revolutLink: 'https://revolut.me/test-business-studio/50' },
-    { id: 3, name: 'Verse3 Logo Cap', price: '$24.99', image: getImage('merch-cap'), revolutLink: 'https://revolut.me/test-business-studio/25' },
-];
-
-const musicProducts = [
-    { id: 2, name: 'DJ Lofty - Midnight Drive Vinyl', price: '$29.99', image: getImage('merch-vinyl'), revolutLink: '#' },
-    { id: 4, name: 'Verse3 Album Art Poster', price: '$19.99', image: getImage('album-art-1'), revolutLink: '#' },
-];
-
+const merchProducts = products.filter(p => p.type === 'merch');
+const musicProducts = products.filter(p => p.type === 'music');
 
 export default function StorePage() {
   return (
@@ -36,7 +26,6 @@ export default function StorePage() {
                 {merchProducts.map((item) => (
                 <Card key={item.id} className="overflow-hidden group relative flex flex-col">
                     <CardContent className="p-0 flex-grow">
-                    {item.image && (
                         <div className="aspect-square relative">
                         <Image
                             src={item.image.imageUrl}
@@ -48,7 +37,6 @@ export default function StorePage() {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
                         </div>
-                    )}
                     </CardContent>
                     <CardFooter className="p-4 flex justify-between items-center bg-card">
                     <div>
@@ -56,9 +44,9 @@ export default function StorePage() {
                         <p className="text-sm text-primary">{item.price}</p>
                     </div>
                     <Button size="sm" asChild>
-                        <Link href={item.revolutLink} target="_blank" rel="noopener noreferrer">
-                        <ShoppingCart className="mr-2 h-4 w-4"/>
-                        Buy Now
+                        <Link href={`/store/${item.type}/${item.slug}`}>
+                            <Eye className="mr-2 h-4 w-4"/>
+                            View
                         </Link>
                     </Button>
                     </CardFooter>
@@ -74,7 +62,6 @@ export default function StorePage() {
                 {musicProducts.map((item) => (
                 <Card key={item.id} className="overflow-hidden group relative flex flex-col">
                     <CardContent className="p-0 flex-grow">
-                    {item.image && (
                         <div className="aspect-square relative">
                         <Image
                             src={item.image.imageUrl}
@@ -86,7 +73,6 @@ export default function StorePage() {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
                         </div>
-                    )}
                     </CardContent>
                     <CardFooter className="p-4 flex justify-between items-center bg-card">
                     <div>
@@ -94,9 +80,9 @@ export default function StorePage() {
                         <p className="text-sm text-primary">{item.price}</p>
                     </div>
                     <Button size="sm" asChild>
-                        <Link href={item.revolutLink} target="_blank" rel="noopener noreferrer">
-                        <ShoppingCart className="mr-2 h-4 w-4"/>
-                        Buy Now
+                        <Link href={`/store/${item.type}/${item.slug}`}>
+                            <Eye className="mr-2 h-4 w-4"/>
+                            View
                         </Link>
                     </Button>
                     </CardFooter>
