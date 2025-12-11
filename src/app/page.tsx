@@ -8,7 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { ArrowRight, Disc, Headset, Library, ShoppingCart as ShoppingCartIcon, Disc3 } from 'lucide-react';
+import { ArrowRight, Disc, Headset, Library, ShoppingCart as ShoppingCartIcon, Eye } from 'lucide-react';
 import {
   Carousel,
   CarouselContent,
@@ -23,27 +23,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { products } from '@/lib/products';
 
 
 const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
 
-const heroImage = getImage('hero-studio');
 const whoAreThe3VideoUrl = "https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85";
-
-
-const latestReleases = [
-  { id: 1, title: 'Quiet Steps', artist: 'Lofty, Keith Doyle, Alvin Koumetio', image: getImage('album-art-1'), audioSrc: 'https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-1.mp3' },
-  { id: 2, title: 'Echoes in Rain', artist: 'Synthwave Kid', image: getImage('album-art-2'), audioSrc: 'https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-2.mp3' },
-  { id: 3, title: 'City Lights', artist: 'Urban Explorer', image: getImage('album-art-3'), audioSrc: 'https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-3.mp3' },
-  { id: 4, title: 'Future Funk', artist: 'Groove Master', image: getImage('album-art-1'), audioSrc: 'https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-4.mp3' },
-];
 
 const hotDrop = { id: 5, title: 'Midnight Drive', artist: 'DJ Lofty', videoSrc: 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.19.29.mp4?alt=media&token=fdad85e4-48e2-4911-b762-ce1a44bcd192' };
 
-const featuredMerch = [
-    { id: 1, name: 'Verse3 Logo Hoodie', price: '$59.99', image: getImage('merch-hoodie') },
-    { id: 2, name: 'DJ Lofty - Midnight Drive Vinyl', price: '$29.99', image: getImage('merch-vinyl') },
-];
+const featuredMusic = products.filter(p => p.type === 'music').slice(0, 4);
+const featuredMerch = products.filter(p => p.type === 'merch');
 
 const hotLinks = [
     { name: 'Beatport', url: '#', icon: Headset },
@@ -58,7 +48,6 @@ const spotifyProfiles = [
 ];
 
 export default function Home() {
-  const [activePlayer, setActivePlayer] = React.useState<number | null>(null);
   const [isHotDropOpen, setIsHotDropOpen] = useState(false);
 
   useEffect(() => {
@@ -73,10 +62,6 @@ export default function Home() {
       return () => clearTimeout(timer);
     }
   }, []);
-
-  const togglePlayer = (id: number) => {
-    setActivePlayer(activePlayer === id ? null : id);
-  };
   
 
   return (
@@ -256,12 +241,12 @@ export default function Home() {
           </div>
        </section>
 
-      {/* Latest Releases Section */}
+      {/* Latest Music Section */}
       <section className="py-8 md:py-12 bg-background">
         <div className="container max-w-7xl">
           <div className="flex justify-between items-baseline mb-8">
-            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Latest Releases</h2>
-            <Link href="/music" className="flex items-center gap-2 text-sm text-primary hover:underline">
+            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Music Releases</h2>
+            <Link href="/store" className="flex items-center gap-2 text-sm text-primary hover:underline">
               View All <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -272,43 +257,32 @@ export default function Home() {
               className="w-full"
             >
               <CarouselContent>
-                {latestReleases.map((release) => (
-                   <CarouselItem key={release.id} className="sm:basis-1/2 lg:basis-1/4">
+                {featuredMusic.map((item) => (
+                   <CarouselItem key={item.id} className="sm:basis-1/2 lg:basis-1/4">
                       <Card className="group overflow-hidden h-full flex flex-col">
                         <CardContent className="p-0 flex-grow">
-                          {release.image && (
-                            <div className="aspect-square relative">
-                              <Image
-                                src={release.image.imageUrl}
-                                alt={release.image.description}
-                                fill
-                                className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                data-ai-hint={release.image.imageHint}
-                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                              />
-                            </div>
-                          )}
-                        </CardContent>
-                        <CardFooter className="p-4 flex flex-col items-start bg-card space-y-4">
-                          <div className='w-full flex justify-between items-center'>
-                            <div>
-                              <p className="font-semibold">{release.title}</p>
-                              <p className="text-sm text-muted-foreground">{release.artist}</p>
-                            </div>
-                            <Button variant="ghost" size="icon" className="text-primary" onClick={() => togglePlayer(release.id)}>
-                              <Disc className="h-6 w-6" />
-                            </Button>
+                          <div className="aspect-square relative">
+                            <Image
+                              src={item.image.imageUrl}
+                              alt={item.image.description}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform duration-300"
+                              data-ai-hint={item.image.imageHint}
+                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                            />
                           </div>
-                          {activePlayer === release.id && release.audioSrc && (
-                            <audio
-                                controls
-                                src={release.audioSrc}
-                                className="w-full"
-                                autoPlay
-                            >
-                                Your browser does not support the audio element.
-                            </audio>
-                           )}
+                        </CardContent>
+                        <CardFooter className="p-4 flex justify-between items-center bg-card">
+                          <div>
+                            <p className="font-semibold">{item.name}</p>
+                            <p className="text-sm text-primary">{item.price}</p>
+                          </div>
+                          <Button size="sm" asChild>
+                            <Link href={`/store/${item.type}/${item.slug}`}>
+                                <Eye className="mr-2 h-4 w-4"/>
+                                View
+                            </Link>
+                          </Button>
                         </CardFooter>
                       </Card>
                    </CarouselItem>
@@ -351,28 +325,25 @@ export default function Home() {
             {featuredMerch.map((item) => (
               <Card key={item.id} className="overflow-hidden group relative">
                 <CardContent className="p-0">
-                  {item.image && (
-                    <div className="aspect-video relative">
-                      <Image
-                        src={item.image.imageUrl}
-                        alt={item.image.description}
-                        fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                        data-ai-hint={item.image.imageHint}
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                      />
-                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    </div>
-                  )}
+                  <div className="aspect-video relative">
+                    <Image
+                      src={item.image.imageUrl}
+                      alt={item.image.description}
+                      fill
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      data-ai-hint={item.image.imageHint}
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </div>
                 </CardContent>
                 <CardFooter className="p-4 flex justify-between items-center bg-card/80 backdrop-blur-sm absolute bottom-0 w-full">
                   <div>
                     <p className="font-semibold">{item.name}</p>
                     <p className="text-sm text-primary">{item.price}</p>
-
                   </div>
                   <Button asChild>
-                    <Link href="/store">
+                    <Link href={`/store/${item.type}/${item.slug}`}>
                       <ShoppingCartIcon className="mr-2 h-4 w-4" />
                       View
                     </Link>
@@ -391,3 +362,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
