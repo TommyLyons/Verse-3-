@@ -8,7 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Disc, Eye } from 'lucide-react';
+import { Disc, Eye, Instagram } from 'lucide-react';
 import { products } from '@/lib/products';
 import {
   Dialog,
@@ -31,6 +31,12 @@ const spotifyProfiles = [
 
 const merchProducts = products.filter(p => p.type === 'merch').slice(0, 4);
 const musicProducts = products.filter(p => p.type === 'music').slice(0, 4);
+const instagramImages = [
+  getImage('hero-studio'),
+  getImage('album-art-2'),
+  getImage('merch-hoodie'),
+  getImage('artist-lofty'),
+].filter(Boolean);
 
 
 export default function Home() {
@@ -130,7 +136,7 @@ export default function Home() {
                     {merchProducts.map((item) => (
                     <Card key={item.id} className="overflow-hidden group relative flex flex-col">
                         <CardContent className="p-0 flex-grow">
-                            <div className="aspect-square relative">
+                            <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative">
                                 <Image
                                     src={item.image.imageUrl}
                                     alt={item.image.description}
@@ -139,8 +145,7 @@ export default function Home() {
                                     data-ai-hint={item.image.imageHint}
                                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
-                            </div>
+                            </Link>
                         </CardContent>
                         <CardFooter className="p-4 flex justify-between items-center bg-card">
                         <div>
@@ -176,7 +181,7 @@ export default function Home() {
                     {musicProducts.map((item) => (
                      <Card key={item.id} className="overflow-hidden group relative flex flex-col">
                         <CardContent className="p-0 flex-grow">
-                            <div className="aspect-square relative">
+                            <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative">
                                 <Image
                                     src={item.image.imageUrl}
                                     alt={item.image.description}
@@ -185,8 +190,7 @@ export default function Home() {
                                     data-ai-hint={item.image.imageHint}
                                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
-                            </div>
+                            </Link>
                         </CardContent>
                         <CardFooter className="p-4 flex justify-between items-center bg-card">
                         <div>
@@ -205,7 +209,7 @@ export default function Home() {
                 </div>
                  <div className="text-center mt-12">
                     <Button asChild>
-                        <Link href="/store">View All Music</Link>
+                        <Link href="/store/music">View All Music</Link>
                     </Button>
                 </div>
             </div>
@@ -245,6 +249,48 @@ export default function Home() {
             </div>
           </div>
        </section>
+
+       {/* Instagram Section */}
+       <section className="py-16 md:py-24 bg-card">
+          <div className="container max-w-5xl">
+            <div className="text-center mb-12">
+                <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Follow Us On Instagram</h2>
+                <p className="mt-4 text-muted-foreground md:text-lg max-w-2xl mx-auto">Get a behind-the-scenes look at the label and our artists.</p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {instagramImages.map((image) => (
+                    <Link href="https://www.instagram.com/verse3records?igsh=YWtpdGd3eWl5c2g1&utm_source=qr" key={image!.id} target="_blank" rel="noopener noreferrer" className="block group aspect-square">
+                        <Card className="overflow-hidden h-full">
+                            {image && (
+                                <div className="aspect-square relative h-full">
+                                    <Image
+                                        src={image.imageUrl}
+                                        alt={image.description}
+                                        fill
+                                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                        sizes="(max-width: 768px) 50vw, 25vw"
+                                        data-ai-hint={image.imageHint}
+                                    />
+                                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors flex items-center justify-center">
+                                       <Instagram className="h-10 w-10 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                                    </div>
+                                </div>
+                            )}
+                        </Card>
+                    </Link>
+                ))}
+            </div>
+             <div className="text-center mt-12">
+                <Button asChild size="lg">
+                    <a href="https://www.instagram.com/verse3records?igsh=YWtpdGd3eWl5c2g1&utm_source=qr" target="_blank" rel="noopener noreferrer">
+                       <Instagram className="mr-2 h-5 w-5" />
+                       Follow @verse3records
+                    </a>
+                </Button>
+            </div>
+          </div>
+       </section>
+
     </div>
   );
 }
