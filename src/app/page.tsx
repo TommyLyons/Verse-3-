@@ -49,7 +49,13 @@ const hotLinks = [
     { name: 'Beatport', url: '#', icon: Headset },
     { name: 'Spotify', url: 'https://open.spotify.com/artist/4EVUQ7kHLkDjq92K6H3GNZ?si=4I1DDMvoSEOE_5J4wS4yJg', icon: Disc },
     { name: 'WAV Files', url: '#', icon: Library }
-]
+];
+
+const spotifyProfiles = [
+    { name: 'Verse3', url: 'https://open.spotify.com/artist/4EVUQ7kHLkDjq92K6H3GNZ?si=4I1DDMvoSEOE_5J4wS4yJg', image: getImage('artist-lofty') },
+    { name: 'Lofty', url: '#', image: getImage('artist-lofty') },
+    { name: 'Artist Three', url: '#', image: getImage('artist-alvin') }
+];
 
 export default function Home() {
   const [activePlayer, setActivePlayer] = React.useState<number | null>(null);
@@ -141,6 +147,40 @@ export default function Home() {
               </p>
           </div>
       </section>
+
+      {/* Spotify Section */}
+       <section className="py-8 md:py-12 bg-background">
+          <div className="container max-w-5xl">
+            <div className="text-center mb-12">
+                <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Find Us On Spotify</h2>
+                <p className="mt-4 text-muted-foreground md:text-lg max-w-2xl mx-auto">Follow our artists and playlists on Spotify.</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                {spotifyProfiles.map((profile) => (
+                    <Link href={profile.url} key={profile.name} target="_blank" rel="noopener noreferrer" className="block group">
+                        <Card className="overflow-hidden">
+                            {profile.image && (
+                                <div className="aspect-square relative">
+                                    <Image
+                                        src={profile.image.imageUrl}
+                                        alt={`Spotify profile for ${profile.name}`}
+                                        fill
+                                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                        sizes="(max-width: 640px) 100vw, 33vw"
+                                        data-ai-hint={profile.image.imageHint}
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                                </div>
+                            )}
+                            <CardFooter className="p-4 bg-card">
+                                <h3 className="font-semibold text-lg text-center w-full">{profile.name}</h3>
+                            </CardFooter>
+                        </Card>
+                    </Link>
+                ))}
+            </div>
+          </div>
+       </section>
 
       {/* Video Section */}
       <section className="py-8 md:py-12 bg-background">
@@ -281,7 +321,7 @@ export default function Home() {
       </section>
 
       {/* Who Are The 3 Section */}
-      <section className="py-8 md:py-12 bg-background">
+      <section className="py-8 md-py-12 bg-background">
         <div className="container max-w-4xl text-center">
             <div className="relative aspect-video rounded-lg overflow-hidden mb-8 max-w-3xl mx-auto">
               <video
