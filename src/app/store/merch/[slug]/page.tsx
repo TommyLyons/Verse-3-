@@ -1,4 +1,6 @@
 
+'use client';
+
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -6,20 +8,24 @@ import { getProductBySlug, getRelatedProducts, products } from '@/lib/products';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { ShoppingCart, Eye } from 'lucide-react';
-
-export async function generateStaticParams() {
-  return products.filter(p => p.type === 'merch').map((product) => ({
-    slug: product.slug,
-  }));
-}
+import { ShoppingCart, Eye, CheckCircle } from 'lucide-react';
+import { useCart } from '@/context/cart-context';
+import { useState } from 'react';
 
 export default function ProductPage({ params }: { params: { slug: string } }) {
   const product = getProductBySlug(params.slug);
+  const { addToCart } = useCart();
+  const [addedToCart, setAddedToCart] = useState(false);
 
   if (!product) {
     notFound();
   }
+
+  const handleAddToCart = () => {
+    addToCart(product);
+    setAddedToCart(true);
+    setTimeout(() => setAddedToCart(false), 3000); // Reset after 3 seconds
+  };
 
   const relatedProducts = getRelatedProducts(product);
 
@@ -41,11 +47,20 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
           <h1 className="font-headline text-3xl md:text-4xl font-bold">{product.name}</h1>
           <p className="text-2xl font-semibold text-primary mt-2">{product.price}</p>
           <p className="text-muted-foreground mt-4 text-lg flex-grow">{product.description}</p>
-          <Button size="lg" asChild className="mt-8 w-full">
-            <Link href={product.revolutLink} target="_blank" rel="noopener noreferrer">
-              <ShoppingCart className="mr-2 h-5 w-5" /> Buy Now
-            </Link>
-          </Button>
+          <div className="mt-8 w-full space-y-4">
+            <Button size="lg" onClick={handleAddToCart} className="w-full" disabled={addedToCart}>
+              <ShoppingCart className="mr-2 h-5 w-5" />
+              {addedToCart ? 'Added!' : 'Add to Cart'}
+            </Button>
+             {addedToCart && (
+              <Button size="lg" variant="outline" className="w-full" asChild>
+                <Link href="/cart">
+                  <CheckCircle className="mr-2 h-5 w-5" />
+                  View Cart
+                </Link>
+              </Button>
+            )}
+          </div>
         </div>
       </div>
       
@@ -88,4 +103,3 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
     </div>
   );
 }
-

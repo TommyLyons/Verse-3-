@@ -25,6 +25,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { Logo } from '@/components/logo';
 import { AuthDialog } from '@/components/auth-dialog';
+import { useCart } from '@/context/cart-context';
 
 const navLinks = [
   { href: '/store', label: 'Store' },
@@ -55,7 +56,10 @@ export function Header() {
   const [isAuthDialogOpen, setIsAuthDialogOpen] = React.useState(false);
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
+  const { cart } = useCart();
   const isAdmin = user?.email === 'verse3records@gmail.com';
+
+  const cartItemCount = cart.reduce((count, item) => count + item.quantity, 0);
 
   const handleGoogleSignIn = () => {
     if (!auth) return;
@@ -123,7 +127,12 @@ export function Header() {
 
           <div className="flex items-center space-x-2">
             <Button variant="ghost" size="icon" asChild>
-              <Link href="/store">
+              <Link href="/cart" className="relative">
+                {cartItemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                    {cartItemCount}
+                  </span>
+                )}
                 <ShoppingCart className="h-5 w-5" />
                 <span className="sr-only">Cart</span>
               </Link>
