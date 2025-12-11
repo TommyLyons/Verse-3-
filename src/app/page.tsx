@@ -113,7 +113,7 @@ export default function Home() {
 
 
       {/* Hero Section */}
-      <section className="relative h-[80vh] w-full flex items-end justify-center text-center text-white overflow-hidden pb-24">
+      <section className="relative h-[80vh] w-full flex items-end justify-center text-center text-white overflow-hidden pb-12">
         <video
           src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
           autoPlay
@@ -122,7 +122,6 @@ export default function Home() {
           playsInline
           className="absolute top-1/2 left-1/2 w-full h-full min-w-full min-h-full object-cover -translate-x-1/2 -translate-y-1/2 z-0"
         />
-        <div className="absolute inset-0 bg-black/40 z-10" />
         <div className="relative z-20 flex flex-wrap justify-center gap-4">
           <Button size="lg" asChild>
             <Link href="/store">Shop Merch</Link>
