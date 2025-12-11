@@ -10,6 +10,10 @@ service cloud.firestore {
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.email == 'verse3records@gmail.com';
+    }
     
     match /users/{userId} {
       allow read, write: if isOwner(userId);
@@ -18,8 +22,10 @@ service cloud.firestore {
     match /demoSubmissions/{submissionId} {
       // Allow anyone to submit a demo.
       allow create: if true;
-      // Disallow public reading of submissions.
-      allow read, list, update, delete: if false;
+      // Allow admins to read submissions.
+      allow read, list: if isAdmin();
+      // Disallow public update and delete.
+      allow update, delete: if false;
     }
   }
 }
