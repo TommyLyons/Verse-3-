@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, ShoppingCart, User as UserIcon } from 'lucide-react';
+import { Menu, ShoppingCart, User as UserIcon, Shield } from 'lucide-react';
 import React from 'react';
 import {
   signInWithPopup,
@@ -55,6 +55,7 @@ export function Header() {
   const [isAuthDialogOpen, setIsAuthDialogOpen] = React.useState(false);
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
+  const isAdmin = user?.email === 'verse3records@gmail.com';
 
   const handleGoogleSignIn = () => {
     if (!auth) return;
@@ -154,6 +155,14 @@ export function Header() {
                       <span>Profile</span>
                     </Link>
                   </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin">
+                        <Shield className="mr-2 h-4 w-4" />
+                        <span>Admin</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     Sign out
