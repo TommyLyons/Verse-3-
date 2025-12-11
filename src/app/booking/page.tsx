@@ -15,7 +15,7 @@ import {
   useMemoFirebase,
   addDocumentNonBlocking,
 } from '@/firebase';
-import { add, format, set } from 'date-fns';
+import { add, format, formatISO } from 'date-fns';
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -83,7 +83,7 @@ export default function BookingPage() {
   })
 
   React.useEffect(() => {
-    if (user) {
+    if (user && !form.formState.isDirty) {
       form.setValue("name", user.displayName || "");
       form.setValue("email", user.email || "");
     }
@@ -121,6 +121,15 @@ export default function BookingPage() {
     setIsBookingDialogOpen(true);
   };
   
+  const createGoogleCalendarLink = (bookingDateTime: Date, durationHours: number, name: string, email: string) => {
+    const startTime = formatISO(bookingDateTime, { format: 'basic' }).replace(/-|:|\.\d+/g, '');
+    const endTime = formatISO(add(bookingDateTime, { hours: durationHours }), { format: 'basic' }).replace(/-|:|\.\d+/g, '');
+
+    const details = `Booking confirmed for: ${name} (${email}).`;
+    
+    return `https://www.google.com/calendar/render?action=TEMPLATE&text=Studio+Booking: ${name}&dates=${startTime}/${endTime}&details=${encodeURIComponent(details)}&location=Verse3+Records`;
+  };
+
   function onSubmit(values: BookingFormValues) {
     if (!date || !selectedSlot) return;
 
@@ -142,19 +151,25 @@ export default function BookingPage() {
     if (bookingsCollection) {
       addDocumentNonBlocking(bookingsCollection, newBooking);
       
-      const mailtoLink = `mailto:lofty@verse3.com?subject=New Studio Booking&body=A new booking has been made for ${format(
-        bookingDateTime,
-        'MMMM do, yyyy'
-      )} at ${selectedSlot} by ${values.name} (${values.email}).`;
+      const googleCalendarLink = createGoogleCalendarLink(bookingDateTime, sessionDurationHours, values.name, values.email);
+      const emailBody = `
+A new booking has been made:
+Name: ${values.name}
+Email: ${values.email}
+Phone: ${values.phone || 'Not provided'}
+Date: ${format(bookingDateTime, 'MMMM do, yyyy')}
+Time: ${selectedSlot}
+
+Add to Google Calendar: ${googleCalendarLink}
+      `;
+
+      const mailtoLink = `mailto:lofty@verse3.com?subject=${encodeURIComponent(`New Studio Booking: ${values.name} on ${format(bookingDateTime, 'MMMM do')}`)}&body=${encodeURIComponent(emailBody)}`;
       
       window.open(mailtoLink, '_blank');
       
       toast({
         title: 'Booking Confirmed!',
-        description: `Your session is booked for ${format(
-          bookingDateTime,
-          'MMMM do, yyyy'
-        )} at ${selectedSlot}.`,
+        description: `Your session is booked. A confirmation email has been prepared for you to send.`,
       });
     }
 
@@ -216,10 +231,7 @@ export default function BookingPage() {
               {date ? (
                 <div className="space-y-2">
                   {timeSlots.map((slot) => {
-                    const slotDateTime = set(date, {
-                      hours: parseInt(slot.split(':')[0]),
-                      minutes: parseInt(slot.split(':')[1]),
-                    });
+                    const slotDateTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), parseInt(slot.split(':')[0]), parseInt(slot.split(':')[1]));
                     const isBooked = bookedSlots.includes(slot);
                     const isPast = slotDateTime < new Date();
                     const isDisabled = isBooked || isPast || bookingsLoading;
