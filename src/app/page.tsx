@@ -113,26 +113,23 @@ export default function Home() {
 
 
       {/* Hero Section */}
-      <section className="relative h-[60vh] min-h-[400px] w-full flex items-center justify-center text-center text-white bg-background">
-        <div className="relative z-10 max-w-4xl px-4 flex flex-col items-center">
-            <div className="flex items-center space-x-4">
-                <Disc3 className="h-24 w-24 text-primary animate-spin" style={{ animationDuration: '3s' }} />
-                <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-primary">
-                    Verse3 Records
-                </h1>
-                <Disc3 className="h-24 w-24 text-primary animate-spin" style={{ animationDuration: '3s' }} />
-            </div>
-          <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-foreground/80">
-            A UK-based independent electronic label championing emotionally driven, forward-thinking music. Founded on friendship, powered by passion.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <Button size="lg" asChild>
-              <Link href="/store">Shop Merch</Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/music">Explore Music</Link>
-            </Button>
-          </div>
+      <section className="relative h-[80vh] w-full flex items-center justify-center text-center text-white overflow-hidden">
+        <video
+          src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.19.29.mp4?alt=media&token=fdad85e4-48e2-4911-b762-ce1a44bcd192"
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute top-1/2 left-1/2 w-full h-full min-w-full min-h-full object-cover -translate-x-1/2 -translate-y-1/2 z-0"
+        />
+        <div className="absolute inset-0 bg-black/50 z-10" />
+        <div className="relative z-20 flex flex-wrap justify-center gap-4">
+          <Button size="lg" asChild>
+            <Link href="/store">Shop Merch</Link>
+          </Button>
+          <Button size="lg" variant="outline" asChild>
+            <Link href="/music">Explore Music</Link>
+          </Button>
         </div>
       </section>
 
