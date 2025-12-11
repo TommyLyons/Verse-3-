@@ -51,7 +51,7 @@ export default function StorePage() {
                   <Button size="sm" asChild>
                     <Link href={item.revolutLink} target="_blank">
                       <ShoppingCart className="mr-2 h-4 w-4"/>
-                      Buy on Revolut
+                      Buy Now
                     </Link>
                   </Button>
                 </CardFooter>
