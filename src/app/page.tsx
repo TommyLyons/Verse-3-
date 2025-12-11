@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import Image from 'next/image';
@@ -24,10 +23,12 @@ const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
 const hotDrop = { id: 5, title: 'Midnight Drive', artist: 'DJ Lofty', videoSrc: 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.19.29.mp4?alt=media&token=fdad85e4-48e2-4911-b762-ce1a44bcd192' };
 
 const spotifyProfiles = [
-    { name: 'Verse3', url: 'https://open.spotify.com/artist/4EVUQ7kHLkDjq92K6H3GNZ?si=4I1DDMvoSEOE_5J4wS4yJg', image: getImage('artist-lofty') },
+    { name: 'Verse3', url: 'https://open.spotify.com/artist/4EVUQ7kHLkDjq92K6H3GNZ?si=4I1DDMvoSEOE_5J4wS4yJg', image: getImage('artist-keith') },
     { name: 'Lofty', url: 'https://open.spotify.com/artist/4EVUQ7kHLkDjq92K6H3GNZ?si=4I1DDMvoSEOE_5J4wS4yJg', image: getImage('artist-lofty') },
     { name: 'Artist Three', url: '#', image: getImage('artist-alvin') }
 ];
+
+const loftyTracks = products.filter(p => p.name.includes('Lofty'));
 
 const merchProducts = products.filter(p => p.type === 'merch').slice(0, 4);
 const musicProducts = products.filter(p => p.type === 'music').slice(0, 4);
@@ -40,7 +41,7 @@ const instagramImages = [
   getImage('artist-alvin'),
   getImage('merch-cap'),
   getImage('merch-vinyl')
-].filter(Boolean);
+].filter(Boolean) as typeof PlaceHolderImages;
 
 
 export default function Home() {
@@ -253,9 +254,54 @@ export default function Home() {
             </div>
           </div>
        </section>
+      
+      {/* Lofty's Featured Tracks Section */}
+       <section className="py-16 md:py-24 bg-card">
+            <div className="container">
+                <div className="text-center mb-12">
+                    <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">From the Studio: Lofty</h2>
+                    <p className="mt-4 text-muted-foreground md:text-lg max-w-2xl mx-auto">Check out featured tracks from our founder and producer.</p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {loftyTracks.map((item) => (
+                     <Card key={item.id} className="overflow-hidden group relative flex flex-col">
+                        <CardContent className="p-0 flex-grow">
+                            <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative">
+                                <Image
+                                    src={item.image.imageUrl}
+                                    alt={item.image.description}
+                                    fill
+                                    className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                    data-ai-hint={item.image.imageHint}
+                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                                />
+                            </Link>
+                        </CardContent>
+                        <CardFooter className="p-4 flex justify-between items-center bg-card">
+                        <div>
+                            <p className="font-semibold">{item.name}</p>
+                            <p className="text-sm text-primary">{item.price}</p>
+                        </div>
+                        <Button size="sm" asChild>
+                            <Link href={`/store/${item.type}/${item.slug}`}>
+                                <Eye className="mr-2 h-4 w-4"/>
+                                View
+                            </Link>
+                        </Button>
+                        </CardFooter>
+                    </Card>
+                    ))}
+                </div>
+                 <div className="text-center mt-12">
+                    <Button asChild>
+                        <Link href="/music">Explore All Music</Link>
+                    </Button>
+                </div>
+            </div>
+       </section>
 
        {/* Instagram Section */}
-       <section className="py-16 md:py-24 bg-card">
+       <section className="py-16 md:py-24 bg-background">
           <div className="container max-w-5xl">
             <div className="text-center mb-12">
                 <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl md:text-5xl">Follow Us On Instagram</h2>
@@ -263,7 +309,7 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {instagramImages.map((image) => (
-                    <Link href="https://www.instagram.com/verse3records?igsh=YWtpdGd3eWl5c2g1&utm_source=qr" key={image!.id} target="_blank" rel="noopener noreferrer" className="block group aspect-square">
+                    <Link href="https://www.instagram.com/verse3records?igsh=YWtpdGd3eWl5c2g1&utm_source=qr" key={image.id} target="_blank" rel="noopener noreferrer" className="block group aspect-square">
                         <Card className="overflow-hidden h-full">
                             {image && (
                                 <div className="aspect-square relative h-full">
@@ -297,4 +343,5 @@ export default function Home() {
 
     </div>
   );
-}
+
+    
