@@ -8,7 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { ArrowRight, Disc, Headset, Library, ShoppingCart as ShoppingCartIcon } from 'lucide-react';
+import { ArrowRight, Disc, Headset, Library, ShoppingCart as ShoppingCartIcon, Disc3 } from 'lucide-react';
 import {
   Carousel,
   CarouselContent,
@@ -113,22 +113,15 @@ export default function Home() {
 
 
       {/* Hero Section */}
-      <section className="relative h-[60vh] min-h-[400px] w-full flex items-center justify-center text-center text-white">
-        {heroImage && (
-          <Image
-            src={heroImage.imageUrl}
-            alt={heroImage.description}
-            fill
-            className="object-cover"
-            priority
-            data-ai-hint={heroImage.imageHint}
-          />
-        )}
-        <div className="absolute inset-0 bg-black/50" />
-        <div className="relative z-10 max-w-4xl px-4">
-          <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-primary">
-            Verse3 Records
-          </h1>
+      <section className="relative h-[60vh] min-h-[400px] w-full flex items-center justify-center text-center text-white bg-background">
+        <div className="relative z-10 max-w-4xl px-4 flex flex-col items-center">
+            <div className="flex items-center space-x-4">
+                <Disc3 className="h-24 w-24 text-primary animate-spin" style={{ animationDuration: '3s' }} />
+                <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-primary">
+                    Verse3 Records
+                </h1>
+                <Disc3 className="h-24 w-24 text-primary animate-spin" style={{ animationDuration: '3s' }} />
+            </div>
           <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-foreground/80">
             A UK-based independent electronic label championing emotionally driven, forward-thinking music. Founded on friendship, powered by passion.
           </p>
