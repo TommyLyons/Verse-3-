@@ -56,6 +56,16 @@ export const products: Product[] = [
         revolutLink: 'https://revolut.me/test-business-studio/20',
         type: 'music'
     },
+    { 
+        id: 5, 
+        name: 'Lofty - Quiet Steps Single', 
+        slug: 'lofty-quiet-steps',
+        price: '$9.99', 
+        description: 'The debut single from Lofty. A melodic and emotional track that sets the tone for Verse3 Records.',
+        image: getImage('album-art-2')!, 
+        revolutLink: 'https://revolut.me/test-business-studio/10',
+        type: 'music'
+    },
 ];
 
 export const getProductBySlug = (slug: string) => products.find(p => p.slug === slug);
@@ -65,4 +75,5 @@ export const getRelatedProducts = (currentProduct: Product) => {
     const oppositeType = currentProduct.type === 'merch' ? 'music' : 'merch';
     return products.filter(p => p.id !== currentProduct.id && p.type === oppositeType).slice(0, 2);
 };
+
 
