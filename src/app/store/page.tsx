@@ -49,7 +49,7 @@ export default function StorePage() {
                     <p className="text-sm text-primary">{item.price}</p>
                   </div>
                   <Button size="sm" asChild>
-                    <Link href={item.revolutLink} target="_blank">
+                    <Link href={item.revolutLink} target="_blank" rel="noopener noreferrer">
                       <ShoppingCart className="mr-2 h-4 w-4"/>
                       Buy Now
                     </Link>
