@@ -43,7 +43,7 @@ export const products: Product[] = [
         price: '$29.99', 
         description: 'Own a piece of Verse3 history with the special edition vinyl pressing of DJ Lofty\'s "Midnight Drive". Features exclusive artwork and high-fidelity audio.',
         image: getImage('merch-vinyl')!, 
-        revolutLink: '#',
+        revolutLink: 'https://revolut.me/test-business-studio/30',
         type: 'music'
     },
     { 
@@ -53,7 +53,7 @@ export const products: Product[] = [
         price: '$19.99', 
         description: 'Decorate your space with this high-quality poster print of the iconic abstract neon artwork from one of our flagship releases.',
         image: getImage('album-art-1')!, 
-        revolutLink: '#',
+        revolutLink: 'https://revolut.me/test-business-studio/20',
         type: 'music'
     },
 ];
@@ -61,5 +61,8 @@ export const products: Product[] = [
 export const getProductBySlug = (slug: string) => products.find(p => p.slug === slug);
 
 export const getRelatedProducts = (currentProduct: Product) => {
-    return products.filter(p => p.id !== currentProduct.id && p.type === currentProduct.type).slice(0, 2);
+    // If viewing merch, recommend music. If viewing music, recommend merch.
+    const oppositeType = currentProduct.type === 'merch' ? 'music' : 'merch';
+    return products.filter(p => p.id !== currentProduct.id && p.type === oppositeType).slice(0, 2);
 };
+
