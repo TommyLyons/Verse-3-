@@ -47,7 +47,7 @@ const featuredMerch = [
 
 const hotLinks = [
     { name: 'Beatport', url: '#', icon: Headset },
-    { name: 'Spotify', url: '#', icon: Disc },
+    { name: 'Spotify', url: 'https://open.spotify.com/artist/4EVUQ7kHLkDjq92K6H3GNZ?si=4I1DDMvoSEOE_5J4wS4yJg', icon: Disc },
     { name: 'WAV Files', url: '#', icon: Library }
 ]
 
