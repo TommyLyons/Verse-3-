@@ -89,7 +89,7 @@ export const products: Product[] = [
         type: 'music',
         digital: true,
         // IMPORTANT: Replace this with the actual Firebase Storage URL of your WAV file
-        downloadUrl: 'https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-1.mp3'
+        downloadUrl: 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/Music%2F01.%20The%20Goods%20-%20Glow%20(Original%20Mix).mp3?alt=media&token=7bb1f9b9-cf66-49f7-9104-92f94d75bd2c'
     }
 ];
 
