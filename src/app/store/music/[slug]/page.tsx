@@ -1,22 +1,31 @@
 
 'use client';
 
-import { notFound } from 'next/navigation';
+import { notFound, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getProductBySlug, getRelatedProducts, products } from '@/lib/products';
+import { getProductBySlug, getRelatedProducts } from '@/lib/products';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { ShoppingCart, Eye, CheckCircle } from 'lucide-react';
+import { ShoppingCart, Eye, CheckCircle, DownloadCloud } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
 import { useState, use } from 'react';
+import { useUser, useFirestore, addDocumentNonBlocking } from '@/firebase';
+import { collection, serverTimestamp, getDocs, query, where } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ProductPage({ params: paramsPromise }: { params: Promise<{ slug: string }> }) {
   const params = use(paramsPromise);
+  const router = useRouter();
+  const { toast } = useToast();
+  const { user, isUserLoading } = useUser();
+  const firestore = useFirestore();
+
   const product = getProductBySlug(params.slug);
   const { addToCart } = useCart();
   const [addedToCart, setAddedToCart] = useState(false);
+  const [isProcessingPurchase, setIsProcessingPurchase] = useState(false);
 
   if (!product) {
     notFound();
@@ -25,7 +34,71 @@ export default function ProductPage({ params: paramsPromise }: { params: Promise
   const handleAddToCart = () => {
     addToCart(product);
     setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 3000); // Reset after 3 seconds
+    setTimeout(() => setAddedToCart(false), 3000);
+  };
+
+  const handlePurchase = async () => {
+    if (!user) {
+      toast({
+        variant: 'destructive',
+        title: 'Authentication Required',
+        description: 'Please sign in to purchase digital products.',
+      });
+      return;
+    }
+    if (!firestore || !product.downloadUrl) return;
+
+    setIsProcessingPurchase(true);
+
+    try {
+        const purchasesCollection = collection(firestore, 'users', user.uid, 'purchasedProducts');
+        
+        // Check if the user has already purchased this item
+        const q = query(purchasesCollection, where('productId', '==', String(product.id)));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            toast({
+                title: 'Already Purchased',
+                description: 'You already own this item. Check your profile for downloads.',
+            });
+            router.push('/profile');
+            return;
+        }
+
+        const purchaseData = {
+            productId: String(product.id),
+            productName: product.name,
+            downloadUrl: product.downloadUrl,
+            purchasedAt: serverTimestamp(),
+        };
+
+        // Use the non-blocking add function
+        addDocumentNonBlocking(purchasesCollection, purchaseData);
+
+        // Open Revolut link in a new tab
+        window.open(product.revolutLink, '_blank');
+
+        toast({
+            title: 'Purchase Processing!',
+            description: 'Please complete the payment. Your download will be available in your profile shortly.',
+        });
+
+        // Redirect to profile page after a short delay to allow payment pop-up
+        setTimeout(() => {
+            router.push('/profile');
+        }, 3000);
+
+    } catch (error) {
+        console.error("Purchase error:", error);
+        toast({
+            variant: 'destructive',
+            title: 'Purchase Failed',
+            description: 'There was an error processing your purchase. Please try again.',
+        });
+    } finally {
+        setIsProcessingPurchase(false);
+    }
   };
 
   const relatedProducts = getRelatedProducts(product);
@@ -48,18 +121,28 @@ export default function ProductPage({ params: paramsPromise }: { params: Promise
           <h1 className="font-headline text-3xl md:text-4xl font-bold">{product.name}</h1>
           <p className="text-2xl font-semibold text-primary mt-2">{product.price}</p>
           <p className="text-muted-foreground mt-4 text-lg flex-grow">{product.description}</p>
+          
           <div className="mt-8 w-full space-y-4">
-            <Button size="lg" onClick={handleAddToCart} className="w-full" disabled={addedToCart}>
-              <ShoppingCart className="mr-2 h-5 w-5" />
-              {addedToCart ? 'Added!' : 'Add to Cart'}
-            </Button>
-             {addedToCart && (
-              <Button size="lg" variant="outline" className="w-full" asChild>
-                <Link href="/cart">
-                  <CheckCircle className="mr-2 h-5 w-5" />
-                  View Cart
-                </Link>
-              </Button>
+            {product.digital ? (
+                <Button size="lg" onClick={handlePurchase} className="w-full" disabled={isProcessingPurchase || isUserLoading}>
+                  <DownloadCloud className="mr-2 h-5 w-5" />
+                  {isProcessingPurchase ? 'Processing...' : 'Buy & Download'}
+                </Button>
+            ) : (
+              <>
+                <Button size="lg" onClick={handleAddToCart} className="w-full" disabled={addedToCart}>
+                  <ShoppingCart className="mr-2 h-5 w-5" />
+                  {addedToCart ? 'Added!' : 'Add to Cart'}
+                </Button>
+                {addedToCart && (
+                  <Button size="lg" variant="outline" className="w-full" asChild>
+                    <Link href="/cart">
+                      <CheckCircle className="mr-2 h-5 w-5" />
+                      View Cart
+                    </Link>
+                  </Button>
+                )}
+              </>
             )}
           </div>
         </div>

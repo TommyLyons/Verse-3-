@@ -12,6 +12,8 @@ export interface Product {
     image: ImagePlaceholder;
     revolutLink: string;
     type: 'merch' | 'music';
+    digital?: boolean;
+    downloadUrl?: string; // Only for digital products
 }
 
 
@@ -76,6 +78,19 @@ export const products: Product[] = [
         revolutLink: 'https://revolut.me/test-business-studio/10',
         type: 'music'
     },
+    {
+        id: 7,
+        name: 'Quiet Steps (WAV Download)',
+        slug: 'quiet-steps-wav',
+        price: '$2.99',
+        description: 'Purchase a high-quality WAV file of "Quiet Steps". After purchase, the file will be available for download in your profile.',
+        image: getImage('album-art-2')!,
+        revolutLink: 'https://revolut.me/test-business-studio/3',
+        type: 'music',
+        digital: true,
+        // IMPORTANT: Replace this with the actual Firebase Storage URL of your WAV file
+        downloadUrl: 'https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-1.mp3'
+    }
 ];
 
 export const getProductBySlug = (slug: string) => products.find(p => p.slug === slug);
@@ -85,6 +100,3 @@ export const getRelatedProducts = (currentProduct: Product) => {
     const oppositeType = currentProduct.type === 'merch' ? 'music' : 'merch';
     return products.filter(p => p.id !== currentProduct.id && p.type === oppositeType).slice(0, 2);
 };
-
-
-
