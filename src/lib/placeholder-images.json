@@ -21,13 +21,13 @@
     {
       "id": "album-art-3",
       "description": "Cityscape at night with light trails.",
-      "imageUrl": "https://images.unsplash.com/photo-1580895456895-cfdf02e4c23f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjaXR5JTIwbmlnaHR8ZW58MHx8fHwxNzYzNDk3NDk3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1580895456895-cfdf02e4c23f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjaXR5JTIwbmlnaHR8ZW58MHx8fHwxNzYzNDk3NDk3fDA&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "city night"
     },
     {
       "id": "merch-hoodie",
       "description": "A black hoodie with a yellow logo.",
-      "imageUrl": "https://images.unsplash.com/photo-1610582144787-eda2e6f293b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxibGFjayUyMGhvb2RpZXxlbnwwfHx8fDE3NjM1NDQ0Njl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1610582144787-eda2e6f293b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxibGFjayUyMGhvb2RpZXxlbnwwfHx8fDE3NjM1NDQ0Njl8MA&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "black hoodie"
     },
     {
@@ -43,9 +43,15 @@
       "imageHint": "black cap"
     },
     {
+      "id": "merch-tshirt",
+      "description": "A black t-shirt with a cool graphic design.",
+      "imageUrl": "https://images.unsplash.com/photo-1579565708212-4cd3b994daf5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxibGFjayUyMHQtc2hpcnR8ZW58MHx8fHwxNzY1OTU1OTc3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "black t-shirt"
+    },
+    {
       "id": "artist-lofty",
       "description": "Portrait of DJ Lofty in a dimly lit room.",
-      "imageUrl": "https://images.unsplash.com/photo-1683166689835-a5f9dd264a01?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkaiUyMHBvcnRyYWl0fGVufDB8fHx8MTc2MzQ5MjU1Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1683166689835-a5f9dd264a01?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkaiUyMHBvcnRyYWl0fGVufDB8fHx8MTc2MzQ5MjU1Nnww&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "dj portrait"
     },
     {

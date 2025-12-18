@@ -37,6 +37,16 @@ export const products: Product[] = [
         type: 'merch'
     },
     { 
+        id: 6, 
+        name: 'Printify Demo T-Shirt', 
+        slug: 'printify-demo-t-shirt',
+        price: '$29.99', 
+        description: 'This is a sample product that could be sourced from Printify. It\'s a high-quality, comfortable t-shirt perfect for your fans.',
+        image: getImage('merch-tshirt')!, 
+        revolutLink: 'https://revolut.me/test-business-studio/30', // You would replace this with the actual Printify product link or checkout
+        type: 'merch' 
+    },
+    { 
         id: 2, 
         name: 'DJ Lofty - Midnight Drive Vinyl', 
         slug: 'midnight-drive-vinyl',
@@ -75,5 +85,6 @@ export const getRelatedProducts = (currentProduct: Product) => {
     const oppositeType = currentProduct.type === 'merch' ? 'music' : 'merch';
     return products.filter(p => p.id !== currentProduct.id && p.type === oppositeType).slice(0, 2);
 };
+
 
 
