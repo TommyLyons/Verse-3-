@@ -227,6 +227,37 @@
         "audioUrl",
         "submittedAt"
       ]
+    },
+    "PurchasedProduct": {
+      "title": "Purchased Product",
+      "type": "object",
+      "description": "Represents a digital product purchased by a user.",
+      "properties": {
+        "productId": {
+          "type": "string",
+          "description": "The ID of the product that was purchased."
+        },
+        "productName": {
+          "type": "string",
+          "description": "The name of the product."
+        },
+        "downloadUrl": {
+          "type": "string",
+          "description": "The secure download URL for the purchased file in Firebase Storage.",
+          "format": "uri"
+        },
+        "purchasedAt": {
+          "type": "string",
+          "description": "The timestamp when the product was purchased.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "productId",
+        "productName",
+        "downloadUrl",
+        "purchasedAt"
+      ]
     }
   },
   "auth": {
@@ -247,6 +278,12 @@
         "$ref": "#/backend/entities/DemoSubmission"
       },
       "description": "Stores demo submissions from artists. Writeable by anyone, but not publicly readable to ensure privacy. Admins can view submissions in the Firebase Console."
+    },
+    "/users/{userId}/purchasedProducts/{purchaseId}": {
+      "schema": {
+        "$ref": "#/backend/entities/PurchasedProduct"
+      },
+      "description": "Stores a record of digital products a user has purchased. Only the user can read their own purchase history. Writes should be handled by a secure backend function after payment confirmation."
     }
   }
 }

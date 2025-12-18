@@ -17,6 +17,14 @@ service cloud.firestore {
     
     match /users/{userId} {
       allow read, write: if isOwner(userId);
+
+      match /purchasedProducts/{purchaseId} {
+        allow read: if isOwner(userId);
+        // In a real app, writes should be handled by a trusted backend server
+        // after successful payment verification. For this demo, we allow
+        // the user to write to their own record to simulate a purchase.
+        allow write: if isOwner(userId);
+      }
     }
 
     match /demoSubmissions/{submissionId} {
@@ -26,6 +34,29 @@ service cloud.firestore {
       allow read, list: if isAdmin();
       // Disallow public update and delete.
       allow update, delete: if false;
+    }
+  }
+}
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Allow public read for demo submission images and audio, and product images
+    match /demoSubmissions/{allPaths=**} {
+      allow read: if true;
+      allow write: if true; // Allow uploads
+    }
+
+    // Secure digital products (mp3, wav)
+    match /digital-products/{fileName} {
+      // A user can read a file if a document exists in their purchasedProducts
+      // subcollection that references this file.
+      allow read: if request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)/purchasedProducts/$(fileName.split('.')[0]));
+    }
+    
+    // Allow public read for general app images (e.g. logos, hero images)
+    match /{allPaths=**} {
+        allow read: if true;
     }
   }
 }
