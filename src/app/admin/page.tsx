@@ -5,14 +5,13 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser, useFirestore, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
 import { collection } from 'firebase/firestore';
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BarChart, ExternalLink, FileAudio, FileImage, Terminal, UploadCloud, PlusCircle } from 'lucide-react';
+import { BarChart, Terminal, FileAudio, FileImage, PlusCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   Dialog,
@@ -21,8 +20,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
-  DialogClose
 } from "@/components/ui/dialog"
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -39,7 +36,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Progress } from '@/components/ui/progress';
 
 
 const adminEmail = 'verse3records@gmail.com';
@@ -143,7 +139,6 @@ const productFormSchema = z.object({
   slug: z.string().min(3, "Slug is required.").refine(s => !s.includes(' '), "Slug cannot contain spaces."),
   digital: z.boolean().optional(),
   downloadUrl: z.string().optional(),
-  imageFile: z.any().refine((files) => files?.length === 1, 'Image is required.'),
 });
 type ProductFormValues = z.infer<typeof productFormSchema>;
 
@@ -151,9 +146,7 @@ type ProductFormValues = z.infer<typeof productFormSchema>;
 const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
     const { toast } = useToast();
     const firestore = useFirestore();
-    const storage = getStorage();
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
     const form = useForm<ProductFormValues>({
         resolver: zodResolver(productFormSchema),
@@ -170,37 +163,14 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
         },
     });
 
-    const handleImageUpload = (file: File): Promise<string> => {
-        return new Promise((resolve, reject) => {
-            const storageRef = ref(storage, `product-images/${Date.now()}_${file.name}`);
-            const uploadTask = uploadBytesResumable(storageRef, file);
-
-            uploadTask.on(
-                'state_changed',
-                (snapshot) => {
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    setUploadProgress(progress);
-                },
-                (error) => {
-                    console.error('Upload failed:', error);
-                    reject(error);
-                },
-                async () => {
-                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                    resolve(downloadURL);
-                }
-            );
-        });
-    };
-
     const onSubmit = async (values: ProductFormValues) => {
         setIsSubmitting(true);
-        setUploadProgress(0);
         try {
-            const imageFile = values.imageFile[0] as File;
-            const imageUrl = await handleImageUpload(imageFile);
+            // Generate a unique, random seed for the placeholder image
+            const imageSeed = Math.floor(Math.random() * 1000);
+            const imageUrl = `https://picsum.photos/seed/${imageSeed}/600/600`;
 
-            const productData = { ...values, imageUrl, imageFile: undefined };
+            const productData = { ...values, imageUrl };
 
             const productsCollection = collection(firestore, 'products');
             await addDocumentNonBlocking(productsCollection, productData);
@@ -220,7 +190,6 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
             });
         } finally {
             setIsSubmitting(false);
-            setUploadProgress(null);
         }
     };
 
@@ -309,19 +278,6 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                 />
                 <FormField
                     control={form.control}
-                    name="imageFile"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Product Image</FormLabel>
-                            <FormControl>
-                                <Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files)} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
                     name="revolutLink"
                     render={({ field }) => (
                         <FormItem>
@@ -331,13 +287,6 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                         </FormItem>
                     )}
                 />
-
-                {isSubmitting && uploadProgress !== null && (
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground text-center">Uploading image...</p>
-                    <Progress value={uploadProgress} />
-                  </div>
-                )}
 
                 <Button type="submit" disabled={isSubmitting} className="w-full">
                    {isSubmitting ? 'Adding Product...' : 'Add Product'}
