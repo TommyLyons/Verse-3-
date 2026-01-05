@@ -1,6 +1,7 @@
 
 'use client';
 
+import React from 'react';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -8,7 +9,7 @@ import { getProductBySlug, getRelatedProducts, Product } from '@/lib/products';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { ShoppingCart, Eye, CheckCircle } from 'lucide-react';
+import { ShoppingCart, Eye, CheckCircle, CreditCard } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
 import { useState, useEffect } from 'react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
@@ -33,17 +34,23 @@ function ProductPageContent({ slug }: { slug: string }) {
         if (isDbLoading) return;
         setIsLoading(true);
 
-        const flowProducts = await getFlowProducts('Crude City');
-        const allProducts = [...(allDbProducts || []), ...flowProducts];
+        try {
+            const flowProducts = await getFlowProducts('Crude City');
+            const allProducts = [...(allDbProducts || []), ...flowProducts];
 
-        const fetchedProduct = await getProductBySlug(slug, allProducts);
-        setProduct(fetchedProduct);
+            const fetchedProduct = await getProductBySlug(slug, allProducts);
+            setProduct(fetchedProduct);
 
-        if (fetchedProduct) {
-            const related = getRelatedProducts(fetchedProduct, allProducts);
-            setRelatedProducts(related);
+            if (fetchedProduct) {
+                const related = getRelatedProducts(fetchedProduct, allProducts);
+                setRelatedProducts(related);
+            }
+        } catch (error) {
+            console.error("Error fetching product data:", error);
+            setProduct(null);
+        } finally {
+            setIsLoading(false);
         }
-        setIsLoading(false);
     }
 
     fetchAllProducts();
@@ -103,8 +110,14 @@ function ProductPageContent({ slug }: { slug: string }) {
               <ShoppingCart className="mr-2 h-5 w-5" />
               {addedToCart ? 'Added!' : 'Add to Cart'}
             </Button>
+             <Button size="lg" variant="outline" className="w-full" asChild>
+                <a href={product.revolutLink} target="_blank" rel="noopener noreferrer">
+                    <CreditCard className="mr-2 h-5 w-5" />
+                    Buy Now
+                </a>
+              </Button>
              {addedToCart && (
-              <Button size="lg" variant="outline" className="w-full" asChild>
+              <Button size="lg" variant="ghost" className="w-full" asChild>
                 <Link href="/cart">
                   <CheckCircle className="mr-2 h-5 w-5" />
                   View Cart
@@ -160,6 +173,8 @@ function ProductPageContent({ slug }: { slug: string }) {
 }
 
 
-export default function ProductPage({ params }: { params: { slug: string } }) {
+export default function MerchPage({ params }: { params: { slug: string } }) {
   return <ProductPageContent slug={params.slug} />;
 }
+
+    
