@@ -59,11 +59,10 @@ function ProductPageContent({ slug }: { slug: string }) {
       <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-start">
         <div className="relative aspect-square">
           <Image
-            src={product.image.imageUrl}
-            alt={product.image.description}
+            src={product.imageUrl}
+            alt={product.description}
             fill
             className="object-cover rounded-lg"
-            data-ai-hint={product.image.imageHint}
             sizes="(max-width: 768px) 100vw, 50vw"
           />
         </div>
@@ -95,16 +94,15 @@ function ProductPageContent({ slug }: { slug: string }) {
             {relatedProducts.map((item: any) => (
                <Card key={item.id} className="overflow-hidden group relative flex flex-col">
                     <CardContent className="p-0 flex-grow">
-                        <div className="aspect-square relative">
-                        <Image
-                            src={item.imageUrl}
-                            alt={item.description}
-                            fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
-                            sizes="(max-width: 640px) 100vw, 50vw"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
-                        </div>
+                        <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative">
+                          <Image
+                              src={item.imageUrl}
+                              alt={item.description}
+                              fill
+                              className="object-cover transition-transform duration-300 group-hover:scale-105"
+                              sizes="(max-width: 640px) 100vw, 50vw"
+                          />
+                        </Link>
                     </CardContent>
                     <CardFooter className="p-4 flex justify-between items-center bg-card">
                     <div>
