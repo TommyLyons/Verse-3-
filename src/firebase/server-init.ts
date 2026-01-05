@@ -18,7 +18,7 @@ if (!getApps().length) {
     app = getApp();
 }
 
-const firestore = getFirestore(app);
+export const firestore = getFirestore(app);
 
 export function initializeFirebase() {
     // This function now just returns the initialized services for server-side use.

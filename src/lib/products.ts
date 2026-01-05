@@ -3,7 +3,7 @@
 
 import { getProducts as getFlowProducts } from '@/ai/flows/get-products-flow';
 import { collection, getDocs } from 'firebase/firestore';
-import { initializeFirebase } from '@/firebase/server-init';
+import { firestore } from '@/firebase/server-init';
 import { type Product } from '@/lib/schemas';
 
 export { type Product };
@@ -15,9 +15,7 @@ export { type Product };
  */
 export const getAllProducts = async (): Promise<Product[]> => {
     try {
-        const db = initializeFirebase().firestore;
-
-        const productsCollection = collection(db, 'products');
+        const productsCollection = collection(firestore, 'products');
         const dbProductsPromise = getDocs(productsCollection).then(snapshot => 
             snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Product))
         );

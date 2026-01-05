@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useUser, useFirestore, useCollection } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -11,12 +11,13 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { DownloadCloud, Music } from 'lucide-react';
 import { format } from 'date-fns';
+import { useMemo } from 'react';
 
 function PurchasedDownloads() {
   const { user } = useUser();
   const firestore = useFirestore();
 
-  const purchasesQuery = useMemoFirebase(() => {
+  const purchasesQuery = useMemo(() => {
     if (!user || !firestore) return null;
     return collection(firestore, 'users', user.uid, 'purchasedProducts');
   }, [firestore, user]);

@@ -1,9 +1,9 @@
 
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser, useFirestore, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
+import { useUser, useFirestore, useCollection, addDocumentNonBlocking } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -42,7 +42,7 @@ const adminEmail = 'verse3records@gmail.com';
 
 const MusicSubmissions = () => {
     const firestore = useFirestore();
-    const submissionsQuery = useMemoFirebase(() => collection(firestore, 'demoSubmissions'), [firestore]);
+    const submissionsQuery = useMemo(() => collection(firestore, 'demoSubmissions'), [firestore]);
     const { data: submissions, isLoading, error } = useCollection(submissionsQuery);
 
     if (isLoading) {
@@ -330,7 +330,7 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
 
 const ProductManagement = () => {
     const firestore = useFirestore();
-    const productsQuery = useMemoFirebase(() => collection(firestore, 'products'), [firestore]);
+    const productsQuery = useMemo(() => collection(firestore, 'products'), [firestore]);
     const { data: products, isLoading, error } = useCollection(productsQuery);
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
