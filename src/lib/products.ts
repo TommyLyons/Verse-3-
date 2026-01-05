@@ -14,6 +14,7 @@ export interface Product {
     type: 'merch' | 'music';
     digital?: boolean;
     downloadUrl?: string; // Only for digital products
+    availableRegions?: ('UK' | 'EU')[]; // For merchandise availability
 }
 
 
@@ -26,7 +27,8 @@ export const products: Product[] = [
         description: 'Stay warm and rep the label with this comfortable, high-quality black hoodie featuring the signature Verse3 Records logo in vibrant yellow.',
         image: getImage('merch-hoodie')!, 
         revolutLink: 'https://revolut.me/test-business-studio/50',
-        type: 'merch' 
+        type: 'merch',
+        availableRegions: ['UK', 'EU']
     },
     { 
         id: 3, 
@@ -36,7 +38,8 @@ export const products: Product[] = [
         description: 'A stylish and comfortable black cap with the Verse3 Records logo beautifully embroidered on the front. Perfect for everyday wear.',
         image: getImage('merch-cap')!, 
         revolutLink: 'https://revolut.me/test-business-studio/25',
-        type: 'merch'
+        type: 'merch',
+        availableRegions: ['UK', 'EU']
     },
     { 
         id: 6, 
@@ -46,7 +49,8 @@ export const products: Product[] = [
         description: 'This is a sample product that could be sourced from Printify. It\'s a high-quality, comfortable t-shirt perfect for your fans.',
         image: getImage('merch-tshirt')!, 
         revolutLink: 'https://revolut.me/test-business-studio/30', // You would replace this with the actual Printify product link or checkout
-        type: 'merch' 
+        type: 'merch',
+        availableRegions: ['UK']
     },
     { 
         id: 2, 
@@ -88,7 +92,6 @@ export const products: Product[] = [
         revolutLink: 'https://revolut.me/test-business-studio/3',
         type: 'music',
         digital: true,
-        // IMPORTANT: Replace this with the actual Firebase Storage URL of your WAV file
         downloadUrl: 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/Music%2F01.%20The%20Goods%20-%20Glow%20(Original%20Mix).mp3?alt=media&token=7bb1f9b9-cf66-49f7-9104-92f94d75bd2c'
     }
 ];
