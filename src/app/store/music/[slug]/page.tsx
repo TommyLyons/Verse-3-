@@ -44,7 +44,6 @@ function ProductPageContent({ slug }: { slug: string }) {
         if (isDbLoading) return;
         setIsLoading(true);
 
-        // Combine products from both sources
         const flowProducts = await getFlowProducts('Crude City');
         const allProducts = [...(allDbProducts || []), ...flowProducts];
 
@@ -202,6 +201,7 @@ function ProductPageContent({ slug }: { slug: string }) {
 
   const imageUrl = ('image' in product && product.image ? product.image.imageUrl : product.imageUrl) || '';
   const imageDescription = ('image' in product && product.image ? product.image.description : product.description) || '';
+  const imageHint = ('image' in product && product.image ? product.image.imageHint : '') || '';
 
 
   return (
@@ -215,6 +215,7 @@ function ProductPageContent({ slug }: { slug: string }) {
             fill
             className="object-cover rounded-lg"
             sizes="(max-width: 768px) 100vw, 50vw"
+            data-ai-hint={imageHint}
           />
         </div>
         <div className="flex flex-col h-full">
@@ -275,6 +276,7 @@ function ProductPageContent({ slug }: { slug: string }) {
             {relatedProducts.map((item: Product) => {
               const relatedImageUrl = ('image' in item && item.image ? item.image.imageUrl : item.imageUrl) || '';
               const relatedImageDescription = ('image' in item && item.image ? item.image.description : item.description) || '';
+              const relatedImageHint = ('image' in item && item.image ? item.image.imageHint : '') || '';
               
               return (
                <Card key={item.id} className="overflow-hidden group relative flex flex-col">
@@ -286,6 +288,7 @@ function ProductPageContent({ slug }: { slug: string }) {
                             fill
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
                             sizes="(max-width: 640px) 100vw, 50vw"
+                            data-ai-hint={relatedImageHint}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
                         </div>
@@ -313,7 +316,5 @@ function ProductPageContent({ slug }: { slug: string }) {
 
 
 export default function ProductPage({ params }: { params: { slug: string } }) {
-  // The rendering logic is moved to a separate client component
-  // that can use hooks like `useCollection` and `useEffect`.
   return <ProductPageContent slug={params.slug} />;
 }
