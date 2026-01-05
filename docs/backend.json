@@ -304,6 +304,11 @@
         "downloadUrl": {
           "type": "string",
           "format": "uri"
+        },
+        "sizes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Available sizes for the merchandise (e.g., 'S', 'M', 'L', 'XL')."
         }
       },
       "required": [
@@ -340,7 +345,8 @@
               "id": { "type": "string" },
               "name": { "type": "string" },
               "quantity": { "type": "number" },
-              "price": { "type": "string" }
+              "price": { "type": "string" },
+              "size": { "type": "string" }
             },
             "required": ["id", "name", "quantity", "price"]
           }

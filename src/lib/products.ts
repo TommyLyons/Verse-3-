@@ -22,6 +22,7 @@ export const ProductSchema = z.object({
   digital: z.boolean().optional(),
   downloadUrl: z.string().url().optional(),
   availableRegions: z.array(z.enum(['UK', 'EU'])).optional(),
+  sizes: z.array(z.string()).optional(),
 });
 export type Product = z.infer<typeof ProductSchema>;
 

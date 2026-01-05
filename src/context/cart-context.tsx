@@ -7,13 +7,15 @@ import { useToast } from '@/hooks/use-toast';
 
 export interface CartItem extends Product {
   quantity: number;
+  size?: string;
+  cartId: string; // Unique identifier for each cart item instance
 }
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (product: Product) => void;
-  removeFromCart: (productId: string | number) => void;
-  updateQuantity: (productId: string | number, quantity: number) => void;
+  addToCart: (product: Product, quantity?: number, size?: string) => void;
+  removeFromCart: (cartId: string) => void;
+  updateQuantity: (cartId: string, quantity: number) => void;
   clearCart: () => void;
 }
 
@@ -36,33 +38,45 @@ export function CartProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('verse3-cart', JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (product: Product) => {
+  const addToCart = (product: Product, quantity: number = 1, size?: string) => {
     setCart((prevCart) => {
-      const existingItem = prevCart.find((item) => item.id === product.id);
+      // For merch with sizes, treat each size as a unique item.
+      // For products without sizes, group them by ID.
+      const existingItem = prevCart.find((item) => 
+        item.id === product.id && (product.type !== 'merch' || item.size === size)
+      );
+
       if (existingItem) {
+        // Increase quantity of existing item
         return prevCart.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.cartId === existingItem.cartId
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
         );
+      } else {
+        // Add new item to cart
+        const cartId = `${product.id}-${size || ''}-${Date.now()}`;
+        const newItem: CartItem = { ...product, quantity, size, cartId };
+        return [...prevCart, newItem];
       }
-      return [...prevCart, { ...product, quantity: 1 }];
     });
     toast({
       title: "Added to Cart",
-      description: `${product.name} has been added to your cart.`,
+      description: `${product.name}${size ? ` (${size})` : ''} has been added to your cart.`,
     });
   };
 
-  const removeFromCart = (productId: string | number) => {
-    setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
+  const removeFromCart = (cartId: string) => {
+    setCart((prevCart) => prevCart.filter((item) => item.cartId !== cartId));
   };
 
-  const updateQuantity = (productId: string | number, quantity: number) => {
+  const updateQuantity = (cartId: string, quantity: number) => {
     if (quantity <= 0) {
-      removeFromCart(productId);
+      removeFromCart(cartId);
       return;
     }
     setCart((prevCart) =>
-      prevCart.map((item) => (item.id === productId ? { ...item, quantity } : item))
+      prevCart.map((item) => (item.cartId === cartId ? { ...item, quantity } : item))
     );
   };
 

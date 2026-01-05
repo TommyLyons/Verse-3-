@@ -14,10 +14,10 @@ import { Separator } from '@/components/ui/separator';
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
 
-  const handleQuantityChange = (productId: number, newQuantity: string) => {
+  const handleQuantityChange = (cartId: string, newQuantity: string) => {
     const quantity = parseInt(newQuantity, 10);
     if (!isNaN(quantity)) {
-      updateQuantity(productId, quantity);
+      updateQuantity(cartId, quantity);
     }
   };
 
@@ -49,10 +49,10 @@ export default function CartPage() {
           <div className="grid md:grid-cols-[2fr_1fr] gap-12 items-start">
             <div className="space-y-4">
               {cart.map((item) => (
-                <Card key={item.id} className="flex items-center p-4">
+                <Card key={item.cartId} className="flex items-center p-4">
                   <div className="relative w-24 h-24 mr-4">
                     <Image
-                      src={item.imageUrl!}
+                      src={('image' in item && item.image ? item.image.imageUrl : item.imageUrl) || ''}
                       alt={item.name}
                       fill
                       className="object-cover rounded-md"
@@ -63,8 +63,11 @@ export default function CartPage() {
                     <Link href={`/store/${item.type}/${item.slug}`} className="font-semibold hover:underline">
                       {item.name}
                     </Link>
+                    {item.size && (
+                        <p className="text-sm text-muted-foreground">Size: {item.size}</p>
+                    )}
                     <p className="text-sm text-muted-foreground">{item.price}</p>
-                    <Button variant="ghost" size="sm" onClick={() => removeFromCart(item.id as number)} className="text-muted-foreground hover:text-destructive mt-1 px-0 h-auto">
+                    <Button variant="ghost" size="sm" onClick={() => removeFromCart(item.cartId)} className="text-muted-foreground hover:text-destructive mt-1 px-0 h-auto">
                       <Trash2 className="mr-1 h-3 w-3" /> Remove
                     </Button>
                   </div>
@@ -73,7 +76,7 @@ export default function CartPage() {
                       type="number"
                       min="1"
                       value={item.quantity}
-                      onChange={(e) => handleQuantityChange(item.id as number, e.target.value)}
+                      onChange={(e) => handleQuantityChange(item.cartId, e.target.value)}
                       className="w-16 h-9"
                     />
                   

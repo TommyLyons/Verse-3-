@@ -16,6 +16,9 @@ import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getProducts as getFlowProducts } from '@/ai/flows/get-products-flow';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
 
 function ProductPageContent({ slug }: { slug: string }) {
   const firestore = useFirestore();
@@ -26,8 +29,11 @@ function ProductPageContent({ slug }: { slug: string }) {
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const { toast } = useToast();
   const { addToCart } = useCart();
   const [addedToCart, setAddedToCart] = useState(false);
+  const [selectedSize, setSelectedSize] = useState<string>('');
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     async function fetchAllProducts() {
@@ -42,6 +48,9 @@ function ProductPageContent({ slug }: { slug: string }) {
             setProduct(fetchedProduct);
 
             if (fetchedProduct) {
+                if (fetchedProduct.sizes && fetchedProduct.sizes.length > 0) {
+                    setSelectedSize(fetchedProduct.sizes[0]);
+                }
                 const related = getRelatedProducts(fetchedProduct, allProducts);
                 setRelatedProducts(related);
             }
@@ -78,7 +87,21 @@ function ProductPageContent({ slug }: { slug: string }) {
   }
 
   const handleAddToCart = () => {
-    addToCart(product);
+    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+        toast({
+            variant: 'destructive',
+            title: 'Please select a size',
+        });
+        return;
+    }
+    if (quantity < 1) {
+        toast({
+            variant: 'destructive',
+            title: 'Quantity must be at least 1',
+        });
+        return;
+    }
+    addToCart(product, quantity, selectedSize);
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 3000); // Reset after 3 seconds
   };
@@ -105,6 +128,36 @@ function ProductPageContent({ slug }: { slug: string }) {
           <h1 className="font-headline text-3xl md:text-4xl font-bold">{product.name}</h1>
           <p className="text-2xl font-semibold text-primary mt-2">{product.price}</p>
           <p className="text-muted-foreground mt-4 text-lg flex-grow">{product.description}</p>
+          
+           <div className="mt-8 grid grid-cols-2 gap-4">
+                {product.sizes && product.sizes.length > 0 && (
+                     <div>
+                        <label htmlFor="size-select" className="text-sm font-medium text-muted-foreground">Size</label>
+                        <Select value={selectedSize} onValueChange={setSelectedSize}>
+                            <SelectTrigger id="size-select">
+                                <SelectValue placeholder="Select a size" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {product.sizes.map(size => (
+                                    <SelectItem key={size} value={size}>{size}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                     </div>
+                )}
+                 <div>
+                    <label htmlFor="quantity-input" className="text-sm font-medium text-muted-foreground">Quantity</label>
+                    <Input 
+                        id="quantity-input"
+                        type="number"
+                        min="1"
+                        value={quantity}
+                        onChange={(e) => setQuantity(parseInt(e.target.value, 10))}
+                    />
+                 </div>
+           </div>
+
+
           <div className="mt-8 w-full space-y-4">
             <Button size="lg" onClick={handleAddToCart} className="w-full" disabled={addedToCart}>
               <ShoppingCart className="mr-2 h-5 w-5" />

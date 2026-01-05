@@ -71,7 +71,13 @@ export default function CheckoutPage() {
 
       const orderData = {
         customerDetails: values,
-        items: physicalItems.map(item => ({ id: item.id, name: item.name, quantity: item.quantity, price: item.price })),
+        items: physicalItems.map(item => ({ 
+            id: item.id, 
+            name: item.name, 
+            quantity: item.quantity, 
+            price: item.price,
+            size: item.size || null 
+        })),
         total: physicalItems.reduce((acc, item) => acc + parseFloat(item.price.replace('$', '')) * item.quantity, 0).toFixed(2),
         submittedAt: serverTimestamp(),
         status: 'pending_payment',
@@ -201,10 +207,10 @@ export default function CheckoutPage() {
             <h2 className="text-2xl font-headline mb-4">Your Order</h2>
             <div className="space-y-4">
                 {physicalItems.map(item => (
-                    <Card key={item.id} className="flex items-center p-3">
+                    <Card key={item.cartId} className="flex items-center p-3">
                         <div className="relative w-16 h-16 mr-4">
                              <Image
-                                src={item.imageUrl!}
+                                src={('image' in item && item.image ? item.image.imageUrl : item.imageUrl) || ''}
                                 alt={item.name}
                                 fill
                                 className="object-cover rounded-md"
@@ -213,6 +219,7 @@ export default function CheckoutPage() {
                         </div>
                         <div className="flex-grow">
                             <p className="font-semibold">{item.name}</p>
+                            {item.size && <p className="text-sm text-muted-foreground">Size: {item.size}</p>}
                             <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                         </div>
                         <p className="font-medium">${(parseFloat(item.price.replace('$', '')) * item.quantity).toFixed(2)}</p>

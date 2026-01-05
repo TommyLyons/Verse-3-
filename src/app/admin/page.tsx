@@ -140,6 +140,7 @@ const productFormSchema = z.object({
   imageUrl: z.string().url("Please enter a valid image URL."),
   digital: z.boolean().optional(),
   downloadUrl: z.string().optional(),
+  sizes: z.string().optional(),
 });
 type ProductFormValues = z.infer<typeof productFormSchema>;
 
@@ -161,15 +162,26 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
             slug: '',
             imageUrl: '',
             digital: false,
-            downloadUrl: ''
+            downloadUrl: '',
+            sizes: ''
         },
     });
+
+    const productType = form.watch('type');
 
     const onSubmit = async (values: ProductFormValues) => {
         setIsSubmitting(true);
         try {
             const productsCollection = collection(firestore, 'products');
-            await addDocumentNonBlocking(productsCollection, values);
+
+            const productData: any = { ...values };
+            if (productData.sizes && typeof productData.sizes === 'string') {
+                productData.sizes = productData.sizes.split(',').map((s: string) => s.trim().toUpperCase());
+            } else {
+                productData.sizes = [];
+            }
+
+            await addDocumentNonBlocking(productsCollection, productData);
             
             toast({
                 title: 'Product Added!',
@@ -272,6 +284,19 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                         </FormItem>
                     )}
                 />
+                {productType === 'merch' && (
+                     <FormField
+                        control={form.control}
+                        name="sizes"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Available Sizes</FormLabel>
+                                <FormControl><Input placeholder="S, M, L, XL" {...field} /></FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                )}
                  <FormField
                     control={form.control}
                     name="imageUrl"
