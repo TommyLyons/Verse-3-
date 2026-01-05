@@ -42,8 +42,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setCart((prevCart) => {
       // For merch with sizes, treat each size as a unique item.
       // For products without sizes, group them by ID.
+      const hasSize = product.sizes && product.sizes.length > 0;
       const existingItem = prevCart.find((item) => 
-        item.id === product.id && (product.type !== 'merch' || item.size === size)
+        item.id === product.id && (!hasSize || item.size === size)
       );
 
       if (existingItem) {
@@ -56,7 +57,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       } else {
         // Add new item to cart
         const cartId = `${product.id}-${size || ''}-${Date.now()}`;
-        const newItem: CartItem = { ...product, quantity, size, cartId };
+        const newItem: CartItem = { ...product, quantity, size: size || undefined, cartId };
         return [...prevCart, newItem];
       }
     });
