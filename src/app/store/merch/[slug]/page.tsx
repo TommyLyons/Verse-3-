@@ -221,9 +221,7 @@ function ProductPageContent({ slug }: { slug: string }) {
   );
 }
 
-// The main export must be a basic Server Component.
+// The main export must be a basic Server Component that passes params to the client component.
 export default function MerchPage({ params }: { params: { slug: string } }) {
   return <ProductPageContent slug={params.slug} />;
 }
-
-    
