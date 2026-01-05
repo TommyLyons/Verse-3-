@@ -181,11 +181,10 @@ function ProductPageContent({ slug }: { slug: string }) {
       <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-start">
         <div className="relative aspect-square">
           <Image
-            src={product.image.imageUrl}
-            alt={product.image.description}
+            src={product.imageUrl}
+            alt={product.description}
             fill
             className="object-cover rounded-lg"
-            data-ai-hint={product.image.imageHint}
             sizes="(max-width: 768px) 100vw, 50vw"
           />
         </div>
