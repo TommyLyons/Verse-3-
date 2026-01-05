@@ -1,10 +1,12 @@
+
 'use server';
 
-import { getProducts as getFlowProducts, Product, ProductSchema } from '@/ai/flows/get-products-flow';
-import { collection, getDocs, Firestore } from 'firebase/firestore';
+import { getProducts as getFlowProducts } from '@/ai/flows/get-products-flow';
+import { collection, getDocs } from 'firebase/firestore';
 import { initializeFirebase } from '@/firebase/server-init';
+import { type Product } from '@/lib/schemas';
 
-export { type Product, ProductSchema };
+export { type Product };
 
 /**
  * Fetches all products from both Firestore and the Genkit Flow, returning a single combined array.
