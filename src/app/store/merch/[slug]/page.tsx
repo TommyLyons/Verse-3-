@@ -1,23 +1,23 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getProductBySlug, getRelatedProducts, Product, getAllProducts } from '@/lib/products';
+import { getRelatedProducts, type Product, getAllProducts } from '@/lib/products';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ShoppingCart, Eye, CheckCircle, CreditCard } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
-import { useState, useEffect, use } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore } from '@/firebase';
 
-function ProductPageContent({ slug }: { slug: string }) {
+export default function MerchPage({ params }: { params: { slug: string } }) {
+  const { slug } = params;
   const { toast } = useToast();
   const firestore = useFirestore();
   
@@ -49,7 +49,9 @@ function ProductPageContent({ slug }: { slug: string }) {
         setIsLoading(false);
     }
 
-    fetchProductData();
+    if (slug) {
+      fetchProductData();
+    }
   }, [slug, firestore]);
   
   if (isLoading || product === undefined) {
@@ -218,10 +220,4 @@ function ProductPageContent({ slug }: { slug: string }) {
       )}
     </div>
   );
-}
-
-
-export default function MerchPage({ params }: { params: { slug: string } }) {
-  const resolvedParams = use(Promise.resolve(params));
-  return <ProductPageContent slug={resolvedParams.slug} />;
 }

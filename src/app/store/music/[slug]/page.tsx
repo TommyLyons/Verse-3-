@@ -4,19 +4,21 @@
 import { notFound, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getProductBySlug, getRelatedProducts, Product, getAllProducts } from '@/lib/products';
+import { getRelatedProducts, type Product, getAllProducts } from '@/lib/products';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ShoppingCart, Eye, CheckCircle, DownloadCloud, Play, Pause } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
-import { useState, useRef, useEffect, use } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useUser, useFirestore, addDocumentNonBlocking } from '@/firebase';
 import { collection, serverTimestamp, getDocs, query, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
-function ProductPageContent({ slug }: { slug: string }) {
+
+export default function ProductPage({ params }: { params: { slug: string } }) {
+  const { slug } = params;
   const router = useRouter();
   const { toast } = useToast();
   const { user, isUserLoading } = useUser();
@@ -51,7 +53,9 @@ function ProductPageContent({ slug }: { slug: string }) {
         setIsLoading(false);
     }
 
-    fetchProductData();
+    if (slug) {
+      fetchProductData();
+    }
   }, [slug, firestore]);
 
   useEffect(() => {
@@ -306,10 +310,4 @@ function ProductPageContent({ slug }: { slug: string }) {
       )}
     </div>
   );
-}
-
-
-export default function ProductPage({ params }: { params: { slug: string } }) {
-  const resolvedParams = use(Promise.resolve(params));
-  return <ProductPageContent slug={resolvedParams.slug} />;
 }
