@@ -59,7 +59,7 @@ function PurchasedDownloads() {
           <div>
             <p className="font-semibold">{purchase.productName}</p>
             <p className="text-sm text-muted-foreground">
-              Purchased on {format(purchase.purchasedAt.toDate(), 'PPP')}
+              Purchased on {purchase.purchasedAt.toDate ? format(purchase.purchasedAt.toDate(), 'PPP') : 'N/A'}
             </p>
           </div>
           <Button asChild size="sm">

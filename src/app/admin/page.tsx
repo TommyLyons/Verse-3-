@@ -42,7 +42,10 @@ const adminEmail = 'verse3records@gmail.com';
 
 const MusicSubmissions = () => {
     const firestore = useFirestore();
-    const submissionsQuery = useMemo(() => collection(firestore, 'demoSubmissions'), [firestore]);
+    const submissionsQuery = useMemo(() => {
+        if (!firestore) return null;
+        return collection(firestore, 'demoSubmissions');
+    }, [firestore]);
     const { data: submissions, isLoading, error } = useCollection(submissionsQuery);
 
     if (isLoading) {
@@ -170,6 +173,14 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
     const productType = form.watch('type');
 
     const onSubmit = async (values: ProductFormValues) => {
+        if (!firestore) {
+             toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'Firestore not available.',
+            });
+            return;
+        }
         setIsSubmitting(true);
         try {
             const productsCollection = collection(firestore, 'products');
@@ -330,7 +341,10 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
 
 const ProductManagement = () => {
     const firestore = useFirestore();
-    const productsQuery = useMemo(() => collection(firestore, 'products'), [firestore]);
+    const productsQuery = useMemo(() => {
+        if (!firestore) return null;
+        return collection(firestore, 'products');
+    }, [firestore]);
     const { data: products, isLoading, error } = useCollection(productsQuery);
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
@@ -441,5 +455,3 @@ export default function AdminPage() {
         </div>
     )
 }
-
-    

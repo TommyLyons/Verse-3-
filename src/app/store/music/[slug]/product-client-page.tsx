@@ -120,7 +120,9 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
                 title: 'Already Purchased',
                 description: 'You already own this item. Triggering download now...',
             });
-            triggerDownload(product.downloadUrl, `${product.name}.mp3`);
+            if(product.downloadUrl) {
+                triggerDownload(product.downloadUrl, `${product.name}.mp3`);
+            }
             setIsProcessingPurchase(false);
             return;
         }
@@ -141,7 +143,9 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
             description: 'Your download will begin automatically. Please complete the payment.',
         });
 
-        triggerDownload(product.downloadUrl, `${product.name}.mp3`);
+        if(product.downloadUrl) {
+            triggerDownload(product.downloadUrl, `${product.name}.mp3`);
+        }
 
     } catch (error) {
         console.error("Purchase error:", error);
