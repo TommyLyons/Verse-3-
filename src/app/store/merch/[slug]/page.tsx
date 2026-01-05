@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -16,8 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore } from '@/firebase';
 
-export default function MerchPage({ params }: { params: { slug: string } }) {
-  const { slug } = params;
+function ProductPageContent({ slug }: { slug: string }) {
   const { toast } = useToast();
   const firestore = useFirestore();
   
@@ -118,23 +117,8 @@ export default function MerchPage({ params }: { params: { slug: string } }) {
           <p className="text-2xl font-semibold text-primary mt-2">{product.price}</p>
           <p className="text-muted-foreground mt-4 text-lg flex-grow">{product.description}</p>
           
-           <div className="mt-8 grid grid-cols-2 gap-4">
-                {product.sizes && product.sizes.length > 0 && (
-                     <div>
-                        <label htmlFor="size-select" className="text-sm font-medium text-muted-foreground">Size</label>
-                        <Select value={selectedSize} onValueChange={setSelectedSize}>
-                            <SelectTrigger id="size-select">
-                                <SelectValue placeholder="Select a size" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {product.sizes.map(size => (
-                                    <SelectItem key={size} value={size}>{size}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                     </div>
-                )}
-                 <div>
+           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
                     <label htmlFor="quantity-select" className="text-sm font-medium text-muted-foreground">Quantity</label>
                      <Select 
                         value={String(quantity)} 
@@ -152,6 +136,21 @@ export default function MerchPage({ params }: { params: { slug: string } }) {
                         </SelectContent>
                      </Select>
                  </div>
+                {product.sizes && product.sizes.length > 0 && (
+                     <div>
+                        <label htmlFor="size-select" className="text-sm font-medium text-muted-foreground">Size</label>
+                        <Select value={selectedSize} onValueChange={setSelectedSize}>
+                            <SelectTrigger id="size-select">
+                                <SelectValue placeholder="Select a size" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {product.sizes.map(size => (
+                                    <SelectItem key={size} value={size}>{size}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                     </div>
+                )}
            </div>
 
 
@@ -220,4 +219,10 @@ export default function MerchPage({ params }: { params: { slug: string } }) {
       )}
     </div>
   );
+}
+
+// This structure is necessary to use React hooks like `use` for resolving promises.
+// The main export must be a basic Server Component.
+export default function MerchPage({ params }: { params: { slug: string } }) {
+  return <ProductPageContent slug={params.slug} />;
 }
