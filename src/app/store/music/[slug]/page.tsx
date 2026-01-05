@@ -17,7 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
 
-export default function ProductPage({ params }: { params: { slug: string } }) {
+function ProductPageContent({ params }: { params: { slug: string } }) {
   const { slug } = params;
   const router = useRouter();
   const { toast } = useToast();
@@ -310,4 +310,8 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
       )}
     </div>
   );
+}
+
+export default function ProductPage({ params }: { params: { slug: string } }) {
+    return <ProductPageContent params={params} />
 }
