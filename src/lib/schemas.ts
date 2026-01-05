@@ -11,7 +11,7 @@ export const ProductSchema = z.object({
     id: z.string().optional(),
     description: z.string(),
     imageUrl: z.string(),
-    imageHint: z-string(),
+    imageHint: z.string(),
   }).optional(),
   imageUrl: z.string().optional(),
   revolutLink: z.string().url(),
