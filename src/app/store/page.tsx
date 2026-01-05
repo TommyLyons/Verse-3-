@@ -19,7 +19,7 @@ import {
 import React, { useState, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, where } from 'firebase/firestore';
+import { collection, query } from 'firebase/firestore';
 import { getProducts } from '@/ai/flows/get-products-flow';
 
 
@@ -117,13 +117,11 @@ export default function StorePage() {
   useEffect(() => {
     if (allDbProducts) {
       setVerse3Merch(allDbProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch'));
-      // Note: Crude City merch is now fetched from the flow, but we still filter other brands from DB
       setPhysicalMusic(allDbProducts.filter(p => p.type === 'music' && !p.digital));
       setDigitalMusic(allDbProducts.filter(p => p.type === 'music' && p.digital));
     }
-  }, [allDbProducts, region]);
+  }, [allDbProducts]);
 
-  const isLoading = isDbLoading || isFlowLoading;
 
   return (
     <div className="container py-12 md:py-24">
