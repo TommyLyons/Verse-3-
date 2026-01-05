@@ -1,7 +1,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { use } from 'react';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -15,46 +15,65 @@ import { useState, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { getProducts as getAllProducts } from '@/lib/products';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, query } from 'firebase/firestore';
+import { getProducts as getFlowProducts } from '@/ai/flows/get-products-flow';
 
 function ProductPageContent({ slug }: { slug: string }) {
+  const { toast } = useToast();
+  const firestore = useFirestore();
+
+  const productsQuery = useMemoFirebase(() => query(collection(firestore, 'products')), [firestore]);
+  const { data: allDbProducts, isLoading: isDbLoading } = useCollection(productsQuery);
   
+  const [allFlowProducts, setAllFlowProducts] = useState<Product[]>([]);
+  const [isFlowLoading, setIsFlowLoading] = useState(true);
+
   const [product, setProduct] = useState<Product | null | undefined>(undefined);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const { toast } = useToast();
   const { addToCart } = useCart();
   const [addedToCart, setAddedToCart] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
+  
+  useEffect(() => {
+    async function fetchFlowProducts() {
+        setIsFlowLoading(true);
+        try {
+            const crudeCity = await getFlowProducts('Crude City');
+            setAllFlowProducts(crudeCity);
+        } catch (error) {
+            console.error("Failed to fetch Crude City products:", error);
+            setAllFlowProducts([]);
+        }
+        setIsFlowLoading(false);
+    }
+    fetchFlowProducts();
+  }, []);
 
   useEffect(() => {
-    async function fetchAllProducts() {
+    if (isDbLoading || isFlowLoading) return;
+
+    async function fetchProduct() {
         setIsLoading(true);
+        const allProducts = [...(allDbProducts || []), ...allFlowProducts];
+        const fetchedProduct = await getProductBySlug(slug, allProducts);
+        setProduct(fetchedProduct);
 
-        try {
-            const allProducts = await getAllProducts();
-            const fetchedProduct = await getProductBySlug(slug, allProducts);
-            setProduct(fetchedProduct);
-
-            if (fetchedProduct) {
-                if (fetchedProduct.sizes && fetchedProduct.sizes.length > 0) {
-                    setSelectedSize(fetchedProduct.sizes[0]);
-                }
-                const related = getRelatedProducts(fetchedProduct, allProducts);
-                setRelatedProducts(related);
+        if (fetchedProduct) {
+            if (fetchedProduct.sizes && fetchedProduct.sizes.length > 0) {
+                setSelectedSize(fetchedProduct.sizes[0]);
             }
-        } catch (error) {
-            console.error("Error fetching product data:", error);
-            setProduct(null);
-        } finally {
-            setIsLoading(false);
+            const related = getRelatedProducts(fetchedProduct, allProducts);
+            setRelatedProducts(related);
         }
+        setIsLoading(false);
     }
 
-    fetchAllProducts();
-  }, [slug]);
+    fetchProduct();
+  }, [slug, allDbProducts, allFlowProducts, isDbLoading, isFlowLoading]);
   
   if (isLoading || product === undefined) {
     return (
@@ -226,8 +245,6 @@ function ProductPageContent({ slug }: { slug: string }) {
 
 
 export default function MerchPage({ params }: { params: { slug: string } }) {
-  // The 'use' hook is the modern way to resolve the params promise.
-  // const resolvedParams = use(params);
   return <ProductPageContent slug={params.slug} />;
 }
 
