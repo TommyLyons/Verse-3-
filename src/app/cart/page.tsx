@@ -7,85 +7,9 @@ import { useCart } from '@/context/cart-context';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
 import { Input } from '@/components/ui/input';
-import { Trash2, ShoppingCart, Eye } from 'lucide-react';
+import { Trash2, ShoppingCart, CreditCard } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { products } from '@/lib/products';
-import { Product } from '@/lib/products';
-
-function RecommendedProducts() {
-  const { cart, addToCart } = useCart();
-  const cartIds = cart.map(item => item.id);
-
-  const hasMerch = cart.some(item => item.type === 'merch');
-  const hasMusic = cart.some(item => item.type === 'music');
-
-  const recommendedProducts: Product[] = [];
-
-  // If there's merch but no music, recommend a music item
-  if (hasMerch && !hasMusic) {
-    const musicProduct = products.find(p => p.type === 'music' && !cartIds.includes(p.id));
-    if (musicProduct) recommendedProducts.push(musicProduct);
-  }
-
-  // If there's music but no merch, recommend a merch item
-  if (hasMusic && !hasMerch) {
-    const merchProduct = products.find(p => p.type === 'merch' && !cartIds.includes(p.id));
-    if (merchProduct) recommendedProducts.push(merchProduct);
-  }
-
-  // If both (or neither), recommend one of each if available
-  if (recommendedProducts.length === 0) {
-     const musicProduct = products.find(p => p.type === 'music' && !cartIds.includes(p.id));
-     if (musicProduct) recommendedProducts.push(musicProduct);
-     const merchProduct = products.find(p => p.type === 'merch' && !cartIds.includes(p.id));
-     if (merchProduct) recommendedProducts.push(merchProduct);
-  }
-  
-  // Ensure we don't have duplicates if the above logic overlaps
-  const uniqueRecommendations = Array.from(new Set(recommendedProducts.map(p => p.id)))
-    .map(id => recommendedProducts.find(p => p.id === id)!)
-    .filter(Boolean);
-
-  if (uniqueRecommendations.length === 0) {
-    return null;
-  }
-
-  return (
-    <div className="mt-16">
-      <h2 className="font-headline text-3xl font-bold text-center mb-8">You Might Also Like</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-2xl mx-auto">
-        {uniqueRecommendations.slice(0,2).map((item) => (
-           <Card key={item.id} className="overflow-hidden group relative flex flex-col">
-                <CardContent className="p-0 flex-grow">
-                    <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative">
-                        <Image
-                            src={item.image.imageUrl}
-                            alt={item.image.description}
-                            fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
-                            data-ai-hint={item.image.imageHint}
-                            sizes="(max-width: 640px) 100vw, 50vw"
-                        />
-                    </Link>
-                </CardContent>
-                <CardFooter className="p-4 flex justify-between items-center bg-card">
-                    <div>
-                        <p className="font-semibold">{item.name}</p>
-                        <p className="text-sm text-primary">{item.price}</p>
-                    </div>
-                    <Button size="sm" onClick={() => addToCart(item)}>
-                        <ShoppingCart className="mr-2 h-4 w-4"/>
-                        Add
-                    </Button>
-                </CardFooter>
-            </Card>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart } = useCart();
@@ -101,6 +25,8 @@ export default function CartPage() {
     const price = parseFloat(item.price.replace('$', ''));
     return total + price * item.quantity;
   }, 0);
+
+  const hasPhysicalProduct = cart.some(item => !item.digital);
 
   return (
     <div className="container py-12 md:py-24">
@@ -126,7 +52,7 @@ export default function CartPage() {
                 <Card key={item.id} className="flex items-center p-4">
                   <div className="relative w-24 h-24 mr-4">
                     <Image
-                      src={item.image.imageUrl}
+                      src={item.imageUrl!}
                       alt={item.name}
                       fill
                       className="object-cover rounded-md"
@@ -138,7 +64,7 @@ export default function CartPage() {
                       {item.name}
                     </Link>
                     <p className="text-sm text-muted-foreground">{item.price}</p>
-                    <Button variant="ghost" size="sm" onClick={() => removeFromCart(item.id)} className="text-muted-foreground hover:text-destructive mt-1 px-0 h-auto">
+                    <Button variant="ghost" size="sm" onClick={() => removeFromCart(item.id as number)} className="text-muted-foreground hover:text-destructive mt-1 px-0 h-auto">
                       <Trash2 className="mr-1 h-3 w-3" /> Remove
                     </Button>
                   </div>
@@ -147,7 +73,7 @@ export default function CartPage() {
                       type="number"
                       min="1"
                       value={item.quantity}
-                      onChange={(e) => handleQuantityChange(item.id, e.target.value)}
+                      onChange={(e) => handleQuantityChange(item.id as number, e.target.value)}
                       className="w-16 h-9"
                     />
                   
@@ -176,21 +102,23 @@ export default function CartPage() {
                 </div>
               </CardContent>
               <CardFooter className="flex-col space-y-2">
-                  <p className="text-xs text-muted-foreground text-center">
-                      Since each item is paid for individually via Revolut, please click "Buy Now" for each item below.
-                  </p>
-                {cart.map(item => (
-                  <Button key={item.id} asChild className='w-full'>
-                      <a href={item.revolutLink} target="_blank" rel="noopener noreferrer">Buy {item.name}</a>
-                  </Button>
-                ))}
+                {hasPhysicalProduct ? (
+                   <Button asChild className='w-full'>
+                       <Link href="/checkout">
+                          <CreditCard className="mr-2 h-4 w-4" />
+                          Proceed to Checkout
+                       </Link>
+                   </Button>
+                ) : (
+                    <p className='text-xs text-muted-foreground text-center'>Digital items are purchased individually from their product pages.</p>
+                )}
+                 
                   <Button variant="outline" onClick={clearCart} className="w-full">
                       Clear Cart
                   </Button>
               </CardFooter>
             </Card>
           </div>
-          <RecommendedProducts />
         </>
       )}
     </div>

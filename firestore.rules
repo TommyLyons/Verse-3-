@@ -42,6 +42,13 @@ service cloud.firestore {
       // Allow admins to create, update, and delete products
       allow write: if isAdmin();
     }
+
+     match /orders/{orderId} {
+        // Allow anyone to create an order (guest checkout)
+        allow create: if true;
+        // Only allow admins to read, update, or delete orders
+        allow read, update, delete, list: if isAdmin();
+    }
   }
 }
 

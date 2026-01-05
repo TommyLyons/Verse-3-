@@ -264,18 +264,93 @@
       "type": "object",
       "description": "Represents a product for sale in the store.",
       "properties": {
-        "name": { "type": "string" },
-        "slug": { "type": "string" },
-        "price": { "type": "string" },
-        "description": { "type": "string" },
-        "imageUrl": { "type": "string", "format": "uri" },
-        "revolutLink": { "type": "string", "format": "uri" },
-        "type": { "type": "string", "enum": ["merch", "music"] },
-        "brand": { "type": "string", "enum": ["Verse 3 Merch", "Crude City"] },
-        "digital": { "type": "boolean" },
-        "downloadUrl": { "type": "string", "format": "uri" }
+        "name": {
+          "type": "string"
+        },
+        "slug": {
+          "type": "string"
+        },
+        "price": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "imageUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "revolutLink": {
+          "type": "string",
+          "format": "uri"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "merch",
+            "music"
+          ]
+        },
+        "brand": {
+          "type": "string",
+          "enum": [
+            "Verse 3 Merch",
+            "Crude City"
+          ]
+        },
+        "digital": {
+          "type": "boolean"
+        },
+        "downloadUrl": {
+          "type": "string",
+          "format": "uri"
+        }
       },
-      "required": ["name", "slug", "price", "description", "imageUrl", "revolutLink", "type", "brand"]
+      "required": [
+        "name",
+        "slug",
+        "price",
+        "description",
+        "imageUrl",
+        "revolutLink",
+        "type",
+        "brand"
+      ]
+    },
+    "Order": {
+      "title": "Order",
+      "type": "object",
+      "description": "Represents a customer order for physical goods.",
+      "properties": {
+        "customerDetails": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "email": { "type": "string", "format": "email" },
+            "phone": { "type": "string" },
+            "address": { "type": "string" }
+          },
+          "required": ["name", "email", "phone", "address"]
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "quantity": { "type": "number" },
+              "price": { "type": "string" }
+            },
+            "required": ["id", "name", "quantity", "price"]
+          }
+        },
+        "total": { "type": "string" },
+        "submittedAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string" },
+        "userId": { "type": "string" }
+      },
+      "required": ["customerDetails", "items", "total", "submittedAt", "status"]
     }
   },
   "auth": {
@@ -303,11 +378,17 @@
       },
       "description": "Stores a record of digital products a user has purchased. Only the user can read their own purchase history. Writes should be handled by a secure backend function after payment confirmation."
     },
-     "/products/{productId}": {
+    "/products/{productId}": {
       "schema": {
         "$ref": "#/backend/entities/Product"
       },
       "description": "Stores all products for the store. Publicly readable, but only writeable by admins."
+    },
+    "/orders/{orderId}": {
+        "schema": {
+            "$ref": "#/backend/entities/Order"
+        },
+        "description": "Stores customer orders. Writable by anyone to allow guest checkout, but only readable by admins."
     }
   }
 }
