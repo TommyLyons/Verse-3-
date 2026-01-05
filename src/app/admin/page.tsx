@@ -40,7 +40,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 
 
-const adminEmail = 'info@verse3records.com';
+const adminEmail = 'verse3records@gmail.com';
 
 const MusicSubmissions = () => {
     const firestore = useFirestore();
