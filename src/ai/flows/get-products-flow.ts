@@ -80,10 +80,31 @@ const getProductsFlow = ai.defineFlow(
     outputSchema: z.array(ProductSchema),
   },
   async ({ brand }) => {
-    // In a real implementation, you would add logic here to fetch from a database
-    // or a third-party API like Printful, using a securely stored API key.
+    //
+    // DEVELOPER NOTE: THIS IS WHERE THE SECURE API INTEGRATION HAPPENS.
+    //
+    // 1.  LOAD THE SECRET KEY: The Printful API key must be stored in a secure
+    //     secret manager (like Google Secret Manager or Firebase Secret Manager), NOT here in the code.
+    //     A developer would write code here to fetch the key from that service.
+    //
+    //     Example (conceptual):
+    //     const printfulApiKey = await accessSecretManager('printful-api-key');
+    //
+    // 2.  CALL THE API: Make the call to the Printful API using the fetched key.
+    //
+    //     Example (conceptual):
+    //     const response = await fetch('https://api.printful.com/store/products', {
+    //       headers: { Authorization: `Bearer ${printfulApiKey}` }
+    //     });
+    //     const data = await response.json();
+    //
+    // 3.  TRANSFORM & RETURN DATA: Map the data from the Printful API to match our ProductSchema.
+    //     return transformedData;
+    //
+
     console.log(`Fetching products for brand: ${brand}`);
     if (brand === 'Crude City') {
+      // For now, we return sample data. A developer would replace this with the real API call.
       return sampleCrudeCityProducts;
     }
     return [];
