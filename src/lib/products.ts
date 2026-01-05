@@ -73,3 +73,4 @@ export const getRelatedProducts = (currentProduct: Product, allProducts: Product
     // Find up to 2 related products of the opposite type from the provided list.
     return allProducts.filter(p => p.id !== currentProduct.id && p.type === oppositeType).slice(0, 2);
 };
+
