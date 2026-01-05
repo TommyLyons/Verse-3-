@@ -12,17 +12,12 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ShoppingCart, Eye, CheckCircle, CreditCard } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
 import { useState, useEffect } from 'react';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getProducts as getFlowProducts } from '@/ai/flows/get-products-flow';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { getProducts as getAllProducts } from '@/lib/products';
 
 function ProductPageContent({ slug }: { slug: string }) {
-  const firestore = useFirestore();
-  const productsQuery = useMemoFirebase(() => query(collection(firestore, 'products')), [firestore]);
-  const { data: allDbProducts, isLoading: isDbLoading } = useCollection(productsQuery);
   
   const [product, setProduct] = useState<Product | null | undefined>(undefined);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
@@ -36,13 +31,10 @@ function ProductPageContent({ slug }: { slug: string }) {
 
   useEffect(() => {
     async function fetchAllProducts() {
-        if (isDbLoading) return;
         setIsLoading(true);
 
         try {
-            const flowProducts = await getFlowProducts('Crude City');
-            const allProducts = [...(allDbProducts || []), ...flowProducts];
-
+            const allProducts = await getAllProducts();
             const fetchedProduct = await getProductBySlug(slug, allProducts);
             setProduct(fetchedProduct);
 
@@ -62,7 +54,7 @@ function ProductPageContent({ slug }: { slug: string }) {
     }
 
     fetchAllProducts();
-  }, [slug, allDbProducts, isDbLoading]);
+  }, [slug]);
   
   if (isLoading || product === undefined) {
     return (
@@ -234,5 +226,9 @@ function ProductPageContent({ slug }: { slug: string }) {
 
 
 export default function MerchPage({ params }: { params: { slug: string } }) {
+  // The 'use' hook is the modern way to resolve the params promise.
+  // const resolvedParams = use(params);
   return <ProductPageContent slug={params.slug} />;
 }
+
+    
