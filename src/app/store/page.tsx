@@ -47,20 +47,22 @@ const ProductGrid = ({ products, isLoading, type }: { products: any[], isLoading
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {products.map((item) => {
-                const imageUrl = 'image' in item && item.image ? item.image.imageUrl : item.imageUrl;
+                const imageUrl = ('image' in item && item.image ? item.image.imageUrl : item.imageUrl) || 'https://picsum.photos/seed/placeholder/600/600';
+                const imageDesc = ('image' in item && item.image ? item.image.description : item.description);
+
                 return (
                     <Card key={item.id} className="overflow-hidden group relative flex flex-col">
                         <CardContent className="p-0 flex-grow">
-                            <div className="aspect-square relative">
+                            <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative">
                             <Image
                                 src={imageUrl}
-                                alt={item.name}
+                                alt={imageDesc}
                                 fill
                                 className="object-cover transition-transform duration-300 group-hover:scale-105"
                                 sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
-                            </div>
+                            </Link>
                         </CardContent>
                         <CardFooter className="p-4 flex justify-between items-center bg-card">
                         <div>
@@ -93,21 +95,23 @@ export default function StorePage() {
 
   const { data: allDbProducts, isLoading: isDbLoading } = useCollection(productsQuery);
   
+  const [allFlowProducts, setAllFlowProducts] = useState<Product[]>([]);
+  const [isFlowLoading, setIsFlowLoading] = useState(true);
+  
   const [verse3Merch, setVerse3Merch] = useState<any[]>([]);
   const [crudeCityMerch, setCrudeCityMerch] = useState<any[]>([]);
   const [physicalMusic, setPhysicalMusic] = useState<any[]>([]);
   const [digitalMusic, setDigitalMusic] = useState<any[]>([]);
-  const [isFlowLoading, setIsFlowLoading] = useState(true);
 
   useEffect(() => {
     async function fetchFlowProducts() {
         setIsFlowLoading(true);
         try {
             const crudeCity = await getProducts('Crude City');
-            setCrudeCityMerch(crudeCity);
+            setAllFlowProducts(crudeCity);
         } catch (error) {
             console.error("Failed to fetch Crude City products:", error);
-            setCrudeCityMerch([]);
+            setAllFlowProducts([]);
         }
         setIsFlowLoading(false);
     }
@@ -121,6 +125,13 @@ export default function StorePage() {
       setDigitalMusic(allDbProducts.filter(p => p.type === 'music' && p.digital));
     }
   }, [allDbProducts]);
+
+  useEffect(() => {
+    if (allFlowProducts.length > 0) {
+        const filteredCrudeCity = allFlowProducts.filter(p => p.type === 'merch' && (!p.availableRegions || p.availableRegions.includes(region)));
+        setCrudeCityMerch(filteredCrudeCity);
+    }
+  }, [allFlowProducts, region]);
 
 
   return (

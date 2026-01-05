@@ -44,17 +44,23 @@ function ProductPageContent({ slug }: { slug: string }) {
         if (isDbLoading) return;
         setIsLoading(true);
 
-        const flowProducts = await getFlowProducts('Crude City');
-        const allProducts = [...(allDbProducts || []), ...flowProducts];
-
-        const fetchedProduct = await getProductBySlug(slug, allProducts);
-        setProduct(fetchedProduct);
-
-        if (fetchedProduct) {
-            const related = getRelatedProducts(fetchedProduct, allProducts);
-            setRelatedProducts(related);
+        try {
+            const flowProducts = await getFlowProducts('Crude City');
+            const allProducts = [...(allDbProducts || []), ...flowProducts];
+    
+            const fetchedProduct = await getProductBySlug(slug, allProducts);
+            setProduct(fetchedProduct);
+    
+            if (fetchedProduct) {
+                const related = getRelatedProducts(fetchedProduct, allProducts);
+                setRelatedProducts(related);
+            }
+        } catch (error) {
+            console.error("Error fetching product data:", error);
+            setProduct(null);
+        } finally {
+            setIsLoading(false);
         }
-        setIsLoading(false);
     }
 
     fetchAllProducts();
@@ -281,7 +287,7 @@ function ProductPageContent({ slug }: { slug: string }) {
               return (
                <Card key={item.id} className="overflow-hidden group relative flex flex-col">
                     <CardContent className="p-0 flex-grow">
-                        <div className="aspect-square relative">
+                        <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative">
                         <Image
                             src={relatedImageUrl}
                             alt={item.name}
@@ -291,7 +297,7 @@ function ProductPageContent({ slug }: { slug: string }) {
                             data-ai-hint={relatedImageHint}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
-                        </div>
+                        </Link>
                     </CardContent>
                     <CardFooter className="p-4 flex justify-between items-center bg-card">
                     <div>

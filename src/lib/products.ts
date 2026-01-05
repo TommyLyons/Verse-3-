@@ -32,35 +32,11 @@ export const products: Product[] = [
    
 ];
 
-async function getCrudeCityProducts(): Promise<Product[]> {
-    try {
-        const crudeCityProductsFromFlow = await getFlowProducts('Crude City');
-        return crudeCityProductsFromFlow.map(p => ({
-            ...p,
-            // Ensure the image property matches the structure expected by components
-            image: {
-                imageUrl: p.image.imageUrl,
-                description: p.image.description,
-                imageHint: p.image.imageHint,
-            }
-        }));
-    } catch (error) {
-        console.error("Error fetching Crude City products:", error);
-        return [];
-    }
-}
-
 
 // This function will now require the full product list to be passed in.
 export const getProductBySlug = async (slug: string, allProducts: Product[]) => {
     // First, check the products from Firestore
     let product = allProducts.find(p => p.slug === slug);
-    if (product) {
-        return product;
-    }
-    // If not found, check the Crude City products from the flow
-    const crudeCityProducts = await getCrudeCityProducts();
-    product = crudeCityProducts.find(p => p.slug === slug);
     return product;
 }
 

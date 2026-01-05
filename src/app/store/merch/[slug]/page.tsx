@@ -176,5 +176,3 @@ function ProductPageContent({ slug }: { slug: string }) {
 export default function MerchPage({ params }: { params: { slug: string } }) {
   return <ProductPageContent slug={params.slug} />;
 }
-
-    
