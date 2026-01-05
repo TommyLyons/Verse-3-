@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser, useFirestore, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
 import { collection } from 'firebase/firestore';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -38,6 +39,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { Progress } from '@/components/ui/progress';
 
 
 const adminEmail = 'verse3records@gmail.com';
@@ -135,13 +137,13 @@ const productFormSchema = z.object({
   name: z.string().min(3, "Product name must be at least 3 characters."),
   description: z.string().min(10, "Description must be at least 10 characters."),
   price: z.string().regex(/^\$\d+(\.\d{2})?$/, "Price must be in the format $XX.XX."),
-  imageUrl: z.string().url("Please enter a valid image URL."),
   revolutLink: z.string().url("Please enter a valid Revolut purchase link."),
   type: z.enum(['merch', 'music']),
   brand: z.enum(['Verse 3 Merch', 'Crude City']),
   slug: z.string().min(3, "Slug is required.").refine(s => !s.includes(' '), "Slug cannot contain spaces."),
   digital: z.boolean().optional(),
   downloadUrl: z.string().optional(),
+  imageFile: z.any().refine((files) => files?.length === 1, 'Image is required.'),
 });
 type ProductFormValues = z.infer<typeof productFormSchema>;
 
@@ -149,7 +151,9 @@ type ProductFormValues = z.infer<typeof productFormSchema>;
 const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
     const { toast } = useToast();
     const firestore = useFirestore();
+    const storage = getStorage();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
     const form = useForm<ProductFormValues>({
         resolver: zodResolver(productFormSchema),
@@ -157,7 +161,6 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
             name: '',
             description: '',
             price: '$',
-            imageUrl: 'https://picsum.photos/seed/',
             revolutLink: 'https://revolut.me/',
             type: 'merch',
             brand: 'Verse 3 Merch',
@@ -167,16 +170,47 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
         },
     });
 
+    const handleImageUpload = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const storageRef = ref(storage, `product-images/${Date.now()}_${file.name}`);
+            const uploadTask = uploadBytesResumable(storageRef, file);
+
+            uploadTask.on(
+                'state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    setUploadProgress(progress);
+                },
+                (error) => {
+                    console.error('Upload failed:', error);
+                    reject(error);
+                },
+                async () => {
+                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                    resolve(downloadURL);
+                }
+            );
+        });
+    };
+
     const onSubmit = async (values: ProductFormValues) => {
         setIsSubmitting(true);
+        setUploadProgress(0);
         try {
+            const imageFile = values.imageFile[0] as File;
+            const imageUrl = await handleImageUpload(imageFile);
+
+            const productData = { ...values, imageUrl, imageFile: undefined };
+
             const productsCollection = collection(firestore, 'products');
-            await addDocumentNonBlocking(productsCollection, values);
+            await addDocumentNonBlocking(productsCollection, productData);
+            
             toast({
                 title: 'Product Added!',
                 description: `${values.name} has been added to the store.`,
             });
             onFinished();
+            form.reset();
         } catch (error) {
             console.error("Error adding product:", error);
             toast({
@@ -186,6 +220,7 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
             });
         } finally {
             setIsSubmitting(false);
+            setUploadProgress(null);
         }
     };
 
@@ -274,11 +309,13 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                 />
                 <FormField
                     control={form.control}
-                    name="imageUrl"
+                    name="imageFile"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Image URL</FormLabel>
-                            <FormControl><Input placeholder="https://..." {...field} /></FormControl>
+                            <FormLabel>Product Image</FormLabel>
+                            <FormControl>
+                                <Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files)} />
+                            </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
@@ -295,8 +332,15 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                     )}
                 />
 
+                {isSubmitting && uploadProgress !== null && (
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground text-center">Uploading image...</p>
+                    <Progress value={uploadProgress} />
+                  </div>
+                )}
+
                 <Button type="submit" disabled={isSubmitting} className="w-full">
-                   {isSubmitting ? 'Adding...' : 'Add Product'}
+                   {isSubmitting ? 'Adding Product...' : 'Add Product'}
                 </Button>
             </form>
          </Form>
@@ -416,3 +460,5 @@ export default function AdminPage() {
         </div>
     )
 }
+
+    

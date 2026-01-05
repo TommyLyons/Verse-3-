@@ -48,10 +48,16 @@ service cloud.firestore {
 service firebase.storage {
   match /b/{bucket}/o {
     
-    // Allow public read for demo submission images and audio, and product images
+    // Allow public read for demo submission images and audio
     match /demoSubmissions/{allPaths=**} {
       allow read: if true;
       allow write: if true; // Allow uploads
+    }
+
+    // Allow admins to upload product images
+    match /product-images/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'verse3records@gmail.com';
     }
 
     // Secure digital products (mp3, wav)
@@ -67,3 +73,5 @@ service firebase.storage {
     }
   }
 }
+
+    
