@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -13,15 +14,16 @@ export function Logo() {
         className="h-6 w-6 text-primary animate-spin"
         style={{ animationDuration: '3s' }}
       />
-      <Image
-        src={headerLogoUrl}
-        alt="Verse3 Records Logo"
-        width={120}
-        height={24}
-        className="object-contain rounded-md"
-        priority
-        data-ai-hint="company logo"
-      />
+      <div className="relative h-10 w-32">
+        <Image
+          src={headerLogoUrl}
+          alt="Verse3 Records Logo"
+          fill
+          className="object-contain"
+          priority
+          data-ai-hint="company logo"
+        />
+      </div>
       <Disc3
         className="h-6 w-6 text-primary animate-spin"
         style={{ animationDuration: '3s' }}
