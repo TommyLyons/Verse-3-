@@ -137,6 +137,7 @@ const productFormSchema = z.object({
   type: z.enum(['merch', 'music']),
   brand: z.enum(['Verse 3 Merch', 'Crude City']),
   slug: z.string().min(3, "Slug is required.").refine(s => !s.includes(' '), "Slug cannot contain spaces."),
+  imageUrl: z.string().url("Please enter a valid image URL."),
   digital: z.boolean().optional(),
   downloadUrl: z.string().optional(),
 });
@@ -158,6 +159,7 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
             type: 'merch',
             brand: 'Verse 3 Merch',
             slug: '',
+            imageUrl: '',
             digital: false,
             downloadUrl: ''
         },
@@ -166,14 +168,8 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
     const onSubmit = async (values: ProductFormValues) => {
         setIsSubmitting(true);
         try {
-            // Generate a unique, random seed for the placeholder image
-            const imageSeed = Math.floor(Math.random() * 1000);
-            const imageUrl = `https://picsum.photos/seed/${imageSeed}/600/600`;
-
-            const productData = { ...values, imageUrl };
-
             const productsCollection = collection(firestore, 'products');
-            await addDocumentNonBlocking(productsCollection, productData);
+            await addDocumentNonBlocking(productsCollection, values);
             
             toast({
                 title: 'Product Added!',
@@ -272,6 +268,17 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                                     <SelectItem value="Crude City">Crude City</SelectItem>
                                 </SelectContent>
                             </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="imageUrl"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Image URL</FormLabel>
+                            <FormControl><Input placeholder="https://picsum.photos/..." {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
@@ -409,5 +416,3 @@ export default function AdminPage() {
         </div>
     )
 }
-
-    
