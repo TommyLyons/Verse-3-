@@ -45,18 +45,6 @@ export const products: Product[] = [
         availableRegions: ['UK', 'EU']
     },
     { 
-        id: 6, 
-        name: 'Printify Demo T-Shirt', 
-        slug: 'printify-demo-t-shirt',
-        price: '$29.99', 
-        description: 'This is a sample product that could be sourced from Printify. It\'s a high-quality, comfortable t-shirt perfect for your fans.',
-        image: getImage('merch-tshirt')!, 
-        revolutLink: 'https://revolut.me/test-business-studio/30', // You would replace this with the actual Printify product link or checkout
-        type: 'merch',
-        brand: 'Verse 3 Merch',
-        availableRegions: ['UK']
-    },
-    { 
         id: 2, 
         name: 'DJ Lofty - Midnight Drive Vinyl', 
         slug: 'midnight-drive-vinyl',
@@ -100,7 +88,11 @@ export const products: Product[] = [
     }
 ];
 
-export const getProductBySlug = (slug: string) => products.find(p => p.slug === slug);
+export const getProductBySlug = (slug: string) => {
+    // Note: This only searches the static product list.
+    // For products from the API, you'll need a different mechanism.
+    return products.find(p => p.slug === slug);
+}
 
 export const getRelatedProducts = (currentProduct: Product) => {
     // If viewing merch, recommend music. If viewing music, recommend merch.
