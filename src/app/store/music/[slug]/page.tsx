@@ -4,18 +4,17 @@
 import { notFound, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getProductBySlug, getRelatedProducts, Product } from '@/lib/products';
+import { getProductBySlug, getRelatedProducts, Product, getAllProducts } from '@/lib/products';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ShoppingCart, Eye, CheckCircle, DownloadCloud, Play, Pause } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
-import { useState, useRef, useEffect } from 'react';
-import { useUser, useFirestore, addDocumentNonBlocking, useCollection, useMemoFirebase } from '@/firebase';
+import { useState, useRef, useEffect, use } from 'react';
+import { useUser, useFirestore, addDocumentNonBlocking } from '@/firebase';
 import { collection, serverTimestamp, getDocs, query, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getProducts as getFlowProducts } from '@/ai/flows/get-products-flow';
 
 function ProductPageContent({ slug }: { slug: string }) {
   const router = useRouter();
@@ -23,9 +22,6 @@ function ProductPageContent({ slug }: { slug: string }) {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
 
-  const productsQuery = useMemoFirebase(() => query(collection(firestore, 'products')), [firestore]);
-  const { data: allDbProducts, isLoading: isDbLoading } = useCollection(productsQuery);
-  
   const [product, setProduct] = useState<Product | null | undefined>(undefined);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,31 +36,23 @@ function ProductPageContent({ slug }: { slug: string }) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    async function fetchAllProducts() {
-        if (isDbLoading) return;
+    async function fetchProductData() {
+        if (!firestore) return;
         setIsLoading(true);
 
-        try {
-            const flowProducts = await getFlowProducts('Crude City');
-            const allProducts = [...(allDbProducts || []), ...flowProducts];
-    
-            const fetchedProduct = await getProductBySlug(slug, allProducts);
-            setProduct(fetchedProduct);
-    
-            if (fetchedProduct) {
-                const related = getRelatedProducts(fetchedProduct, allProducts);
-                setRelatedProducts(related);
-            }
-        } catch (error) {
-            console.error("Error fetching product data:", error);
-            setProduct(null);
-        } finally {
-            setIsLoading(false);
+        const allProducts = await getAllProducts(firestore);
+        const fetchedProduct = allProducts.find(p => p.slug === slug);
+        setProduct(fetchedProduct);
+
+        if (fetchedProduct) {
+            const related = getRelatedProducts(fetchedProduct, allProducts);
+            setRelatedProducts(related);
         }
+        setIsLoading(false);
     }
 
-    fetchAllProducts();
-  }, [slug, allDbProducts, isDbLoading]);
+    fetchProductData();
+  }, [slug, firestore]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -322,5 +310,6 @@ function ProductPageContent({ slug }: { slug: string }) {
 
 
 export default function ProductPage({ params }: { params: { slug: string } }) {
-  return <ProductPageContent slug={params.slug} />;
+  const resolvedParams = use(Promise.resolve(params));
+  return <ProductPageContent slug={resolvedParams.slug} />;
 }

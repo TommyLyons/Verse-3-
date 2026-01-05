@@ -3,7 +3,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Product } from '@/lib/products';
+import { Product, getAllProducts } from '@/lib/products';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
@@ -18,9 +18,7 @@ import {
 } from "@/components/ui/select";
 import React, { useState, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query } from 'firebase/firestore';
-import { getProducts } from '@/ai/flows/get-products-flow';
+import { useFirestore } from '@/firebase';
 
 
 const ProductGrid = ({ products, isLoading, type }: { products: any[], isLoading?: boolean, type: 'merch' | 'music' }) => {
@@ -48,7 +46,8 @@ const ProductGrid = ({ products, isLoading, type }: { products: any[], isLoading
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {products.map((item) => {
                 const imageUrl = ('image' in item && item.image ? item.image.imageUrl : item.imageUrl) || 'https://picsum.photos/seed/placeholder/600/600';
-                const imageDesc = ('image' in item && item.image ? item.image.description : item.description);
+                const imageDesc = ('image' in item && item.image ? item.image.description : item.description) || item.name;
+                const imageHint = ('image' in item && item.image ? item.image.imageHint : '') || '';
 
                 return (
                     <Card key={item.id} className="overflow-hidden group relative flex flex-col">
@@ -60,6 +59,7 @@ const ProductGrid = ({ products, isLoading, type }: { products: any[], isLoading
                                 fill
                                 className="object-cover transition-transform duration-300 group-hover:scale-105"
                                 sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                                data-ai-hint={imageHint}
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
                             </Link>
@@ -88,50 +88,37 @@ export default function StorePage() {
   const { region, setRegion } = useRegion();
   const firestore = useFirestore();
 
-  const productsQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return query(collection(firestore, 'products'));
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  const [verse3Merch, setVerse3Merch] = useState<Product[]>([]);
+  const [crudeCityMerch, setCrudeCityMerch] = useState<Product[]>([]);
+  const [physicalMusic, setPhysicalMusic] = useState<Product[]>([]);
+  const [digitalMusic, setDigitalMusic] = useState<Product[]>([]);
+
+  useEffect(() => {
+    async function fetchProducts() {
+        if (!firestore) return;
+        setIsLoading(true);
+        const products = await getAllProducts(firestore);
+        setAllProducts(products);
+        setIsLoading(false);
+    }
+    fetchProducts();
   }, [firestore]);
 
-  const { data: allDbProducts, isLoading: isDbLoading } = useCollection(productsQuery);
-  
-  const [allFlowProducts, setAllFlowProducts] = useState<Product[]>([]);
-  const [isFlowLoading, setIsFlowLoading] = useState(true);
-  
-  const [verse3Merch, setVerse3Merch] = useState<any[]>([]);
-  const [crudeCityMerch, setCrudeCityMerch] = useState<any[]>([]);
-  const [physicalMusic, setPhysicalMusic] = useState<any[]>([]);
-  const [digitalMusic, setDigitalMusic] = useState<any[]>([]);
-
   useEffect(() => {
-    async function fetchFlowProducts() {
-        setIsFlowLoading(true);
-        try {
-            const crudeCity = await getProducts('Crude City');
-            setAllFlowProducts(crudeCity);
-        } catch (error) {
-            console.error("Failed to fetch Crude City products:", error);
-            setAllFlowProducts([]);
-        }
-        setIsFlowLoading(false);
-    }
-    fetchFlowProducts();
-  }, []);
+    // Filter products once they are all fetched
+    if (allProducts.length > 0) {
+      setVerse3Merch(allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch'));
+      setPhysicalMusic(allProducts.filter(p => p.type === 'music' && !p.digital));
+      setDigitalMusic(allProducts.filter(p => p.type === 'music' && p.digital));
 
-  useEffect(() => {
-    if (allDbProducts) {
-      setVerse3Merch(allDbProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch'));
-      setPhysicalMusic(allDbProducts.filter(p => p.type === 'music' && !p.digital));
-      setDigitalMusic(allDbProducts.filter(p => p.type === 'music' && p.digital));
+      // Crude City merch filtering depends on region
+      const filteredCrudeCity = allProducts.filter(p => p.type === 'merch' && p.brand === 'Crude City' && (!p.availableRegions || p.availableRegions.includes(region)));
+      setCrudeCityMerch(filteredCrudeCity);
     }
-  }, [allDbProducts]);
-
-  useEffect(() => {
-    if (allFlowProducts.length > 0) {
-        const filteredCrudeCity = allFlowProducts.filter(p => p.type === 'merch' && (!p.availableRegions || p.availableRegions.includes(region)));
-        setCrudeCityMerch(filteredCrudeCity);
-    }
-  }, [allFlowProducts, region]);
+  }, [allProducts, region]);
 
 
   return (
@@ -162,25 +149,25 @@ export default function StorePage() {
        {/* Verse 3 Merch Section */}
        <section className="mb-16">
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Verse 3 Merch</h2>
-            <ProductGrid products={verse3Merch} isLoading={isDbLoading} type="merch" />
+            <ProductGrid products={verse3Merch} isLoading={isLoading} type="merch" />
        </section>
 
        {/* Crude City Merch Section */}
        <section className="mb-16">
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Crude City</h2>
-            <ProductGrid products={crudeCityMerch} isLoading={isFlowLoading} type="merch" />
+            <ProductGrid products={crudeCityMerch} isLoading={isLoading} type="merch" />
        </section>
        
        {/* Digital Music Section */}
        <section className="mb-16">
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Digital Downloads</h2>
-            <ProductGrid products={digitalMusic} isLoading={isDbLoading} type="music" />
+            <ProductGrid products={digitalMusic} isLoading={isLoading} type="music" />
        </section>
 
        {/* Physical Music Section */}
        <section>
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Physical Music & More</h2>
-            <ProductGrid products={physicalMusic} isLoading={isDbLoading} type="music" />
+            <ProductGrid products={physicalMusic} isLoading={isLoading} type="music" />
        </section>
     </div>
   );
