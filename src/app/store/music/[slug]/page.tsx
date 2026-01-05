@@ -15,6 +15,7 @@ import { useUser, useFirestore, addDocumentNonBlocking, useCollection, useMemoFi
 import { collection, serverTimestamp, getDocs, query, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Product } from '@/lib/products';
 
 function ProductPageContent({ slug }: { slug: string }) {
   const router = useRouter();
@@ -23,10 +24,11 @@ function ProductPageContent({ slug }: { slug: string }) {
   const firestore = useFirestore();
 
   const productsQuery = useMemoFirebase(() => query(collection(firestore, 'products')), [firestore]);
-  const { data: allProducts, isLoading } = useCollection(productsQuery);
-
-  const product = allProducts ? getProductBySlug(slug, allProducts) : null;
-  const relatedProducts = product && allProducts ? getRelatedProducts(product, allProducts) : [];
+  const { data: allDbProducts, isLoading: isDbLoading } = useCollection(productsQuery);
+  
+  const [product, setProduct] = useState<Product | null | undefined>(undefined);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const { addToCart } = useCart();
   const [addedToCart, setAddedToCart] = useState(false);
@@ -36,6 +38,24 @@ function ProductPageContent({ slug }: { slug: string }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    async function fetchProduct() {
+      if (isDbLoading) return;
+
+      setIsLoading(true);
+      const fetchedProduct = await getProductBySlug(slug, allDbProducts || []);
+      setProduct(fetchedProduct);
+
+      if (fetchedProduct) {
+        const related = getRelatedProducts(fetchedProduct, allDbProducts || []);
+        setRelatedProducts(related);
+      }
+      setIsLoading(false);
+    }
+
+    fetchProduct();
+  }, [slug, allDbProducts, isDbLoading]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -78,7 +98,7 @@ function ProductPageContent({ slug }: { slug: string }) {
     }
   };
   
-  if (isLoading) {
+  if (isLoading || product === undefined) {
     return (
         <div className="container py-12 md:py-24">
             <BackButton />
@@ -175,14 +195,17 @@ function ProductPageContent({ slug }: { slug: string }) {
     }
   };
 
+  const imageUrl = 'image' in product && product.image ? (product.image as any).imageUrl : (product as any).imageUrl;
+  const imageDescription = 'image' in product && product.image ? (product.image as any).description : (product as any).description;
+
   return (
     <div className="container py-12 md:py-24">
       <BackButton />
       <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-start">
         <div className="relative aspect-square">
           <Image
-            src={product.imageUrl}
-            alt={product.description}
+            src={imageUrl}
+            alt={imageDescription}
             fill
             className="object-cover rounded-lg"
             sizes="(max-width: 768px) 100vw, 50vw"
@@ -243,12 +266,16 @@ function ProductPageContent({ slug }: { slug: string }) {
         <div className="mt-24">
           <h2 className="font-headline text-3xl font-bold text-center mb-8">You Might Also Like</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-2xl mx-auto">
-            {relatedProducts.map((item: any) => (
+            {relatedProducts.map((item: any) => {
+              const relatedImageUrl = 'image' in item && item.image ? item.image.imageUrl : item.imageUrl;
+              const relatedImageDescription = 'image' in item && item.image ? item.image.description : item.description;
+              
+              return (
                <Card key={item.id} className="overflow-hidden group relative flex flex-col">
                     <CardContent className="p-0 flex-grow">
                         <div className="aspect-square relative">
                         <Image
-                            src={item.imageUrl}
+                            src={relatedImageUrl}
                             alt={item.name}
                             fill
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -270,7 +297,7 @@ function ProductPageContent({ slug }: { slug: string }) {
                     </Button>
                     </CardFooter>
                 </Card>
-            ))}
+            )})}
           </div>
         </div>
       )}
@@ -279,7 +306,7 @@ function ProductPageContent({ slug }: { slug: string }) {
 }
 
 
-export default function ProductPage({ params: paramsPromise }: { params: Promise<{ slug: string }> }) {
+export default function ProductPage({ params: paramsPromise }: { params: Promise<{ slug: string }> })
   // The `use` hook is used to handle the promise for the params.
   const params = use(paramsPromise);
 

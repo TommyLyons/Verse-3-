@@ -1,22 +1,29 @@
 
 import { PlaceHolderImages, type ImagePlaceholder } from '@/lib/placeholder-images';
+import { getProducts as getFlowProducts } from '@/ai/flows/get-products-flow';
+import { z } from 'zod';
 
-const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
-
-export interface Product {
-    id: number | string; // Can be number for static or string from Firestore
-    name: string;
-    slug: string;
-    price: string;
-    description: string;
-    image: ImagePlaceholder | { imageUrl: string; description: string, imageHint: string }; // Allow for dynamic images
-    revolutLink: string;
-    type: 'merch' | 'music';
-    brand?: 'Verse 3 Merch' | 'Crude City';
-    digital?: boolean;
-    downloadUrl?: string;
-    availableRegions?: ('UK' | 'EU')[];
-}
+export const ProductSchema = z.object({
+  id: z.union([z.string(), z.number()]),
+  name: z.string(),
+  slug: z.string(),
+  price: z.string(),
+  description: z.string(),
+  image: z.object({
+    id: z.string().optional(),
+    description: z.string(),
+    imageUrl: z.string(),
+    imageHint: z.string(),
+  }).optional(),
+  imageUrl: z.string().optional(),
+  revolutLink: z.string().url(),
+  type: z.enum(['merch', 'music']),
+  brand: z.enum(['Verse 3 Merch', 'Crude City']).optional(),
+  digital: z.boolean().optional(),
+  downloadUrl: z.string().url().optional(),
+  availableRegions: z.array(z.enum(['UK', 'EU'])).optional(),
+});
+export type Product = z.infer<typeof ProductSchema>;
 
 
 // This static data will now act as a fallback or initial data.
@@ -25,13 +32,40 @@ export const products: Product[] = [
    
 ];
 
-// These functions will now require the full product list to be passed in.
-export const getProductBySlug = (slug: string, allProducts: Product[]) => {
-    return allProducts.find(p => p.slug === slug);
+async function getCrudeCityProducts(): Promise<Product[]> {
+    try {
+        const crudeCityProductsFromFlow = await getFlowProducts('Crude City');
+        return crudeCityProductsFromFlow.map(p => ({
+            ...p,
+            // Ensure the image property matches the structure expected by components
+            image: {
+                imageUrl: p.image.imageUrl,
+                description: p.image.description,
+                imageHint: p.image.imageHint,
+            }
+        }));
+    } catch (error) {
+        console.error("Error fetching Crude City products:", error);
+        return [];
+    }
+}
+
+
+// This function will now require the full product list to be passed in.
+export const getProductBySlug = async (slug: string, allProducts: Product[]) => {
+    // First, check the products from Firestore
+    let product = allProducts.find(p => p.slug === slug);
+    if (product) {
+        return product;
+    }
+    // If not found, check the Crude City products from the flow
+    const crudeCityProducts = await getCrudeCityProducts();
+    product = crudeCityProducts.find(p => p.slug === slug);
+    return product;
 }
 
 export const getRelatedProducts = (currentProduct: Product, allProducts: Product[]) => {
     const oppositeType = currentProduct.type === 'merch' ? 'music' : 'merch';
-    // Find up to 2 related products of the opposite type.
+    // Find up to 2 related products of the opposite type from the main product list.
     return allProducts.filter(p => p.id !== currentProduct.id && p.type === oppositeType).slice(0, 2);
 };

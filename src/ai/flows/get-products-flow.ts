@@ -4,33 +4,13 @@
  * This acts as a secure backend placeholder for fetching products from a third-party API.
  *
  * - getProducts - A function that fetches a list of products.
- * - ProductSchema - The Zod schema defining the structure of a product.
- * - Product - The TypeScript type for a product.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import type { Product } from '@/lib/products';
+import { ProductSchema } from '@/lib/products';
 
-export const ProductSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  slug: z.string(),
-  price: z.string(),
-  description: z.string(),
-  image: z.object({
-    id: z.string(),
-    description: z.string(),
-    imageUrl: z.string(),
-    imageHint: z.string(),
-  }),
-  revolutLink: z.string().url(),
-  type: z.enum(['merch', 'music']),
-  brand: z.enum(['Verse 3 Merch', 'Crude City']),
-  digital: z.boolean().optional(),
-  downloadUrl: z.string().url().optional(),
-  availableRegions: z.array(z.enum(['UK', 'EU'])).optional(),
-});
-export type Product = z.infer<typeof ProductSchema>;
 
 // This is a placeholder. In a real application, you would make a secure call
 // to the Printful/Printify API from within this flow on the server-side.

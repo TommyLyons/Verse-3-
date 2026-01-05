@@ -20,6 +20,7 @@ import React, { useState, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
+import { getProducts } from '@/ai/flows/get-products-flow';
 
 
 const ProductGrid = ({ products, isLoading, type }: { products: any[], isLoading?: boolean, type: 'merch' | 'music' }) => {
@@ -45,34 +46,37 @@ const ProductGrid = ({ products, isLoading, type }: { products: any[], isLoading
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {products.map((item) => (
-            <Card key={item.id} className="overflow-hidden group relative flex flex-col">
-                <CardContent className="p-0 flex-grow">
-                    <div className="aspect-square relative">
-                    <Image
-                        src={item.imageUrl}
-                        alt={item.name}
-                        fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
-                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
-                    </div>
-                </CardContent>
-                <CardFooter className="p-4 flex justify-between items-center bg-card">
-                <div>
-                    <p className="font-semibold">{item.name}</p>
-                    <p className="text-sm text-primary">{item.price}</p>
-                </div>
-                <Button size="sm" asChild>
-                    <Link href={`/store/${item.type}/${item.slug}`}>
-                        {item.digital ? <DownloadCloud className="mr-2 h-4 w-4"/> : <Eye className="mr-2 h-4 w-4"/>}
-                        {item.digital ? 'Purchase' : 'View'}
-                    </Link>
-                </Button>
-                </CardFooter>
-            </Card>
-            ))}
+            {products.map((item) => {
+                const imageUrl = 'image' in item && item.image ? item.image.imageUrl : item.imageUrl;
+                return (
+                    <Card key={item.id} className="overflow-hidden group relative flex flex-col">
+                        <CardContent className="p-0 flex-grow">
+                            <div className="aspect-square relative">
+                            <Image
+                                src={imageUrl}
+                                alt={item.name}
+                                fill
+                                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
+                            </div>
+                        </CardContent>
+                        <CardFooter className="p-4 flex justify-between items-center bg-card">
+                        <div>
+                            <p className="font-semibold">{item.name}</p>
+                            <p className="text-sm text-primary">{item.price}</p>
+                        </div>
+                        <Button size="sm" asChild>
+                            <Link href={`/store/${item.type}/${item.slug}`}>
+                                {item.digital ? <DownloadCloud className="mr-2 h-4 w-4"/> : <Eye className="mr-2 h-4 w-4"/>}
+                                {item.digital ? 'Purchase' : 'View'}
+                            </Link>
+                        </Button>
+                        </CardFooter>
+                    </Card>
+                )
+            })}
         </div>
     );
 };
@@ -87,22 +91,39 @@ export default function StorePage() {
     return query(collection(firestore, 'products'));
   }, [firestore]);
 
-  const { data: allProducts, isLoading } = useCollection(productsQuery);
+  const { data: allDbProducts, isLoading: isDbLoading } = useCollection(productsQuery);
   
   const [verse3Merch, setVerse3Merch] = useState<any[]>([]);
   const [crudeCityMerch, setCrudeCityMerch] = useState<any[]>([]);
   const [physicalMusic, setPhysicalMusic] = useState<any[]>([]);
   const [digitalMusic, setDigitalMusic] = useState<any[]>([]);
+  const [isFlowLoading, setIsFlowLoading] = useState(true);
 
   useEffect(() => {
-    if (allProducts) {
-      setVerse3Merch(allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch'));
-      setCrudeCityMerch(allProducts.filter(p => p.type === 'merch' && p.brand === 'Crude City'));
-      setPhysicalMusic(allProducts.filter(p => p.type === 'music' && !p.digital));
-      setDigitalMusic(allProducts.filter(p => p.type === 'music' && p.digital));
+    async function fetchFlowProducts() {
+        setIsFlowLoading(true);
+        try {
+            const crudeCity = await getProducts('Crude City');
+            setCrudeCityMerch(crudeCity);
+        } catch (error) {
+            console.error("Failed to fetch Crude City products:", error);
+            setCrudeCityMerch([]);
+        }
+        setIsFlowLoading(false);
     }
-  }, [allProducts, region]);
+    fetchFlowProducts();
+  }, []);
 
+  useEffect(() => {
+    if (allDbProducts) {
+      setVerse3Merch(allDbProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch'));
+      // Note: Crude City merch is now fetched from the flow, but we still filter other brands from DB
+      setPhysicalMusic(allDbProducts.filter(p => p.type === 'music' && !p.digital));
+      setDigitalMusic(allDbProducts.filter(p => p.type === 'music' && p.digital));
+    }
+  }, [allDbProducts, region]);
+
+  const isLoading = isDbLoading || isFlowLoading;
 
   return (
     <div className="container py-12 md:py-24">
@@ -132,25 +153,25 @@ export default function StorePage() {
        {/* Verse 3 Merch Section */}
        <section className="mb-16">
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Verse 3 Merch</h2>
-            <ProductGrid products={verse3Merch} isLoading={isLoading} type="merch" />
+            <ProductGrid products={verse3Merch} isLoading={isDbLoading} type="merch" />
        </section>
 
        {/* Crude City Merch Section */}
        <section className="mb-16">
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Crude City</h2>
-            <ProductGrid products={crudeCityMerch} isLoading={isLoading} type="merch" />
+            <ProductGrid products={crudeCityMerch} isLoading={isFlowLoading} type="merch" />
        </section>
        
        {/* Digital Music Section */}
        <section className="mb-16">
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Digital Downloads</h2>
-            <ProductGrid products={digitalMusic} isLoading={isLoading} type="music" />
+            <ProductGrid products={digitalMusic} isLoading={isDbLoading} type="music" />
        </section>
 
        {/* Physical Music Section */}
        <section>
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Physical Music & More</h2>
-            <ProductGrid products={physicalMusic} isLoading={isLoading} type="music" />
+            <ProductGrid products={physicalMusic} isLoading={isDbLoading} type="music" />
        </section>
     </div>
   );
