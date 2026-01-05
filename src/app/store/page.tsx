@@ -3,7 +3,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { products, Product } from '@/lib/products';
+import { products as staticProducts, Product } from '@/lib/products';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
@@ -15,12 +15,31 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
+import React, { useState, useEffect } from 'react';
+import { getProducts } from '@/ai/flows/get-products-flow';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
-const ProductGrid = ({ products }: { products: Product[] }) => {
+const ProductGrid = ({ products, isLoading }: { products: Product[], isLoading?: boolean }) => {
+    if (isLoading) {
+        return (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                {[...Array(4)].map((_, i) => (
+                    <div key={i} className="flex flex-col space-y-3">
+                        <Skeleton className="h-[250px] w-full rounded-xl" />
+                        <div className="space-y-2">
+                            <Skeleton className="h-4 w-[200px]" />
+                            <Skeleton className="h-4 w-[150px]" />
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    }
+
     if (products.length === 0) {
-        return <p className="text-muted-foreground">No products available for this selection.</p>;
+        return <p className="text-muted-foreground text-center py-8">No products available for this selection.</p>;
     }
 
     return (
@@ -58,14 +77,36 @@ const ProductGrid = ({ products }: { products: Product[] }) => {
     );
 };
 
+function CrudeCitySection({ region }: { region: 'UK' | 'EU' }) {
+    const [products, setProducts] = useState<Product[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        setIsLoading(true);
+        getProducts('Crude City')
+            .then(fetchedProducts => {
+                const availableProducts = fetchedProducts.filter(p => !p.availableRegions || p.availableRegions.includes(region));
+                setProducts(availableProducts);
+            })
+            .catch(console.error)
+            .finally(() => setIsLoading(false));
+    }, [region]);
+
+    return (
+        <section className="mb-16">
+            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Crude City</h2>
+            <ProductGrid products={products} isLoading={isLoading} />
+        </section>
+    );
+}
+
 
 export default function StorePage() {
   const { region, setRegion } = useRegion();
 
-  const verse3Merch = products.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch' && (!p.availableRegions || p.availableRegions.includes(region)));
-  const crudeCityMerch = products.filter(p => p.type === 'merch' && p.brand === 'Crude City' && (!p.availableRegions || p.availableRegions.includes(region)));
-  const physicalMusicProducts = products.filter(p => p.type === 'music' && !p.digital);
-  const digitalMusicProducts = products.filter(p => p.type === 'music' && p.digital);
+  const verse3Merch = staticProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch' && (!p.availableRegions || p.availableRegions.includes(region)));
+  const physicalMusicProducts = staticProducts.filter(p => p.type === 'music' && !p.digital);
+  const digitalMusicProducts = staticProducts.filter(p => p.type === 'music' && p.digital);
 
   return (
     <div className="container py-12 md:py-24">
@@ -99,17 +140,7 @@ export default function StorePage() {
        </section>
 
        {/* Crude City Merch Section */}
-       <section className="mb-16">
-            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Crude City</h2>
-            {crudeCityMerch.length > 0 ? (
-                 <ProductGrid products={crudeCityMerch} />
-            ) : (
-                <div className="text-center py-12 border-2 border-dashed rounded-lg">
-                    <h3 className="text-xl font-semibold">Coming Soon</h3>
-                    <p className="text-muted-foreground mt-2">New merchandise from Crude City will be available here shortly.</p>
-                </div>
-            )}
-       </section>
+       <CrudeCitySection region={region} />
        
        {/* Digital Music Section */}
        {digitalMusicProducts.length > 0 && (
