@@ -12,7 +12,7 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isSignedIn() && request.auth.token.email == 'verse3records@gmail.com';
+      return isSignedIn() && request.auth.token.email == 'info@verse3records.com';
     }
     
     match /users/{userId} {
@@ -34,6 +34,13 @@ service cloud.firestore {
       allow read, list: if isAdmin();
       // Disallow public update and delete.
       allow update, delete: if false;
+    }
+
+    match /products/{productId} {
+      // Allow public read for all products
+      allow read, list: if true;
+      // Allow admins to create, update, and delete products
+      allow write: if isAdmin();
     }
   }
 }

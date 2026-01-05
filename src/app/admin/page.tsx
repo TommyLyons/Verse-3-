@@ -1,9 +1,9 @@
 
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useUser, useFirestore, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -11,10 +11,36 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BarChart, ExternalLink, FileAudio, FileImage, Terminal } from 'lucide-react';
+import { BarChart, ExternalLink, FileAudio, FileImage, Terminal, UploadCloud, PlusCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose
+} from "@/components/ui/dialog"
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 
-const adminEmail = 'verse3records@gmail.com';
+
+const adminEmail = 'info@verse3records.com';
 
 const MusicSubmissions = () => {
     const firestore = useFirestore();
@@ -105,6 +131,238 @@ const MusicSubmissions = () => {
     )
 }
 
+const productFormSchema = z.object({
+  name: z.string().min(3, "Product name must be at least 3 characters."),
+  description: z.string().min(10, "Description must be at least 10 characters."),
+  price: z.string().regex(/^\$\d+(\.\d{2})?$/, "Price must be in the format $XX.XX."),
+  imageUrl: z.string().url("Please enter a valid image URL."),
+  revolutLink: z.string().url("Please enter a valid Revolut purchase link."),
+  type: z.enum(['merch', 'music']),
+  brand: z.enum(['Verse 3 Merch', 'Crude City']),
+  slug: z.string().min(3, "Slug is required.").refine(s => !s.includes(' '), "Slug cannot contain spaces."),
+  digital: z.boolean().optional(),
+  downloadUrl: z.string().optional(),
+});
+type ProductFormValues = z.infer<typeof productFormSchema>;
+
+
+const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
+    const { toast } = useToast();
+    const firestore = useFirestore();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const form = useForm<ProductFormValues>({
+        resolver: zodResolver(productFormSchema),
+        defaultValues: {
+            name: '',
+            description: '',
+            price: '$',
+            imageUrl: 'https://picsum.photos/seed/',
+            revolutLink: 'https://revolut.me/',
+            type: 'merch',
+            brand: 'Verse 3 Merch',
+            slug: '',
+            digital: false,
+            downloadUrl: ''
+        },
+    });
+
+    const onSubmit = async (values: ProductFormValues) => {
+        setIsSubmitting(true);
+        try {
+            const productsCollection = collection(firestore, 'products');
+            await addDocumentNonBlocking(productsCollection, values);
+            toast({
+                title: 'Product Added!',
+                description: `${values.name} has been added to the store.`,
+            });
+            onFinished();
+        } catch (error) {
+            console.error("Error adding product:", error);
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'Failed to add product. Please check console for details.',
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+         <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Product Name</FormLabel>
+                            <FormControl><Input placeholder="e.g., Verse3 Logo Hoodie" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="slug"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Slug</FormLabel>
+                            <FormControl><Input placeholder="e.g., verse3-logo-hoodie" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Description</FormLabel>
+                            <FormControl><Textarea placeholder="A short description of the product." {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <div className="grid grid-cols-2 gap-4">
+                     <FormField
+                        control={form.control}
+                        name="price"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Price</FormLabel>
+                                <FormControl><Input placeholder="$29.99" {...field} /></FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                     <FormField
+                        control={form.control}
+                        name="type"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Type</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="merch">Merch</SelectItem>
+                                        <SelectItem value="music">Music</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+                 <FormField
+                    control={form.control}
+                    name="brand"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Brand</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                                <SelectContent>
+                                    <SelectItem value="Verse 3 Merch">Verse 3 Merch</SelectItem>
+                                    <SelectItem value="Crude City">Crude City</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="imageUrl"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Image URL</FormLabel>
+                            <FormControl><Input placeholder="https://..." {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="revolutLink"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Revolut Link</FormLabel>
+                            <FormControl><Input placeholder="https://revolut.me/..." {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <Button type="submit" disabled={isSubmitting} className="w-full">
+                   {isSubmitting ? 'Adding...' : 'Add Product'}
+                </Button>
+            </form>
+         </Form>
+    )
+}
+
+const ProductManagement = () => {
+    const firestore = useFirestore();
+    const productsQuery = useMemoFirebase(() => collection(firestore, 'products'), [firestore]);
+    const { data: products, isLoading, error } = useCollection(productsQuery);
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+
+    return (
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                    <CardTitle>Product Management</CardTitle>
+                    <CardDescription>Add, edit, or remove store products.</CardDescription>
+                </div>
+                <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                    <DialogTrigger asChild>
+                         <Button><PlusCircle className="mr-2 h-4 w-4" /> Add Product</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Add a New Product</DialogTitle>
+                            <DialogDescription>Fill out the details for the new product.</DialogDescription>
+                        </DialogHeader>
+                        <AddProductForm onFinished={() => setIsAddDialogOpen(false)} />
+                    </DialogContent>
+                </Dialog>
+            </CardHeader>
+            <CardContent>
+                {isLoading && <p>Loading products...</p>}
+                {error && <p className="text-destructive">Error loading products.</p>}
+                {products && (
+                     <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Name</TableHead>
+                                <TableHead>Brand</TableHead>
+                                <TableHead>Type</TableHead>
+                                <TableHead>Price</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {products.map((product: any) => (
+                                <TableRow key={product.id}>
+                                    <TableCell className="font-medium">{product.name}</TableCell>
+                                    <TableCell><Badge variant="secondary">{product.brand}</Badge></TableCell>
+                                    <TableCell>{product.type}</TableCell>
+                                    <TableCell>{product.price}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                )}
+                 {products?.length === 0 && !isLoading && (
+                    <p className="text-muted-foreground text-center py-4">No products found.</p>
+                )}
+            </CardContent>
+        </Card>
+    );
+};
+
+
 const SalesDashboard = () => {
     return (
         <Card>
@@ -151,6 +409,7 @@ export default function AdminPage() {
             </div>
 
             <div className="grid gap-8">
+                <ProductManagement />
                 <MusicSubmissions />
                 <SalesDashboard />
             </div>

@@ -258,6 +258,24 @@
         "downloadUrl",
         "purchasedAt"
       ]
+    },
+    "Product": {
+      "title": "Product",
+      "type": "object",
+      "description": "Represents a product for sale in the store.",
+      "properties": {
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "price": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string", "format": "uri" },
+        "revolutLink": { "type": "string", "format": "uri" },
+        "type": { "type": "string", "enum": ["merch", "music"] },
+        "brand": { "type": "string", "enum": ["Verse 3 Merch", "Crude City"] },
+        "digital": { "type": "boolean" },
+        "downloadUrl": { "type": "string", "format": "uri" }
+      },
+      "required": ["name", "slug", "price", "description", "imageUrl", "revolutLink", "type", "brand"]
     }
   },
   "auth": {
@@ -284,6 +302,12 @@
         "$ref": "#/backend/entities/PurchasedProduct"
       },
       "description": "Stores a record of digital products a user has purchased. Only the user can read their own purchase history. Writes should be handled by a secure backend function after payment confirmation."
+    },
+     "/products/{productId}": {
+      "schema": {
+        "$ref": "#/backend/entities/Product"
+      },
+      "description": "Stores all products for the store. Publicly readable, but only writeable by admins."
     }
   }
 }

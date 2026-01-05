@@ -3,7 +3,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { products as staticProducts, Product } from '@/lib/products';
+import { Product } from '@/lib/products';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
@@ -17,11 +17,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import React, { useState, useEffect } from 'react';
-import { getProducts } from '@/ai/flows/get-products-flow';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, query, where } from 'firebase/firestore';
 
 
-const ProductGrid = ({ products, isLoading }: { products: Product[], isLoading?: boolean }) => {
+const ProductGrid = ({ products, isLoading, type }: { products: any[], isLoading?: boolean, type: 'merch' | 'music' }) => {
     if (isLoading) {
         return (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
@@ -39,7 +40,7 @@ const ProductGrid = ({ products, isLoading }: { products: Product[], isLoading?:
     }
 
     if (products.length === 0) {
-        return <p className="text-muted-foreground text-center py-8">No products available for this selection.</p>;
+        return <p className="text-muted-foreground text-center py-8">No {type} products available for this selection.</p>;
     }
 
     return (
@@ -49,11 +50,10 @@ const ProductGrid = ({ products, isLoading }: { products: Product[], isLoading?:
                 <CardContent className="p-0 flex-grow">
                     <div className="aspect-square relative">
                     <Image
-                        src={item.image.imageUrl}
-                        alt={item.image.description}
+                        src={item.imageUrl}
+                        alt={item.name}
                         fill
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
-                        data-ai-hint={item.image.imageHint}
                         sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
@@ -77,36 +77,32 @@ const ProductGrid = ({ products, isLoading }: { products: Product[], isLoading?:
     );
 };
 
-function CrudeCitySection({ region }: { region: 'UK' | 'EU' }) {
-    const [products, setProducts] = useState<Product[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        setIsLoading(true);
-        getProducts('Crude City')
-            .then(fetchedProducts => {
-                const availableProducts = fetchedProducts.filter(p => !p.availableRegions || p.availableRegions.includes(region));
-                setProducts(availableProducts);
-            })
-            .catch(console.error)
-            .finally(() => setIsLoading(false));
-    }, [region]);
-
-    return (
-        <section className="mb-16">
-            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Crude City</h2>
-            <ProductGrid products={products} isLoading={isLoading} />
-        </section>
-    );
-}
-
 
 export default function StorePage() {
   const { region, setRegion } = useRegion();
+  const firestore = useFirestore();
 
-  const verse3Merch = staticProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch' && (!p.availableRegions || p.availableRegions.includes(region)));
-  const physicalMusicProducts = staticProducts.filter(p => p.type === 'music' && !p.digital);
-  const digitalMusicProducts = staticProducts.filter(p => p.type === 'music' && p.digital);
+  const productsQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'products'));
+  }, [firestore]);
+
+  const { data: allProducts, isLoading } = useCollection(productsQuery);
+  
+  const [verse3Merch, setVerse3Merch] = useState<any[]>([]);
+  const [crudeCityMerch, setCrudeCityMerch] = useState<any[]>([]);
+  const [physicalMusic, setPhysicalMusic] = useState<any[]>([]);
+  const [digitalMusic, setDigitalMusic] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (allProducts) {
+      setVerse3Merch(allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch'));
+      setCrudeCityMerch(allProducts.filter(p => p.type === 'merch' && p.brand === 'Crude City'));
+      setPhysicalMusic(allProducts.filter(p => p.type === 'music' && !p.digital));
+      setDigitalMusic(allProducts.filter(p => p.type === 'music' && p.digital));
+    }
+  }, [allProducts, region]);
+
 
   return (
     <div className="container py-12 md:py-24">
@@ -136,24 +132,25 @@ export default function StorePage() {
        {/* Verse 3 Merch Section */}
        <section className="mb-16">
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Verse 3 Merch</h2>
-            <ProductGrid products={verse3Merch} />
+            <ProductGrid products={verse3Merch} isLoading={isLoading} type="merch" />
        </section>
 
        {/* Crude City Merch Section */}
-       <CrudeCitySection region={region} />
+       <section className="mb-16">
+            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Crude City</h2>
+            <ProductGrid products={crudeCityMerch} isLoading={isLoading} type="merch" />
+       </section>
        
        {/* Digital Music Section */}
-       {digitalMusicProducts.length > 0 && (
-         <section className="mb-16">
-              <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Digital Downloads</h2>
-              <ProductGrid products={digitalMusicProducts} />
-         </section>
-       )}
+       <section className="mb-16">
+            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Digital Downloads</h2>
+            <ProductGrid products={digitalMusic} isLoading={isLoading} type="music" />
+       </section>
 
        {/* Physical Music Section */}
        <section>
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Physical Music & More</h2>
-            <ProductGrid products={physicalMusicProducts} />
+            <ProductGrid products={physicalMusic} isLoading={isLoading} type="music" />
        </section>
     </div>
   );
