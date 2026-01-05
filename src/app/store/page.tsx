@@ -3,7 +3,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { products } from '@/lib/products';
+import { products, Product } from '@/lib/products';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
@@ -18,10 +18,52 @@ import {
 } from "@/components/ui/select"
 
 
+const ProductGrid = ({ products }: { products: Product[] }) => {
+    if (products.length === 0) {
+        return <p className="text-muted-foreground">No products available for this selection.</p>;
+    }
+
+    return (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            {products.map((item) => (
+            <Card key={item.id} className="overflow-hidden group relative flex flex-col">
+                <CardContent className="p-0 flex-grow">
+                    <div className="aspect-square relative">
+                    <Image
+                        src={item.image.imageUrl}
+                        alt={item.image.description}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        data-ai-hint={item.image.imageHint}
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
+                    </div>
+                </CardContent>
+                <CardFooter className="p-4 flex justify-between items-center bg-card">
+                <div>
+                    <p className="font-semibold">{item.name}</p>
+                    <p className="text-sm text-primary">{item.price}</p>
+                </div>
+                <Button size="sm" asChild>
+                    <Link href={`/store/${item.type}/${item.slug}`}>
+                        {item.digital ? <DownloadCloud className="mr-2 h-4 w-4"/> : <Eye className="mr-2 h-4 w-4"/>}
+                        {item.digital ? 'Purchase' : 'View'}
+                    </Link>
+                </Button>
+                </CardFooter>
+            </Card>
+            ))}
+        </div>
+    );
+};
+
+
 export default function StorePage() {
   const { region, setRegion } = useRegion();
 
-  const merchProducts = products.filter(p => p.type === 'merch' && (!p.availableRegions || p.availableRegions.includes(region)));
+  const verse3Merch = products.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch' && (!p.availableRegions || p.availableRegions.includes(region)));
+  const crudeCityMerch = products.filter(p => p.type === 'merch' && p.brand === 'Crude City' && (!p.availableRegions || p.availableRegions.includes(region)));
   const physicalMusicProducts = products.filter(p => p.type === 'music' && !p.digital);
   const digitalMusicProducts = products.filter(p => p.type === 'music' && p.digital);
 
@@ -50,43 +92,22 @@ export default function StorePage() {
          </div>
        </div>
 
-       {/* Merchandise Section */}
+       {/* Verse 3 Merch Section */}
        <section className="mb-16">
-            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Merchandise</h2>
-            {merchProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                  {merchProducts.map((item) => (
-                  <Card key={item.id} className="overflow-hidden group relative flex flex-col">
-                      <CardContent className="p-0 flex-grow">
-                          <div className="aspect-square relative">
-                          <Image
-                              src={item.image.imageUrl}
-                              alt={item.image.description}
-                              fill
-                              className="object-cover transition-transform duration-300 group-hover:scale-105"
-                              data-ai-hint={item.image.imageHint}
-                              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
-                          </div>
-                      </CardContent>
-                      <CardFooter className="p-4 flex justify-between items-center bg-card">
-                      <div>
-                          <p className="font-semibold">{item.name}</p>
-                          <p className="text-sm text-primary">{item.price}</p>
-                      </div>
-                      <Button size="sm" asChild>
-                          <Link href={`/store/${item.type}/${item.slug}`}>
-                              <Eye className="mr-2 h-4 w-4"/>
-                              View
-                          </Link>
-                      </Button>
-                      </CardFooter>
-                  </Card>
-                  ))}
-              </div>
+            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Verse 3 Merch</h2>
+            <ProductGrid products={verse3Merch} />
+       </section>
+
+       {/* Crude City Merch Section */}
+       <section className="mb-16">
+            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Crude City</h2>
+            {crudeCityMerch.length > 0 ? (
+                 <ProductGrid products={crudeCityMerch} />
             ) : (
-              <p className="text-muted-foreground">No merchandise available for the selected region.</p>
+                <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                    <h3 className="text-xl font-semibold">Coming Soon</h3>
+                    <p className="text-muted-foreground mt-2">New merchandise from Crude City will be available here shortly.</p>
+                </div>
             )}
        </section>
        
@@ -94,74 +115,14 @@ export default function StorePage() {
        {digitalMusicProducts.length > 0 && (
          <section className="mb-16">
               <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Digital Downloads</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                  {digitalMusicProducts.map((item) => (
-                  <Card key={item.id} className="overflow-hidden group relative flex flex-col">
-                      <CardContent className="p-0 flex-grow">
-                          <div className="aspect-square relative">
-                          <Image
-                              src={item.image.imageUrl}
-                              alt={item.image.description}
-                              fill
-                              className="object-cover transition-transform duration-300 group-hover:scale-105"
-                              data-ai-hint={item.image.imageHint}
-                              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
-                          </div>
-                      </CardContent>
-                      <CardFooter className="p-4 flex justify-between items-center bg-card">
-                      <div>
-                          <p className="font-semibold">{item.name}</p>
-                          <p className="text-sm text-primary">{item.price}</p>
-                      </div>
-                      <Button size="sm" asChild>
-                          <Link href={`/store/${item.type}/${item.slug}`}>
-                              <DownloadCloud className="mr-2 h-4 w-4"/>
-                              Purchase
-                          </Link>
-                      </Button>
-                      </CardFooter>
-                  </Card>
-                  ))}
-              </div>
+              <ProductGrid products={digitalMusicProducts} />
          </section>
        )}
 
        {/* Physical Music Section */}
        <section>
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Physical Music & More</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                {physicalMusicProducts.map((item) => (
-                <Card key={item.id} className="overflow-hidden group relative flex flex-col">
-                    <CardContent className="p-0 flex-grow">
-                        <div className="aspect-square relative">
-                        <Image
-                            src={item.image.imageUrl}
-                            alt={item.image.description}
-                            fill
-                            className="object-cover transition-transform duration-300 group-hover:scale-105"
-                            data-ai-hint={item.image.imageHint}
-                            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
-                        </div>
-                    </CardContent>
-                    <CardFooter className="p-4 flex justify-between items-center bg-card">
-                    <div>
-                        <p className="font-semibold">{item.name}</p>
-                        <p className="text-sm text-primary">{item.price}</p>
-                    </div>
-                    <Button size="sm" asChild>
-                        <Link href={`/store/${item.type}/${item.slug}`}>
-                            <Eye className="mr-2 h-4 w-4"/>
-                            View
-                        </Link>
-                    </Button>
-                    </CardFooter>
-                </Card>
-                ))}
-            </div>
+            <ProductGrid products={physicalMusicProducts} />
        </section>
     </div>
   );

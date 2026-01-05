@@ -12,6 +12,7 @@ export interface Product {
     image: ImagePlaceholder;
     revolutLink: string;
     type: 'merch' | 'music';
+    brand?: 'Verse 3 Merch' | 'Crude City'; // Added for merchandise branding
     digital?: boolean;
     downloadUrl?: string; // Only for digital products
     availableRegions?: ('UK' | 'EU')[]; // For merchandise availability
@@ -28,6 +29,7 @@ export const products: Product[] = [
         image: getImage('merch-hoodie')!, 
         revolutLink: 'https://revolut.me/test-business-studio/50',
         type: 'merch',
+        brand: 'Verse 3 Merch',
         availableRegions: ['UK', 'EU']
     },
     { 
@@ -39,6 +41,7 @@ export const products: Product[] = [
         image: getImage('merch-cap')!, 
         revolutLink: 'https://revolut.me/test-business-studio/25',
         type: 'merch',
+        brand: 'Verse 3 Merch',
         availableRegions: ['UK', 'EU']
     },
     { 
@@ -50,6 +53,7 @@ export const products: Product[] = [
         image: getImage('merch-tshirt')!, 
         revolutLink: 'https://revolut.me/test-business-studio/30', // You would replace this with the actual Printify product link or checkout
         type: 'merch',
+        brand: 'Verse 3 Merch',
         availableRegions: ['UK']
     },
     { 
