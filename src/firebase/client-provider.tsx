@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo, type ReactNode } from 'react';
@@ -9,16 +10,22 @@ interface FirebaseClientProviderProps {
 }
 
 export function FirebaseClientProvider({ children }: FirebaseClientProviderProps) {
-  const firebaseServices = useMemo(() => {
-    // Initialize Firebase on the client side, once per component mount.
-    return getSdks();
-  }, []); // Empty dependency array ensures this runs only once on mount
+  // Initialize Firebase on the client side, once per application lifecycle.
+  const { firebaseApp, auth, firestore } = useMemo(() => getSdks(), []); 
+
+  // If services are not yet available, we can show a loading state or return null,
+  // but for this implementation, we will assume they initialize synchronously.
+  // A more robust solution might handle a brief period where they are null.
+  if (!firebaseApp || !auth || !firestore) {
+    // This can be a loading spinner or some fallback UI.
+    return <div>Loading Firebase...</div>;
+  }
 
   return (
     <FirebaseProvider
-      firebaseApp={firebaseServices.firebaseApp}
-      auth={firebaseServices.auth}
-      firestore={firebaseServices.firestore}
+      firebaseApp={firebaseApp}
+      auth={auth}
+      firestore={firestore}
     >
       {children}
     </FirebaseProvider>
