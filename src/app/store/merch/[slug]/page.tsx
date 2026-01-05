@@ -117,14 +117,14 @@ function ProductPageContent({ slug }: { slug: string }) {
           <p className="text-2xl font-semibold text-primary mt-2">{product.price}</p>
           <p className="text-muted-foreground mt-4 text-lg flex-grow">{product.description}</p>
           
-           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+           <div className="mt-8 space-y-4">
                 <div>
                     <label htmlFor="quantity-select" className="text-sm font-medium text-muted-foreground">Quantity</label>
                      <Select 
                         value={String(quantity)} 
                         onValueChange={(value) => setQuantity(parseInt(value, 10))}
                      >
-                        <SelectTrigger id="quantity-select">
+                        <SelectTrigger id="quantity-select" className="w-full md:w-1/2">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -140,7 +140,7 @@ function ProductPageContent({ slug }: { slug: string }) {
                      <div>
                         <label htmlFor="size-select" className="text-sm font-medium text-muted-foreground">Size</label>
                         <Select value={selectedSize} onValueChange={setSelectedSize}>
-                            <SelectTrigger id="size-select">
+                            <SelectTrigger id="size-select" className="w-full md:w-1/2">
                                 <SelectValue placeholder="Select a size" />
                             </SelectTrigger>
                             <SelectContent>
