@@ -4,17 +4,17 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getProductBySlug, getRelatedProducts } from '@/lib/products';
+import { getProductBySlug, getRelatedProducts, Product } from '@/lib/products';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ShoppingCart, Eye, CheckCircle } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
-import { useState, use, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Product } from '@/lib/products';
+import { getProducts as getFlowProducts } from '@/ai/flows/get-products-flow';
 
 function ProductPageContent({ slug }: { slug: string }) {
   const firestore = useFirestore();
@@ -29,21 +29,25 @@ function ProductPageContent({ slug }: { slug: string }) {
   const [addedToCart, setAddedToCart] = useState(false);
 
   useEffect(() => {
-    async function fetchProduct() {
-      if (isDbLoading) return;
+    async function fetchAllProducts() {
+        if (isDbLoading) return;
+        setIsLoading(true);
 
-      setIsLoading(true);
-      const fetchedProduct = await getProductBySlug(slug, allDbProducts || []);
-      setProduct(fetchedProduct);
+        // Combine products from both sources
+        const flowProducts = await getFlowProducts('Crude City');
+        const allProducts = [...(allDbProducts || []), ...flowProducts];
 
-      if (fetchedProduct) {
-        const related = getRelatedProducts(fetchedProduct, allDbProducts || []);
-        setRelatedProducts(related);
-      }
-      setIsLoading(false);
+        const fetchedProduct = await getProductBySlug(slug, allProducts);
+        setProduct(fetchedProduct);
+
+        if (fetchedProduct) {
+            const related = getRelatedProducts(fetchedProduct, allProducts);
+            setRelatedProducts(related);
+        }
+        setIsLoading(false);
     }
 
-    fetchProduct();
+    fetchAllProducts();
   }, [slug, allDbProducts, isDbLoading]);
   
   if (isLoading || product === undefined) {
@@ -73,8 +77,8 @@ function ProductPageContent({ slug }: { slug: string }) {
     setTimeout(() => setAddedToCart(false), 3000); // Reset after 3 seconds
   };
   
-  const imageUrl = 'image' in product && product.image ? (product.image as any).imageUrl : (product as any).imageUrl;
-  const imageDescription = 'image' in product && product.image ? (product.image as any).description : (product as any).description;
+  const imageUrl = ('image' in product && product.image ? product.image.imageUrl : product.imageUrl) || '';
+  const imageDescription = ('image' in product && product.image ? product.image.description : product.description) || '';
 
   return (
     <div className="container py-12 md:py-24">
@@ -114,9 +118,9 @@ function ProductPageContent({ slug }: { slug: string }) {
         <div className="mt-24">
           <h2 className="font-headline text-3xl font-bold text-center mb-8">You Might Also Like</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-2xl mx-auto">
-            {relatedProducts.map((item: any) => {
-               const relatedImageUrl = 'image' in item && item.image ? item.image.imageUrl : item.imageUrl;
-               const relatedImageDescription = 'image' in item && item.image ? item.image.description : item.description;
+            {relatedProducts.map((item: Product) => {
+               const relatedImageUrl = ('image' in item && item.image ? item.image.imageUrl : item.imageUrl) || '';
+               const relatedImageDescription = ('image' in item && item.image ? item.image.description : item.description) || '';
 
                return (
                <Card key={item.id} className="overflow-hidden group relative flex flex-col">
@@ -153,11 +157,8 @@ function ProductPageContent({ slug }: { slug: string }) {
 }
 
 
-export default function ProductPage({ params: paramsPromise }: { params: Promise<{ slug: string }> }) {
-  // The `use` hook is used to handle the promise for the params.
-  const params = use(paramsPromise);
-
-  // The rendering logic is moved to a separate component
-  // that can use hooks like `useCollection`.
+export default function ProductPage({ params }: { params: { slug: string } }) {
+  // The rendering logic is moved to a separate client component
+  // that can use hooks like `useCollection` and `useEffect`.
   return <ProductPageContent slug={params.slug} />;
 }

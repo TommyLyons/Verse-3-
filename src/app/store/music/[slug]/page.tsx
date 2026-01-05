@@ -4,18 +4,18 @@
 import { notFound, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getProductBySlug, getRelatedProducts } from '@/lib/products';
+import { getProductBySlug, getRelatedProducts, Product } from '@/lib/products';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ShoppingCart, Eye, CheckCircle, DownloadCloud, Play, Pause } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
-import { useState, use, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useUser, useFirestore, addDocumentNonBlocking, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, serverTimestamp, getDocs, query, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Product } from '@/lib/products';
+import { getProducts as getFlowProducts } from '@/ai/flows/get-products-flow';
 
 function ProductPageContent({ slug }: { slug: string }) {
   const router = useRouter();
@@ -40,21 +40,25 @@ function ProductPageContent({ slug }: { slug: string }) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    async function fetchProduct() {
-      if (isDbLoading) return;
+    async function fetchAllProducts() {
+        if (isDbLoading) return;
+        setIsLoading(true);
 
-      setIsLoading(true);
-      const fetchedProduct = await getProductBySlug(slug, allDbProducts || []);
-      setProduct(fetchedProduct);
+        // Combine products from both sources
+        const flowProducts = await getFlowProducts('Crude City');
+        const allProducts = [...(allDbProducts || []), ...flowProducts];
 
-      if (fetchedProduct) {
-        const related = getRelatedProducts(fetchedProduct, allDbProducts || []);
-        setRelatedProducts(related);
-      }
-      setIsLoading(false);
+        const fetchedProduct = await getProductBySlug(slug, allProducts);
+        setProduct(fetchedProduct);
+
+        if (fetchedProduct) {
+            const related = getRelatedProducts(fetchedProduct, allProducts);
+            setRelatedProducts(related);
+        }
+        setIsLoading(false);
     }
 
-    fetchProduct();
+    fetchAllProducts();
   }, [slug, allDbProducts, isDbLoading]);
 
   useEffect(() => {
@@ -62,13 +66,14 @@ function ProductPageContent({ slug }: { slug: string }) {
     if (!audio) return;
 
     const handleTimeUpdate = () => {
-      if (audio.duration && audio.currentTime >= 30) { // Check duration to avoid NaN
+      const duration = 30; // Limit preview to 30 seconds
+      if (audio.duration && audio.currentTime >= duration) {
         audio.pause();
         audio.currentTime = 0;
         setIsPlaying(false);
         setProgress(0);
-      } else if (audio.duration) {
-        setProgress((audio.currentTime / 30) * 100);
+      } else {
+        setProgress((audio.currentTime / duration) * 100);
       }
     };
 
@@ -195,8 +200,9 @@ function ProductPageContent({ slug }: { slug: string }) {
     }
   };
 
-  const imageUrl = 'image' in product && product.image ? (product.image as any).imageUrl : (product as any).imageUrl;
-  const imageDescription = 'image' in product && product.image ? (product.image as any).description : (product as any).description;
+  const imageUrl = ('image' in product && product.image ? product.image.imageUrl : product.imageUrl) || '';
+  const imageDescription = ('image' in product && product.image ? product.image.description : product.description) || '';
+
 
   return (
     <div className="container py-12 md:py-24">
@@ -266,9 +272,9 @@ function ProductPageContent({ slug }: { slug: string }) {
         <div className="mt-24">
           <h2 className="font-headline text-3xl font-bold text-center mb-8">You Might Also Like</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-2xl mx-auto">
-            {relatedProducts.map((item: any) => {
-              const relatedImageUrl = 'image' in item && item.image ? item.image.imageUrl : item.imageUrl;
-              const relatedImageDescription = 'image' in item && item.image ? item.image.description : item.description;
+            {relatedProducts.map((item: Product) => {
+              const relatedImageUrl = ('image' in item && item.image ? item.image.imageUrl : item.imageUrl) || '';
+              const relatedImageDescription = ('image' in item && item.image ? item.image.description : item.description) || '';
               
               return (
                <Card key={item.id} className="overflow-hidden group relative flex flex-col">
@@ -306,11 +312,8 @@ function ProductPageContent({ slug }: { slug: string }) {
 }
 
 
-export default function ProductPage({ params: paramsPromise }: { params: Promise<{ slug: string }> })
-  // The `use` hook is used to handle the promise for the params.
-  const params = use(paramsPromise);
-
-  // The rendering logic is moved to a separate component
-  // that can use hooks like `useCollection`.
+export default function ProductPage({ params }: { params: { slug: string } }) {
+  // The rendering logic is moved to a separate client component
+  // that can use hooks like `useCollection` and `useEffect`.
   return <ProductPageContent slug={params.slug} />;
 }
