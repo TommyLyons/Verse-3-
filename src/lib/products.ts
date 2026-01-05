@@ -1,8 +1,12 @@
 
+'use server';
+
+
 import { PlaceHolderImages, type ImagePlaceholder } from '@/lib/placeholder-images';
 import { getProducts as getFlowProducts } from '@/ai/flows/get-products-flow';
 import { z } from 'zod';
 import { collection, getDocs, Firestore, query } from 'firebase/firestore';
+import { initializeFirebase } from '@/firebase/server-init';
 
 
 export const ProductSchema = z.object({
@@ -28,19 +32,16 @@ export const ProductSchema = z.object({
 });
 export type Product = z.infer<typeof ProductSchema>;
 
-
-// This static data is no longer used.
-export const products: Product[] = [];
-
 /**
  * Fetches all products from both Firestore and the Genkit Flow, returning a single combined array.
- * This is the primary function for getting all product data.
- * @param firestore - The Firestore instance.
+ * This is the primary function for getting all product data. It can be called from server or client components.
  * @returns A promise that resolves to an array of all products.
  */
-export const getAllProducts = async (firestore: Firestore): Promise<Product[]> => {
+export const getAllProducts = async (): Promise<Product[]> => {
     try {
-        const productsCollection = collection(firestore, 'products');
+        const db = initializeFirebase().firestore;
+
+        const productsCollection = collection(db, 'products');
         const dbProductsPromise = getDocs(productsCollection).then(snapshot => 
             snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Product))
         );
@@ -62,15 +63,7 @@ export const getAllProducts = async (firestore: Firestore): Promise<Product[]> =
 
 
 // This function now fetches all products before finding the one with the matching slug.
-export const getProductBySlug = async (slug: string, firestore: Firestore): Promise<Product | undefined> => {
-    const allProducts = await getAllProducts(firestore);
+export const getProductBySlug = async (slug: string): Promise<Product | undefined> => {
+    const allProducts = await getAllProducts();
     return allProducts.find(p => p.slug === slug);
 }
-
-// This function filters a provided list of products to find related ones.
-export const getRelatedProducts = (currentProduct: Product, allProducts: Product[]) => {
-    const oppositeType = currentProduct.type === 'merch' ? 'music' : 'merch';
-    // Find up to 2 related products of the opposite type from the provided list.
-    return allProducts.filter(p => p.id !== currentProduct.id && p.type === oppositeType).slice(0, 2);
-};
-

@@ -1,24 +1,21 @@
 
-import { getProductBySlug, getRelatedProducts, getAllProducts, type Product } from '@/lib/products';
+import { getAllProducts } from '@/lib/products';
 import { notFound } from 'next/navigation';
 import { ProductClientPage } from './product-client-page';
-import { initializeFirebase } from '@/firebase';
+import type { Product } from '@/lib/products';
 
 // This is the main server component for the product page.
 export default async function MerchPage({ params }: { params: { slug: string } }) {
-  const { firestore } = initializeFirebase();
   const { slug } = params;
 
   // Fetch all data on the server.
-  const allProducts = await getAllProducts(firestore);
+  const allProducts = await getAllProducts();
   const product = allProducts.find(p => p.slug === slug);
   
   if (!product) {
     notFound();
   }
-
-  const relatedProducts = getRelatedProducts(product, allProducts);
   
   // Render the client component and pass the fetched data as props.
-  return <ProductClientPage product={product} relatedProducts={relatedProducts} />;
+  return <ProductClientPage product={product} allProducts={allProducts} />;
 }

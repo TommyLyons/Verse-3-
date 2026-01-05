@@ -8,7 +8,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Disc, Eye, Instagram } from 'lucide-react';
-import { products } from '@/lib/products';
+import { getAllProducts, type Product } from '@/lib/products';
 import {
   Dialog,
   DialogContent,
@@ -16,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
@@ -28,10 +29,6 @@ const spotifyProfiles = [
     { name: 'Artist Three', url: '#', image: getImage('artist-alvin') }
 ];
 
-const loftyTracks = products.filter(p => p.name.includes('Lofty'));
-
-const merchProducts = products.filter(p => p.type === 'merch').slice(0, 4);
-const musicProducts = products.filter(p => p.type === 'music').slice(0, 4);
 const instagramImages = [
   getImage('hero-studio'),
   getImage('album-art-2'),
@@ -46,6 +43,8 @@ const instagramImages = [
 
 export default function Home() {
   const [isHotDropOpen, setIsHotDropOpen] = useState(false);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const hasSeenHotDrop = localStorage.getItem('hotDropShown');
@@ -59,7 +58,21 @@ export default function Home() {
       return () => clearTimeout(timer);
     }
   }, []);
+
+  useEffect(() => {
+    async function fetchProducts() {
+        setIsLoading(true);
+        const products = await getAllProducts();
+        setAllProducts(products);
+        setIsLoading(false);
+    }
+    fetchProducts();
+  }, []);
   
+  const loftyTracks = allProducts.filter(p => (p.name.includes('Lofty') || p.description.includes('Lofty')) && p.type === 'music');
+  const merchProducts = allProducts.filter(p => p.type === 'merch').slice(0, 4);
+  const musicProducts = allProducts.filter(p => p.type === 'music' && !p.digital).slice(0, 4);
+
 
   return (
     <div className="flex flex-col">
@@ -137,36 +150,42 @@ export default function Home() {
                     <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">Featured Merch</h2>
                     <p className="mt-4 text-muted-foreground md:text-lg max-w-2xl mx-auto">Rep the label with our latest gear.</p>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {merchProducts.map((item) => (
-                    <Card key={item.id} className="overflow-hidden group relative flex flex-col">
-                        <CardContent className="p-0 flex-grow">
-                            <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative">
-                                <Image
-                                    src={item.image.imageUrl}
-                                    alt={item.image.description}
-                                    fill
-                                    className="object-cover transition-transform duration-300 group-hover:scale-105"
-                                    data-ai-hint={item.image.imageHint}
-                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                                />
-                            </Link>
-                        </CardContent>
-                        <CardFooter className="p-4 flex justify-between items-center bg-card">
-                        <div>
-                            <p className="font-semibold">{item.name}</p>
-                            <p className="text-sm text-primary">{item.price}</p>
-                        </div>
-                        <Button size="sm" asChild>
-                            <Link href={`/store/${item.type}/${item.slug}`}>
-                                <Eye className="mr-2 h-4 w-4"/>
-                                View
-                            </Link>
-                        </Button>
-                        </CardFooter>
-                    </Card>
-                    ))}
-                </div>
+                {isLoading ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                       {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {merchProducts.map((item) => (
+                        <Card key={item.id} className="overflow-hidden group relative flex flex-col">
+                            <CardContent className="p-0 flex-grow">
+                                <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative">
+                                    <Image
+                                        src={item.imageUrl || ''}
+                                        alt={item.description}
+                                        fill
+                                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                        data-ai-hint={item.image?.imageHint || ''}
+                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                                    />
+                                </Link>
+                            </CardContent>
+                            <CardFooter className="p-4 flex justify-between items-center bg-card">
+                            <div>
+                                <p className="font-semibold">{item.name}</p>
+                                <p className="text-sm text-primary">{item.price}</p>
+                            </div>
+                            <Button size="sm" asChild>
+                                <Link href={`/store/${item.type}/${item.slug}`}>
+                                    <Eye className="mr-2 h-4 w-4"/>
+                                    View
+                                </Link>
+                            </Button>
+                            </CardFooter>
+                        </Card>
+                        ))}
+                    </div>
+                )}
                  <div className="text-center mt-12">
                     <Button asChild>
                         <Link href="/store">View All Merch</Link>
@@ -182,36 +201,42 @@ export default function Home() {
                     <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">Latest Music</h2>
                     <p className="mt-4 text-muted-foreground md:text-lg max-w-2xl mx-auto">Vinyl, posters, and more from our artists.</p>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {musicProducts.map((item) => (
-                     <Card key={item.id} className="overflow-hidden group relative flex flex-col">
-                        <CardContent className="p-0 flex-grow">
-                            <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative">
-                                <Image
-                                    src={item.image.imageUrl}
-                                    alt={item.image.description}
-                                    fill
-                                    className="object-cover transition-transform duration-300 group-hover:scale-105"
-                                    data-ai-hint={item.image.imageHint}
-                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                                />
-                            </Link>
-                        </CardContent>
-                        <CardFooter className="p-4 flex justify-between items-center bg-card">
-                        <div>
-                            <p className="font-semibold">{item.name}</p>
-                            <p className="text-sm text-primary">{item.price}</p>
-                        </div>
-                        <Button size="sm" asChild>
-                            <Link href={`/store/${item.type}/${item.slug}`}>
-                                <Eye className="mr-2 h-4 w-4"/>
-                                View
-                            </Link>
-                        </Button>
-                        </CardFooter>
-                    </Card>
-                    ))}
-                </div>
+                 {isLoading ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                       {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {musicProducts.map((item) => (
+                        <Card key={item.id} className="overflow-hidden group relative flex flex-col">
+                            <CardContent className="p-0 flex-grow">
+                                <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative">
+                                    <Image
+                                        src={item.imageUrl || ''}
+                                        alt={item.description}
+                                        fill
+                                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                        data-ai-hint={item.image?.imageHint || ''}
+                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                                    />
+                                </Link>
+                            </CardContent>
+                            <CardFooter className="p-4 flex justify-between items-center bg-card">
+                            <div>
+                                <p className="font-semibold">{item.name}</p>
+                                <p className="text-sm text-primary">{item.price}</p>
+                            </div>
+                            <Button size="sm" asChild>
+                                <Link href={`/store/${item.type}/${item.slug}`}>
+                                    <Eye className="mr-2 h-4 w-4"/>
+                                    View
+                                </Link>
+                            </Button>
+                            </CardFooter>
+                        </Card>
+                        ))}
+                    </div>
+                )}
                  <div className="text-center mt-12">
                     <Button asChild>
                         <Link href="/store/music">View All Music</Link>
@@ -262,36 +287,42 @@ export default function Home() {
                     <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">From the Studio: Lofty</h2>
                     <p className="mt-4 text-muted-foreground md:text-lg max-w-2xl mx-auto">Check out featured tracks from our founder and producer.</p>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {loftyTracks.map((item) => (
-                     <Card key={item.id} className="overflow-hidden group relative flex flex-col">
-                        <CardContent className="p-0 flex-grow">
-                            <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative">
-                                <Image
-                                    src={item.image.imageUrl}
-                                    alt={item.image.description}
-                                    fill
-                                    className="object-cover transition-transform duration-300 group-hover:scale-105"
-                                    data-ai-hint={item.image.imageHint}
-                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                                />
-                            </Link>
-                        </CardContent>
-                        <CardFooter className="p-4 flex justify-between items-center bg-card">
-                        <div>
-                            <p className="font-semibold">{item.name}</p>
-                            <p className="text-sm text-primary">{item.price}</p>
-                        </div>
-                        <Button size="sm" asChild>
-                            <Link href={`/store/${item.type}/${item.slug}`}>
-                                <Eye className="mr-2 h-4 w-4"/>
-                                View
-                            </Link>
-                        </Button>
-                        </CardFooter>
-                    </Card>
-                    ))}
-                </div>
+                 {isLoading ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                       {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-96 w-full" />)}
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {loftyTracks.map((item) => (
+                        <Card key={item.id} className="overflow-hidden group relative flex flex-col">
+                            <CardContent className="p-0 flex-grow">
+                                <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative">
+                                    <Image
+                                        src={item.imageUrl || ''}
+                                        alt={item.description}
+                                        fill
+                                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                        data-ai-hint={item.image?.imageHint || ''}
+                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                                    />
+                                </Link>
+                            </CardContent>
+                            <CardFooter className="p-4 flex justify-between items-center bg-card">
+                            <div>
+                                <p className="font-semibold">{item.name}</p>
+                                <p className="text-sm text-primary">{item.price}</p>
+                            </div>
+                            <Button size="sm" asChild>
+                                <Link href={`/store/${item.type}/${item.slug}`}>
+                                    <Eye className="mr-2 h-4 w-4"/>
+                                    View
+                                </Link>
+                            </Button>
+                            </CardFooter>
+                        </Card>
+                        ))}
+                    </div>
+                )}
                  <div className="text-center mt-12">
                     <Button asChild>
                         <Link href="/music">Explore All Music</Link>

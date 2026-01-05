@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -18,7 +17,6 @@ import {
 } from "@/components/ui/select";
 import React, { useState, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useFirestore } from '@/firebase';
 
 
 const ProductGrid = ({ products, isLoading, type }: { products: any[], isLoading?: boolean, type: 'merch' | 'music' }) => {
@@ -86,7 +84,6 @@ const ProductGrid = ({ products, isLoading, type }: { products: any[], isLoading
 
 export default function StorePage() {
   const { region, setRegion } = useRegion();
-  const firestore = useFirestore();
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -98,14 +95,13 @@ export default function StorePage() {
 
   useEffect(() => {
     async function fetchProducts() {
-        if (!firestore) return;
         setIsLoading(true);
-        const products = await getAllProducts(firestore);
+        const products = await getAllProducts();
         setAllProducts(products);
         setIsLoading(false);
     }
     fetchProducts();
-  }, [firestore]);
+  }, []);
 
   useEffect(() => {
     // Filter products once they are all fetched
@@ -115,7 +111,12 @@ export default function StorePage() {
       setDigitalMusic(allProducts.filter(p => p.type === 'music' && p.digital));
 
       // Crude City merch filtering depends on region
-      const filteredCrudeCity = allProducts.filter(p => p.type === 'merch' && p.brand === 'Crude City' && (!p.availableRegions || p.availableRegions.includes(region)));
+      const filteredCrudeCity = allProducts.filter(p => {
+        const isCrudeCity = p.brand === 'Crude City';
+        const hasNoRegionRestriction = !p.availableRegions || p.availableRegions.length === 0;
+        const isRegionAvailable = p.availableRegions?.includes(region);
+        return p.type === 'merch' && isCrudeCity && (hasNoRegionRestriction || isRegionAvailable);
+      });
       setCrudeCityMerch(filteredCrudeCity);
     }
   }, [allProducts, region]);

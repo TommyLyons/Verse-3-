@@ -15,7 +15,14 @@ import { useUser, useFirestore, addDocumentNonBlocking } from '@/firebase';
 import { collection, serverTimestamp, getDocs, query, where } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 
-export function ProductClientPage({ product, relatedProducts }: { product: Product, relatedProducts: Product[] }) {
+// This utility function was moved here from products.ts to avoid server-action conflicts.
+const getRelatedProducts = (currentProduct: Product, allProducts: Product[]) => {
+    const oppositeType = currentProduct.type === 'merch' ? 'music' : 'merch';
+    // Find up to 2 related products of the opposite type from the provided list.
+    return allProducts.filter(p => p.id !== currentProduct.id && p.type === oppositeType).slice(0, 2);
+};
+
+export function ProductClientPage({ product, allProducts }: { product: Product, allProducts: Product[] }) {
   const router = useRouter();
   const { toast } = useToast();
   const { user, isUserLoading } = useUser();
@@ -151,6 +158,8 @@ export function ProductClientPage({ product, relatedProducts }: { product: Produ
   const imageUrl = ('image' in product && product.image ? product.image.imageUrl : product.imageUrl) || '';
   const imageDescription = ('image' in product && product.image ? product.image.description : product.description) || '';
   const imageHint = ('image' in product && product.image ? product.image.imageHint : '') || '';
+
+  const relatedProducts = getRelatedProducts(product, allProducts);
 
 
   return (
