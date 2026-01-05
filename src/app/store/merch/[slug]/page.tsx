@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, 'useState', 'useEffect', 'useMemo' } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -225,3 +225,5 @@ function ProductPageContent({ slug }: { slug: string }) {
 export default function MerchPage({ params }: { params: { slug: string } }) {
   return <ProductPageContent slug={params.slug} />;
 }
+
+    
