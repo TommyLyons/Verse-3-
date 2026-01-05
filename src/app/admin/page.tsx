@@ -290,8 +290,8 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                         name="sizes"
                         render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Available Sizes</FormLabel>
-                                <FormControl><Input placeholder="S, M, L, XL" {...field} /></FormControl>
+                                <FormLabel>Available Sizes (comma-separated)</FormLabel>
+                                <FormControl><Input placeholder="S, M, L, XL, XXL, XXXL, XXXXL" {...field} /></FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
@@ -441,3 +441,5 @@ export default function AdminPage() {
         </div>
     )
 }
+
+    

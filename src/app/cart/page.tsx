@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useCart } from '@/context/cart-context';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
-import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Trash2, ShoppingCart, CreditCard } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -72,14 +72,21 @@ export default function CartPage() {
                     </Button>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      min="1"
-                      value={item.quantity}
-                      onChange={(e) => handleQuantityChange(item.cartId, e.target.value)}
-                      className="w-16 h-9"
-                    />
-                  
+                     <Select 
+                        value={String(item.quantity)} 
+                        onValueChange={(value) => handleQuantityChange(item.cartId, value)}
+                     >
+                        <SelectTrigger className="w-20">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {[...Array(10)].map((_, i) => (
+                                <SelectItem key={i + 1} value={String(i + 1)}>
+                                    {i + 1}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                     </Select>
                   </div>
                 </Card>
               ))}
@@ -127,3 +134,5 @@ export default function CartPage() {
     </div>
   );
 }
+
+    

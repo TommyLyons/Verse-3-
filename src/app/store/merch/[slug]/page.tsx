@@ -17,7 +17,6 @@ import { collection, query } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getProducts as getFlowProducts } from '@/ai/flows/get-products-flow';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 
 function ProductPageContent({ slug }: { slug: string }) {
@@ -146,14 +145,22 @@ function ProductPageContent({ slug }: { slug: string }) {
                      </div>
                 )}
                  <div>
-                    <label htmlFor="quantity-input" className="text-sm font-medium text-muted-foreground">Quantity</label>
-                    <Input 
-                        id="quantity-input"
-                        type="number"
-                        min="1"
-                        value={quantity}
-                        onChange={(e) => setQuantity(parseInt(e.target.value, 10))}
-                    />
+                    <label htmlFor="quantity-select" className="text-sm font-medium text-muted-foreground">Quantity</label>
+                     <Select 
+                        value={String(quantity)} 
+                        onValueChange={(value) => setQuantity(parseInt(value, 10))}
+                     >
+                        <SelectTrigger id="quantity-select">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {[...Array(10)].map((_, i) => (
+                                <SelectItem key={i + 1} value={String(i + 1)}>
+                                    {i + 1}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                     </Select>
                  </div>
            </div>
 
@@ -229,3 +236,5 @@ function ProductPageContent({ slug }: { slug: string }) {
 export default function MerchPage({ params }: { params: { slug: string } }) {
   return <ProductPageContent slug={params.slug} />;
 }
+
+    
