@@ -25,17 +25,13 @@ export const products: Product[] = [
    
 ];
 
-// These functions will also need to be adapted if they are still used.
-// For now, they will search the empty static array.
-
-export const getProductBySlug = (slug: string, allProducts: Product[] = []) => {
-    // Search both static and dynamically loaded products
-    const all = [...products, ...allProducts];
-    return all.find(p => p.slug === slug);
+// These functions will now require the full product list to be passed in.
+export const getProductBySlug = (slug: string, allProducts: Product[]) => {
+    return allProducts.find(p => p.slug === slug);
 }
 
-export const getRelatedProducts = (currentProduct: Product, allProducts: Product[] = []) => {
-    const all = [...products, ...allProducts];
+export const getRelatedProducts = (currentProduct: Product, allProducts: Product[]) => {
     const oppositeType = currentProduct.type === 'merch' ? 'music' : 'merch';
-    return all.filter(p => p.id !== currentProduct.id && p.type === oppositeType).slice(0, 2);
+    // Find up to 2 related products of the opposite type.
+    return allProducts.filter(p => p.id !== currentProduct.id && p.type === oppositeType).slice(0, 2);
 };

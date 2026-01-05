@@ -4,19 +4,44 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getProductBySlug, getRelatedProducts, products } from '@/lib/products';
+import { getProductBySlug, getRelatedProducts } from '@/lib/products';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { ShoppingCart, Eye, CheckCircle } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
-import { useState, use } from 'react';
+import { useState, use, useEffect } from 'react';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, query } from 'firebase/firestore';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export default function ProductPage({ params: paramsPromise }: { params: Promise<{ slug: string }> }) {
-  const params = use(paramsPromise);
-  const product = getProductBySlug(params.slug);
+function ProductPageContent({ slug }: { slug: string }) {
+  const firestore = useFirestore();
+  const productsQuery = useMemoFirebase(() => query(collection(firestore, 'products')), [firestore]);
+  const { data: allProducts, isLoading } = useCollection(productsQuery);
+
+  const product = allProducts ? getProductBySlug(slug, allProducts) : null;
+  const relatedProducts = product && allProducts ? getRelatedProducts(product, allProducts) : [];
+
   const { addToCart } = useCart();
   const [addedToCart, setAddedToCart] = useState(false);
+
+  if (isLoading) {
+    return (
+        <div className="container py-12 md:py-24">
+            <BackButton />
+            <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-start">
+                <Skeleton className="aspect-square w-full rounded-lg" />
+                <div className="space-y-4">
+                    <Skeleton className="h-10 w-3/4" />
+                    <Skeleton className="h-8 w-1/4" />
+                    <Skeleton className="h-20 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                </div>
+            </div>
+        </div>
+    )
+  }
 
   if (!product) {
     notFound();
@@ -27,8 +52,6 @@ export default function ProductPage({ params: paramsPromise }: { params: Promise
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 3000); // Reset after 3 seconds
   };
-
-  const relatedProducts = getRelatedProducts(product);
 
   return (
     <div className="container py-12 md:py-24">
@@ -69,16 +92,15 @@ export default function ProductPage({ params: paramsPromise }: { params: Promise
         <div className="mt-24">
           <h2 className="font-headline text-3xl font-bold text-center mb-8">You Might Also Like</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-2xl mx-auto">
-            {relatedProducts.map((item) => (
+            {relatedProducts.map((item: any) => (
                <Card key={item.id} className="overflow-hidden group relative flex flex-col">
                     <CardContent className="p-0 flex-grow">
                         <div className="aspect-square relative">
                         <Image
-                            src={item.image.imageUrl}
-                            alt={item.image.description}
+                            src={item.imageUrl}
+                            alt={item.description}
                             fill
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
-                            data-ai-hint={item.image.imageHint}
                             sizes="(max-width: 640px) 100vw, 50vw"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
@@ -103,4 +125,14 @@ export default function ProductPage({ params: paramsPromise }: { params: Promise
       )}
     </div>
   );
+}
+
+
+export default function ProductPage({ params: paramsPromise }: { params: Promise<{ slug: string }> }) {
+  // The `use` hook is used to handle the promise for the params.
+  const params = use(paramsPromise);
+
+  // The rendering logic is moved to a separate component
+  // that can use hooks like `useCollection`.
+  return <ProductPageContent slug={params.slug} />;
 }
