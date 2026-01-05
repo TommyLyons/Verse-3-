@@ -49,7 +49,25 @@ const sampleCrudeCityProducts: Product[] = [
         type: 'merch',
         brand: 'Crude City',
         availableRegions: ['EU'],
-    }
+    },
+    {
+        id: 103,
+        name: 'WEED T',
+        slug: 'weed-t',
+        price: '$45.00',
+        description: 'High-quality tee with a bold statement. Made from 100% organic cotton.',
+        image: {
+            id: 'weed-t-shirt',
+            description: 'A stylish t-shirt with a "WEED" graphic.',
+            imageUrl: 'https://picsum.photos/seed/103/600/600',
+            imageHint: 'graphic t-shirt'
+        },
+        revolutLink: 'https://revolut.me/test-business-studio/45',
+        type: 'merch',
+        brand: 'Crude City',
+        availableRegions: ['UK', 'EU'],
+        sizes: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'XXXXL'],
+    },
 ];
 
 
