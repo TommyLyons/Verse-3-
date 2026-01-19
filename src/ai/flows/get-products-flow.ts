@@ -78,33 +78,69 @@ const getProductsFlow = ai.defineFlow(
     outputSchema: z.array(ProductSchema),
   },
   async ({ brand }) => {
-    //
-    // DEVELOPER NOTE: THIS IS WHERE THE SECURE API INTEGRATION HAPPENS.
-    //
-    // 1.  LOAD THE SECRET KEY: The Printful API key must be stored in a secure
-    //     secret manager (like Google Secret Manager or Firebase Secret Manager), NOT here in the code.
-    //     A developer would write code here to fetch the key from that service.
-    //
-    //     Example (conceptual):
-    //     const printfulApiKey = await accessSecretManager('printful-api-key');
-    //
-    // 2.  CALL THE API: Make the call to the Printful API using the fetched key.
-    //
-    //     Example (conceptual):
-    //     const response = await fetch('https://api.printful.com/store/products', {
-    //       headers: { Authorization: `Bearer ${printfulApiKey}` }
-    //     });
-    //     const data = await response.json();
-    //
-    // 3.  TRANSFORM & RETURN DATA: Map the data from the Printful API to match our ProductSchema.
-    //     return transformedData;
-    //
-
-    console.log(`Fetching products for brand: ${brand}`);
     if (brand === 'Crude City') {
-      // For now, we return sample data. A developer would replace this with the real API call.
-      return sampleCrudeCityProducts;
+      // DEVELOPER NOTE:
+      // This section is now configured to fetch products directly from your Printful account.
+      // 1. Get your API Key from your Printful Dashboard (Settings -> API).
+      // 2. Add it to the .env file in the root of this project:
+      //    PRINTFUL_API_KEY="your_key_here"
+      // 3. The `revolutLink`, `price`, and `sizes` are placeholders. You may need to
+      //    fetch variant details from Printful to get accurate data or implement a
+      //    different checkout flow using Printful's Orders API.
+      const apiKey = process.env.PRINTFUL_API_KEY;
+
+      if (!apiKey || apiKey.includes("YOUR_PRINTFUL_API_KEY_HERE")) {
+          console.warn("PRINTFUL_API_KEY not set in .env file. Returning sample data as a fallback.");
+          return sampleCrudeCityProducts;
+      }
+
+      try {
+          const headers = { Authorization: `Bearer ${apiKey}` };
+          const response = await fetch('https://api.printful.com/sync/products', { headers });
+          
+          if (!response.ok) {
+              console.error(`Printful API error: ${response.status} ${response.statusText}`);
+              throw new Error(`Printful API request failed with status ${response.status}`);
+          }
+          
+          const { result: syncProducts } = await response.json();
+
+          if (!Array.isArray(syncProducts)) {
+             console.error("Unexpected response from Printful API. Expected 'result' to be an array.");
+             return [];
+          }
+
+          // Map Printful products to our app's Product schema
+          const products: Product[] = syncProducts.map((p: any) => ({
+               id: p.id,
+               name: p.name,
+               slug: p.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+               price: '$29.99', // Placeholder price
+               description: `A high-quality product from Crude City: ${p.name}.`, // Placeholder description
+               image: {
+                  id: String(p.id),
+                  imageUrl: p.thumbnail_url,
+                  description: p.name,
+                  imageHint: 'merchandise apparel'
+               },
+               // IMPORTANT: This is a placeholder link. You need to map this to a real payment link.
+               revolutLink: 'https://revolut.me/your-business/0',
+               type: 'merch',
+               brand: 'Crude City',
+               digital: false,
+               // Sizes would require fetching individual product variants. This is a simplified import.
+               sizes: ['S', 'M', 'L', 'XL'], // Placeholder sizes
+          }));
+
+          return products;
+
+      } catch (error) {
+          console.error("Failed to fetch products from Printful:", error);
+          // Fallback to sample data on error to prevent the store from being empty.
+          return sampleCrudeCityProducts;
+      }
     }
+    
     return [];
   }
 );
