@@ -114,10 +114,11 @@ const getProductsFlow = ai.defineFlow(
         const headers = {
           'Authorization': `Bearer ${apiKey}`,
         };
-        const response = await fetch('https://api.printful.com/sync/products?limit=100', { headers });
+        const response = await fetch('https://api.printful.com/sync/products?status=synced&limit=100', { headers });
 
         if (!response.ok) {
-          console.error(`Printful API error: ${response.status} ${response.statusText}. Falling back to sample data.`);
+          const errorBody = await response.text();
+          console.error(`Printful API error: ${response.status} ${response.statusText}. Response: ${errorBody}. Falling back to sample data.`);
           return sampleCrudeCityProducts;
         }
 
