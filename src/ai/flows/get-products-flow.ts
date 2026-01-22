@@ -45,7 +45,7 @@ const sampleCrudeCityProducts: Product[] = [
         id: 101,
         name: 'Crude City Graffiti Tee',
         slug: 'crude-city-graffiti-tee',
-        price: '$34.99',
+        price: '£34.99',
         description: 'A premium cotton t-shirt featuring a bold graffiti design from the heart of Crude City. Limited edition.',
         image: {
             id: 'crude-city-tee',
@@ -62,7 +62,7 @@ const sampleCrudeCityProducts: Product[] = [
         id: 102,
         name: 'Crude City Beanie',
         slug: 'crude-city-beanie',
-        price: '$22.99',
+        price: '£22.99',
         description: 'Keep your head warm with the official Crude City beanie. Embroidered logo, one size fits all.',
         image: {
             id: 'crude-city-beanie',
@@ -79,7 +79,7 @@ const sampleCrudeCityProducts: Product[] = [
         id: 103,
         name: 'WEED T',
         slug: 'weed-t',
-        price: '$45.00',
+        price: '£45.00',
         description: 'High-quality tee with a bold statement. Made from 100% organic cotton.',
         image: {
             id: 'weed-t-shirt',
@@ -114,7 +114,7 @@ const getProductsFlow = ai.defineFlow(
         const headers = {
           'Authorization': `Bearer ${apiKey}`,
         };
-        const response = await fetch('https://api.printful.com/store/products?limit=100', { headers });
+        const response = await fetch('https://api.printful.com/sync/products?limit=100', { headers });
 
         if (!response.ok) {
           console.error(`Printful API error: ${response.status} ${response.statusText}. Falling back to sample data.`);
@@ -128,13 +128,12 @@ const getProductsFlow = ai.defineFlow(
                 return null;
             }
             const slug = item.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
-            const sizes = item.variants ? [...new Set(item.variants.map((v: any) => v.size).filter(Boolean))] as string[] : [];
+            const sizes = item.sync_variants ? [...new Set(item.sync_variants.map((v: any) => v.size).filter(Boolean))] as string[] : [];
             
-            const firstVariant = item.variants?.[0];
-            let price = '$0.00'; // Default price
+            const firstVariant = item.sync_variants?.[0];
+            let price = '£0.00'; // Default price
             if (firstVariant) {
                 const retailPrice = firstVariant.retail_price || '0.00';
-                // Simple currency mapping for now.
                 const currencySymbol = firstVariant.currency === 'EUR' ? '€' : (firstVariant.currency === 'GBP' ? '£' : '$');
                 price = `${currencySymbol}${retailPrice}`;
             }
