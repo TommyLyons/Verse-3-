@@ -284,7 +284,7 @@ export default function Home() {
        <section className="py-16 md:py-24 bg-card">
             <div className="container">
                 <div className="text-center mb-12">
-                    <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">From the Studio: Lofty</h2>
+                    <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">One Of Our Founders Lofty</h2>
                     <p className="mt-4 text-muted-foreground md:text-lg max-w-2xl mx-auto">Check out featured tracks from our founder and producer.</p>
                 </div>
                  {isLoading ? (
