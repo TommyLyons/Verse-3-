@@ -10,6 +10,32 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { ProductSchema, type Product } from '@/lib/schemas';
+import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
+
+// Helper function to get the secret from Google Secret Manager
+async function getPrintfulApiKey(): Promise<string | null> {
+    const secretName = 'projects/studio-6967403383-a8bb0/secrets/PRINTFUL_API_KEY/versions/latest';
+
+    // In a deployed App Hosting environment, authentication is handled automatically.
+    // For local development, you may need to run `gcloud auth application-default login`.
+    try {
+        const client = new SecretManagerServiceClient();
+        const [version] = await client.accessSecretVersion({
+            name: secretName,
+        });
+
+        const payload = version.payload?.data?.toString();
+        if (payload) {
+            return payload;
+        }
+        console.warn(`Secret payload for ${secretName} is empty.`);
+        return null;
+    } catch (error) {
+        console.error(`Failed to access secret: ${secretName}. Ensure the secret exists, the Secret Manager API is enabled, and the service account has the 'Secret Manager Secret Accessor' role.`, error);
+        // Fallback for local development if secret is not available.
+        return process.env.PRINTFUL_API_KEY || null;
+    }
+}
 
 
 // This is a placeholder. In a real application, you would make a secure call
@@ -80,17 +106,25 @@ const getProductsFlow = ai.defineFlow(
   async ({ brand }) => {
     if (brand === 'Crude City') {
       // DEVELOPER NOTE:
-      // This section is now configured to fetch products directly from your Printful account.
-      // 1. Get your API Key from your Printful Dashboard (Settings -> API).
-      // 2. Add it to the .env file in the root of this project:
-      //    PRINTFUL_API_KEY="your_key_here"
-      // 3. The `revolutLink`, `price`, and `sizes` are placeholders. You may need to
-      //    fetch variant details from Printful to get accurate data or implement a
-      //    different checkout flow using Printful's Orders API.
-      const apiKey = process.env.PRINTFUL_API_KEY;
+      // This section is now configured to fetch products directly from your Printful account
+      // using an API key stored securely in Google Secret Manager.
+      //
+      // 1. Ensure the Secret Manager API is enabled in your Google Cloud project:
+      //    `gcloud services enable secretmanager.googleapis.com`
+      //
+      // 2. Create a secret named "PRINTFUL_API_KEY" containing your Printful API key:
+      //    `echo "your_key_here" | gcloud secrets create PRINTFUL_API_KEY --data-file=-`
+      //
+      // 3. Grant the service account running this app access to the secret
+      //    (e.g., the default App Hosting service account):
+      //    `gcloud secrets add-iam-policy-binding PRINTFUL_API_KEY \
+      //      --member="serviceAccount:YOUR_PROJECT_ID@appspot.gserviceaccount.com" \
+      //      --role="roles/secretmanager.secretAccessor"`
 
-      if (!apiKey || apiKey.includes("YOUR_PRINTFUL_API_KEY_HERE")) {
-          console.warn("PRINTFUL_API_KEY not set in .env file. Returning sample data as a fallback.");
+      const apiKey = await getPrintfulApiKey();
+
+      if (!apiKey) {
+          console.warn("Could not retrieve PRINTFUL_API_KEY from Secret Manager. Returning sample data as a fallback.");
           return sampleCrudeCityProducts;
       }
 
