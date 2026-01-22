@@ -1,9 +1,8 @@
 'use server';
 /**
- * @fileOverview A flow for fetching product information.
- * This acts as a secure backend placeholder for fetching products from a third-party API.
+ * @fileOverview A flow for fetching product information from Printful.
  *
- * - getProducts - A function that fetches a list of products.
+ * - getProducts - A function that fetches a list of products from a specific Printful store.
  */
 
 import {ai} from '@/ai/genkit';
@@ -16,7 +15,6 @@ async function getPrintfulApiKey(): Promise<string | null> {
     const secretName = 'projects/studio-6967403383-a8bb0/secrets/PRINTFUL_API_KEY/versions/latest';
 
     // In a deployed App Hosting environment, authentication is handled automatically.
-    // For local development, you may need to run `gcloud auth application-default login`.
     try {
         const client = new SecretManagerServiceClient();
         const [version] = await client.accessSecretVersion({
@@ -30,70 +28,11 @@ async function getPrintfulApiKey(): Promise<string | null> {
         console.warn(`Secret payload for ${secretName} is empty.`);
         return null;
     } catch (error) {
-        console.error(`Failed to access secret: ${secretName}. Ensure the secret exists, the Secret Manager API is enabled, and the service account has the 'Secret Manager Secret Accessor' role.`, error);
+        console.error(`Failed to access secret: ${secretName}.`, error);
         // Fallback for local development if secret is not available.
         return process.env.PRINTFUL_API_KEY || null;
     }
 }
-
-
-// This is a placeholder. In a real application, you would make a secure call
-// to the Printful/Printify API from within this flow on the server-side.
-// The API key would be stored securely as a secret, not in the code.
-const sampleCrudeCityProducts: Product[] = [
-    {
-        id: 101,
-        name: 'Crude City Graffiti Tee',
-        slug: 'crude-city-graffiti-tee',
-        price: '£34.99',
-        description: 'A premium cotton t-shirt featuring a bold graffiti design from the heart of Crude City. Limited edition.',
-        image: {
-            id: 'crude-city-tee',
-            description: 'A black t-shirt with a colorful graffiti logo for Crude City.',
-            imageUrl: 'https://picsum.photos/seed/101/600/600',
-            imageHint: 'graffiti tshirt'
-        },
-        revolutLink: 'https://revolut.me/test-business-studio/35',
-        type: 'merch',
-        brand: 'Crude City',
-        availableRegions: ['UK', 'EU'],
-    },
-    {
-        id: 102,
-        name: 'Crude City Beanie',
-        slug: 'crude-city-beanie',
-        price: '£22.99',
-        description: 'Keep your head warm with the official Crude City beanie. Embroidered logo, one size fits all.',
-        image: {
-            id: 'crude-city-beanie',
-            description: 'A black beanie with the Crude City logo embroidered.',
-            imageUrl: 'https://picsum.photos/seed/102/600/600',
-            imageHint: 'black beanie'
-        },
-        revolutLink: 'https://revolut.me/test-business-studio/23',
-        type: 'merch',
-        brand: 'Crude City',
-        availableRegions: ['UK', 'EU'],
-    },
-    {
-        id: 103,
-        name: 'WEED T',
-        slug: 'weed-t',
-        price: '£45.00',
-        description: 'High-quality tee with a bold statement. Made from 100% organic cotton.',
-        image: {
-            id: 'weed-t-shirt',
-            description: 'A stylish t-shirt with a "WEED" graphic.',
-            imageUrl: 'https://picsum.photos/seed/103/600/600',
-            imageHint: 'graphic t-shirt'
-        },
-        revolutLink: 'https://revolut.me/test-business-studio/45',
-        type: 'merch',
-        brand: 'Crude City',
-        availableRegions: ['UK', 'EU'],
-        sizes: ['S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'XXXXL'],
-    },
-];
 
 
 const getProductsFlow = ai.defineFlow(
@@ -104,85 +43,74 @@ const getProductsFlow = ai.defineFlow(
   },
   async ({ brand }) => {
     if (brand === 'Crude City') {
-      try {
-        const apiKey = await getPrintfulApiKey();
-        if (!apiKey) {
-          console.log('Printful API key is not available. Falling back to sample data.');
-          return sampleCrudeCityProducts;
-        }
-
-        const headers = {
-          'Authorization': `Bearer ${apiKey}`,
-        };
-
-        // Step 1: Fetch all stores to find the ID for "Crude City Eu"
-        const storesResponse = await fetch('https://api.printful.com/stores', { headers });
-        if (!storesResponse.ok) {
-            console.error(`Printful API error when fetching stores: ${storesResponse.status}. Falling back to sample data.`);
-            return sampleCrudeCityProducts;
-        }
-        const storesData = await storesResponse.json();
-        const crudeCityStore = storesData.result.find((store: any) => store.name === 'Crude City Eu');
-
-        if (!crudeCityStore) {
-            const availableStores = storesData.result.map((s: any) => s.name).join(', ');
-            console.error(`Could not find a Printful store named "Crude City Eu". Available stores: [${availableStores}]. Please check the store name. Falling back to sample data.`);
-            return sampleCrudeCityProducts;
-        }
-        const storeId = crudeCityStore.id;
-
-        // Step 2: Fetch products only from the specified store
-        const response = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
-
-        if (!response.ok) {
-          const errorBody = await response.text();
-          console.error(`Printful API error fetching products: ${response.status} ${response.statusText}. Response: ${errorBody}. Falling back to sample data.`);
-          return sampleCrudeCityProducts;
-        }
-
-        const data = await response.json();
-        const products = data.result.map((item: any): Product | null => {
-            if (!item.name || !item.thumbnail_url) {
-                console.warn(`Skipping product with missing name or thumbnail. ID: ${item.id}`);
-                return null;
-            }
-            const slug = item.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
-            const sizes = item.sync_variants ? [...new Set(item.sync_variants.map((v: any) => v.size).filter(Boolean))] as string[] : [];
-            
-            const firstVariant = item.sync_variants?.[0];
-            let price = '£0.00'; // Default price
-            if (firstVariant) {
-                const retailPrice = firstVariant.retail_price || '0.00';
-                const currencySymbol = firstVariant.currency === 'EUR' ? '€' : (firstVariant.currency === 'GBP' ? '£' : '$');
-                price = `${currencySymbol}${retailPrice}`;
-            }
-
-            return {
-                id: item.id,
-                name: item.name,
-                slug: slug,
-                price: price,
-                description: `A high-quality product: ${item.name}. More details coming soon.`, // Placeholder
-                imageUrl: item.thumbnail_url,
-                revolutLink: 'https://revolut.me/test-business-studio', // Placeholder
-                type: 'merch',
-                brand: 'Crude City',
-                availableRegions: ['UK', 'EU'],
-                sizes: sizes.length > 0 ? sizes : undefined,
-            };
-        }).filter((p): p is Product => p !== null);
-        
-        if (products.length === 0) {
-            console.warn(`Printful API returned 0 products for store "Crude City Eu". Check if products have 'synced' status. Falling back to sample data.`);
-            return sampleCrudeCityProducts;
-        }
-
-        return products;
-
-      } catch (error) {
-        console.error('Failed to fetch products from Printful, falling back to sample data.', error);
-        return sampleCrudeCityProducts;
+      const apiKey = await getPrintfulApiKey();
+      if (!apiKey) {
+        throw new Error('Printful API key is not available in Secret Manager or environment variables.');
       }
+
+      const headers = {
+        'Authorization': `Bearer ${apiKey}`,
+      };
+
+      // Step 1: Fetch all stores to find the ID for "Crude City Eu"
+      const storesResponse = await fetch('https://api.printful.com/stores', { headers });
+      if (!storesResponse.ok) {
+          throw new Error(`Printful API error when fetching stores: ${storesResponse.status}.`);
+      }
+      const storesData = await storesResponse.json();
+      const crudeCityStore = storesData.result.find((store: any) => store.name === 'Crude City Eu');
+
+      if (!crudeCityStore) {
+          const availableStores = storesData.result.map((s: any) => s.name).join(', ');
+          throw new Error(`Could not find a Printful store named "Crude City Eu". Available stores: [${availableStores}].`);
+      }
+      const storeId = crudeCityStore.id;
+
+      // Step 2: Fetch products only from the specified store
+      const response = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        throw new Error(`Printful API error fetching products: ${response.status} ${response.statusText}. Response: ${errorBody}.`);
+      }
+
+      const data = await response.json();
+      const products = data.result.map((item: any): Product | null => {
+          if (!item.name || !item.thumbnail_url) {
+              console.warn(`Skipping product with missing name or thumbnail. ID: ${item.id}`);
+              return null;
+          }
+          const slug = item.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+          const sizes = item.sync_variants ? [...new Set(item.sync_variants.map((v: any) => v.size).filter(Boolean))] as string[] : [];
+          
+          const firstVariant = item.sync_variants?.[0];
+          let price = '£0.00'; // Default price
+          if (firstVariant) {
+              const retailPrice = firstVariant.retail_price || '0.00';
+              const currencySymbol = firstVariant.currency === 'EUR' ? '€' : (firstVariant.currency === 'GBP' ? '£' : '$');
+              price = `${currencySymbol}${retailPrice}`;
+          }
+
+          return {
+              id: item.id,
+              name: item.name,
+              slug: slug,
+              price: price,
+              description: `A high-quality product: ${item.name}. More details coming soon.`, // Placeholder
+              imageUrl: item.thumbnail_url,
+              revolutLink: 'https://revolut.me/test-business-studio', // Placeholder
+              type: 'merch',
+              brand: 'Crude City',
+              availableRegions: ['UK', 'EU'],
+              sizes: sizes.length > 0 ? sizes : undefined,
+          };
+      }).filter((p): p is Product => p !== null);
+      
+      if (products.length === 0) {
+          console.warn(`Printful API returned 0 products for store "Crude City Eu". Check if products have 'synced' status.`);
+      }
+
+      return products;
     }
     
     return [];
