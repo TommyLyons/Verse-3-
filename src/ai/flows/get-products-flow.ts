@@ -164,6 +164,7 @@ const getProductsFlow = ai.defineFlow(
                digital: false,
                // Sizes would require fetching individual product variants. This is a simplified import.
                sizes: ['S', 'M', 'L', 'XL'], // Placeholder sizes
+               availableRegions: ['UK', 'EU'], // Assign to both regions
           }));
 
           return products;
