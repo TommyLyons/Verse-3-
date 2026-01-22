@@ -129,12 +129,21 @@ const getProductsFlow = ai.defineFlow(
             }
             const slug = item.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
             const sizes = item.variants ? [...new Set(item.variants.map((v: any) => v.size).filter(Boolean))] as string[] : [];
+            
+            const firstVariant = item.variants?.[0];
+            let price = '$0.00'; // Default price
+            if (firstVariant) {
+                const retailPrice = firstVariant.retail_price || '0.00';
+                // Simple currency mapping for now.
+                const currencySymbol = firstVariant.currency === 'EUR' ? '€' : (firstVariant.currency === 'GBP' ? '£' : '$');
+                price = `${currencySymbol}${retailPrice}`;
+            }
 
             return {
                 id: item.id,
                 name: item.name,
                 slug: slug,
-                price: '$25.00', // Placeholder
+                price: price,
                 description: `A high-quality product: ${item.name}. More details coming soon.`, // Placeholder
                 imageUrl: item.thumbnail_url,
                 revolutLink: 'https://revolut.me/test-business-studio', // Placeholder
