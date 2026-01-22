@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A flow for fetching product information.
@@ -105,68 +104,8 @@ const getProductsFlow = ai.defineFlow(
   },
   async ({ brand }) => {
     if (brand === 'Crude City') {
-      const apiKey = await getPrintfulApiKey();
-
-      if (!apiKey) {
-          console.warn("Could not retrieve PRINTFUL_API_KEY from Secret Manager. Returning sample data as a fallback.");
-          return sampleCrudeCityProducts;
-      }
-
-      try {
-          const headers = { Authorization: `Bearer ${apiKey}` };
-          // Fetch up to 100 products to handle pagination.
-          const response = await fetch('https://api.printful.com/sync/products?limit=100', { headers });
-          
-          if (!response.ok) {
-              const errorBody = await response.text();
-              console.error(`Printful API error: ${response.status} ${response.statusText}`, errorBody);
-              throw new Error(`Printful API request failed with status ${response.status}`);
-          }
-          
-          const responseData = await response.json();
-          const syncProducts = responseData.result;
-
-          if (!Array.isArray(syncProducts)) {
-             console.error("Unexpected response from Printful API. Expected 'result' to be an array. Got:", responseData);
-             return [];
-          }
-          
-          console.log(`Successfully fetched ${syncProducts.length} products from Printful.`);
-
-          // Map Printful products to our app's Product schema
-          const products: Product[] = syncProducts.map((p: any) => {
-               if (!p.name || !p.thumbnail_url) {
-                  console.warn("Skipping a product from Printful because it is missing a name or thumbnail_url.", p);
-                  return null; // Skip products without a name or image
-               }
-               return {
-                   id: p.id,
-                   name: p.name,
-                   slug: p.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
-                   price: '$29.99', // Placeholder price
-                   description: `A high-quality product from Crude City: ${p.name}.`, // Placeholder description
-                   image: {
-                      id: String(p.id),
-                      imageUrl: p.thumbnail_url,
-                      description: p.name,
-                      imageHint: 'merchandise apparel'
-                   },
-                   revolutLink: 'https://revolut.me/your-business/0', // Placeholder
-                   type: 'merch',
-                   brand: 'Crude City',
-                   digital: false,
-                   sizes: ['S', 'M', 'L', 'XL'], // Placeholder sizes
-                   availableRegions: ['UK', 'EU'],
-              };
-          }).filter((p): p is Product => p !== null); // Filter out any null products
-
-          console.log(`Mapped ${products.length} products successfully.`);
-          return products;
-
-      } catch (error) {
-          console.error("Failed to fetch products from Printful, falling back to sample data:", error);
-          return sampleCrudeCityProducts;
-      }
+      // DEBUG: Forcing fallback to sample data to isolate the problem.
+      return sampleCrudeCityProducts;
     }
     
     return [];
