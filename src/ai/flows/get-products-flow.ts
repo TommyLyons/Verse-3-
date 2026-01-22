@@ -135,9 +135,9 @@ const getProductsFlow = ai.defineFlow(
 
           // Map Printful products to our app's Product schema
           const products: Product[] = syncProducts.map((p: any) => {
-               if (!p.name) {
-                  console.warn("Skipping a product from Printful because it has no name.", p);
-                  return null; // Skip products without a name
+               if (!p.name || !p.thumbnail_url) {
+                  console.warn("Skipping a product from Printful because it is missing a name or thumbnail_url.", p);
+                  return null; // Skip products without a name or image
                }
                return {
                    id: p.id,
