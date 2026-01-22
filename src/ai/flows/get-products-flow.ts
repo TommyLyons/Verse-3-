@@ -114,11 +114,28 @@ const getProductsFlow = ai.defineFlow(
         const headers = {
           'Authorization': `Bearer ${apiKey}`,
         };
-        const response = await fetch('https://api.printful.com/sync/products?status=synced&limit=100', { headers });
+
+        // Step 1: Fetch all stores to find the ID for "Crude City Eu"
+        const storesResponse = await fetch('https://api.printful.com/stores', { headers });
+        if (!storesResponse.ok) {
+            console.error(`Printful API error when fetching stores: ${storesResponse.status}. Falling back to sample data.`);
+            return sampleCrudeCityProducts;
+        }
+        const storesData = await storesResponse.json();
+        const crudeCityStore = storesData.result.find((store: any) => store.name === 'Crude City Eu');
+
+        if (!crudeCityStore) {
+            console.error('Could not find a Printful store named "Crude City Eu". Please check the store name. Falling back to sample data.');
+            return sampleCrudeCityProducts;
+        }
+        const storeId = crudeCityStore.id;
+
+        // Step 2: Fetch products only from the specified store
+        const response = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
 
         if (!response.ok) {
           const errorBody = await response.text();
-          console.error(`Printful API error: ${response.status} ${response.statusText}. Response: ${errorBody}. Falling back to sample data.`);
+          console.error(`Printful API error fetching products: ${response.status} ${response.statusText}. Response: ${errorBody}. Falling back to sample data.`);
           return sampleCrudeCityProducts;
         }
 
