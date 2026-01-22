@@ -26,6 +26,8 @@ export default function CartPage() {
     return total + price * item.quantity;
   }, 0);
 
+  const currencySymbol = cart.length > 0 ? cart[0].price.replace(/[0-9.,]/g, '') : '$';
+
   const hasPhysicalProduct = cart.some(item => !item.digital);
 
   return (
@@ -99,7 +101,7 @@ export default function CartPage() {
               <CardContent className="space-y-4">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>{currencySymbol}{subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-muted-foreground text-sm">
                   <span>Shipping</span>
@@ -108,7 +110,7 @@ export default function CartPage() {
                 <Separator />
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>{currencySymbol}{subtotal.toFixed(2)}</span>
                 </div>
               </CardContent>
               <CardFooter className="flex-col space-y-2">

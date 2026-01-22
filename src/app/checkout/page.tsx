@@ -48,6 +48,9 @@ export default function CheckoutPage() {
   const physicalItems = cart.filter(item => !item.digital);
   const revolutLinks = [...new Set(physicalItems.map(item => item.revolutLink))];
 
+  const total = physicalItems.reduce((acc, item) => acc + parseFloat(item.price.replace(/[^0-9.]/g, '')) * item.quantity, 0);
+  const currencySymbol = physicalItems.length > 0 ? physicalItems[0].price.replace(/[0-9.,]/g, '') : '$';
+
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutFormSchema),
     defaultValues: {
@@ -78,7 +81,7 @@ export default function CheckoutPage() {
             price: item.price,
             size: item.size || null 
         })),
-        total: physicalItems.reduce((acc, item) => acc + parseFloat(item.price.replace(/[^0-9.]/g, '')) * item.quantity, 0).toFixed(2),
+        total: `${currencySymbol}${total.toFixed(2)}`,
         submittedAt: serverTimestamp(),
         status: 'pending_payment',
         userId: user?.uid || 'guest'
@@ -222,14 +225,14 @@ export default function CheckoutPage() {
                             {item.size && <p className="text-sm text-muted-foreground">Size: {item.size}</p>}
                             <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                         </div>
-                        <p className="font-medium">${(parseFloat(item.price.replace(/[^0-9.]/g, '')) * item.quantity).toFixed(2)}</p>
+                        <p className="font-medium">{currencySymbol}{(parseFloat(item.price.replace(/[^0-9.]/g, '')) * item.quantity).toFixed(2)}</p>
                     </Card>
                 ))}
             </div>
              <div className="mt-4 pt-4 border-t">
                 <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span>${physicalItems.reduce((acc, item) => acc + parseFloat(item.price.replace(/[^0-9.]/g, '')) * item.quantity, 0).toFixed(2)}</span>
+                    <span>{currencySymbol}{total.toFixed(2)}</span>
                 </div>
             </div>
         </div>
