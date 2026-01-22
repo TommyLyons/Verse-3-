@@ -20,8 +20,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        headline: ['Poppins', 'sans-serif'],
+        body: ['Chakra Petch', 'sans-serif'],
+        headline: ['Staatliches', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
