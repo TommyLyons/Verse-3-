@@ -6,7 +6,7 @@ import { Product, getAllProducts } from '@/lib/products';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
-import { Eye, DownloadCloud, Globe } from 'lucide-react';
+import { Eye, DownloadCloud, Globe, Terminal } from 'lucide-react';
 import { useRegion } from '@/context/region-context';
 import {
   Select,
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import React, { useState, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 
 const ProductGrid = ({ products, isLoading, type }: { products: any[], isLoading?: boolean, type: 'merch' | 'music' }) => {
@@ -87,6 +88,7 @@ export default function StorePage() {
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   
   const [verse3Merch, setVerse3Merch] = useState<Product[]>([]);
   const [crudeCityMerch, setCrudeCityMerch] = useState<Product[]>([]);
@@ -96,15 +98,22 @@ export default function StorePage() {
   useEffect(() => {
     async function fetchProducts() {
         setIsLoading(true);
-        const products = await getAllProducts();
-        setAllProducts(products);
-        setIsLoading(false);
+        setFetchError(null);
+        try {
+            const products = await getAllProducts();
+            setAllProducts(products);
+        } catch (error: any) {
+            console.error("Failed to fetch products:", error);
+            setFetchError(error.message || "An unknown error occurred while fetching products.");
+        } finally {
+            setIsLoading(false);
+        }
     }
     fetchProducts();
   }, []);
 
   useEffect(() => {
-    // Filter products once they are all fetched
+    // Filter products whenever they are fetched or the region changes.
     if (allProducts.length > 0) {
       setVerse3Merch(allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch'));
       setPhysicalMusic(allProducts.filter(p => p.type === 'music' && !p.digital));
@@ -151,6 +160,20 @@ export default function StorePage() {
             <p className="text-xs text-muted-foreground mt-2">Merchandise availability is based on your region.</p>
          </div>
        </div>
+
+       {fetchError && (
+        <Alert variant="destructive" className="mb-8">
+            <Terminal className="h-4 w-4" />
+            <AlertTitle>Error Fetching Products</AlertTitle>
+            <AlertDescription>
+                <p>There was a problem loading products from Printful.</p>
+                <pre className="mt-2 whitespace-pre-wrap rounded-md bg-muted p-4 text-xs font-mono">
+                    {fetchError}
+                </pre>
+            </AlertDescription>
+        </Alert>
+       )}
+
 
        {/* Verse 3 Merch Section */}
        <section className="mb-16">

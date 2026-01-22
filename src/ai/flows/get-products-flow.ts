@@ -45,7 +45,7 @@ const getProductsFlow = ai.defineFlow(
     if (brand === 'Crude City') {
       const apiKey = await getPrintfulApiKey();
       if (!apiKey) {
-        throw new Error('Printful API key is not available in Secret Manager or environment variables.');
+        throw new Error('Printful API key is not available. Please ensure the PRINTFUL_API_KEY secret is set in Google Secret Manager.');
       }
 
       const headers = {
@@ -55,6 +55,9 @@ const getProductsFlow = ai.defineFlow(
       // Step 1: Fetch all stores to find the ID for "Crude City Eu"
       const storesResponse = await fetch('https://api.printful.com/stores', { headers });
       if (!storesResponse.ok) {
+          if (storesResponse.status === 401) {
+             throw new Error('Printful API authentication failed (401). Please double-check that the PRINTFUL_API_KEY in Google Secret Manager is correct and has store access permissions.');
+          }
           throw new Error(`Printful API error when fetching stores: ${storesResponse.status}.`);
       }
       const storesData = await storesResponse.json();
@@ -66,7 +69,7 @@ const getProductsFlow = ai.defineFlow(
       }
       const storeId = crudeCityStore.id;
 
-      // Step 2: Fetch products only from the specified store
+      // Step 2: Fetch products only from the specified store that are synced.
       const response = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
 
       if (!response.ok) {
