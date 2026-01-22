@@ -1,4 +1,3 @@
-
 'use server';
 
 import { getProducts as getFlowProducts } from '@/ai/flows/get-products-flow';
@@ -14,25 +13,27 @@ export { type Product };
  * @returns A promise that resolves to an array of all products.
  */
 export const getAllProducts = async (): Promise<Product[]> => {
+    let dbProducts: Product[] = [];
+    let flowProducts: Product[] = [];
+
+    // Attempt to fetch products from Firestore, but don't let it stop the flow.
     try {
         const productsCollection = collection(firestore, 'products');
-        const dbProductsPromise = getDocs(productsCollection).then(snapshot => 
-            snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Product))
-        );
-
-        const flowProductsPromise = getFlowProducts('Crude City');
-
-        const [dbProducts, flowProducts] = await Promise.all([
-            dbProductsPromise,
-            flowProductsPromise
-        ]);
-
-        return [...dbProducts, ...flowProducts];
+        const snapshot = await getDocs(productsCollection);
+        dbProducts = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Product));
     } catch (error) {
-        console.error("Error fetching all products:", error);
-        // In case of an error, return an empty array to prevent crashes.
-        return [];
+        console.error("Warning: Could not fetch products from Firestore. This might be expected in a local environment without database access.", error);
     }
+
+    // Attempt to fetch products from the Genkit flow.
+    try {
+        flowProducts = await getFlowProducts('Crude City');
+    } catch (error) {
+        console.error("Error: Could not fetch products from Genkit flow:", error);
+    }
+
+    // Combine the results.
+    return [...dbProducts, ...flowProducts];
 };
 
 
