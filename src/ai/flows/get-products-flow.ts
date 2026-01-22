@@ -74,7 +74,7 @@ const sampleCrudeCityProducts: Product[] = [
         revolutLink: 'https://revolut.me/test-business-studio/23',
         type: 'merch',
         brand: 'Crude City',
-        availableRegions: ['EU'],
+        availableRegions: ['UK', 'EU'],
     },
     {
         id: 103,

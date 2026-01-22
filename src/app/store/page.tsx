@@ -110,12 +110,17 @@ export default function StorePage() {
       setPhysicalMusic(allProducts.filter(p => p.type === 'music' && !p.digital));
       setDigitalMusic(allProducts.filter(p => p.type === 'music' && p.digital));
 
-      // Crude City merch filtering depends on region
       const filteredCrudeCity = allProducts.filter(p => {
-        const isCrudeCity = p.brand === 'Crude City';
-        const hasNoRegionRestriction = !p.availableRegions || p.availableRegions.length === 0;
-        const isRegionAvailable = p.availableRegions?.includes(region);
-        return p.type === 'merch' && isCrudeCity && (hasNoRegionRestriction || isRegionAvailable);
+        // Must be Crude City merch
+        if (p.brand !== 'Crude City' || p.type !== 'merch') {
+          return false;
+        }
+        // If no regions are specified, show it everywhere.
+        if (!p.availableRegions || !Array.isArray(p.availableRegions) || p.availableRegions.length === 0) {
+          return true;
+        }
+        // Otherwise, check if the current region is included in the product's available regions.
+        return p.availableRegions.includes(region);
       });
       setCrudeCityMerch(filteredCrudeCity);
     }
