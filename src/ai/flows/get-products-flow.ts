@@ -125,7 +125,8 @@ const getProductsFlow = ai.defineFlow(
         const crudeCityStore = storesData.result.find((store: any) => store.name === 'Crude City Eu');
 
         if (!crudeCityStore) {
-            console.error('Could not find a Printful store named "Crude City Eu". Please check the store name. Falling back to sample data.');
+            const availableStores = storesData.result.map((s: any) => s.name).join(', ');
+            console.error(`Could not find a Printful store named "Crude City Eu". Available stores: [${availableStores}]. Please check the store name. Falling back to sample data.`);
             return sampleCrudeCityProducts;
         }
         const storeId = crudeCityStore.id;
@@ -170,6 +171,11 @@ const getProductsFlow = ai.defineFlow(
                 sizes: sizes.length > 0 ? sizes : undefined,
             };
         }).filter((p): p is Product => p !== null);
+        
+        if (products.length === 0) {
+            console.warn(`Printful API returned 0 products for store "Crude City Eu". Check if products have 'synced' status. Falling back to sample data.`);
+            return sampleCrudeCityProducts;
+        }
 
         return products;
 
