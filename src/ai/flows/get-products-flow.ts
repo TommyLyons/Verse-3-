@@ -104,8 +104,53 @@ const getProductsFlow = ai.defineFlow(
   },
   async ({ brand }) => {
     if (brand === 'Crude City') {
-      // DEBUG: Forcing fallback to sample data to isolate the problem.
-      return sampleCrudeCityProducts;
+      try {
+        const apiKey = await getPrintfulApiKey();
+        if (!apiKey) {
+          console.log('Printful API key is not available. Falling back to sample data.');
+          return sampleCrudeCityProducts;
+        }
+
+        const headers = {
+          'Authorization': `Bearer ${apiKey}`,
+        };
+        const response = await fetch('https://api.printful.com/store/products?limit=100', { headers });
+
+        if (!response.ok) {
+          console.error(`Printful API error: ${response.status} ${response.statusText}. Falling back to sample data.`);
+          return sampleCrudeCityProducts;
+        }
+
+        const data = await response.json();
+        const products = data.result.map((item: any): Product | null => {
+            if (!item.name || !item.thumbnail_url) {
+                console.warn(`Skipping product with missing name or thumbnail. ID: ${item.id}`);
+                return null;
+            }
+            const slug = item.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+            const sizes = item.variants ? [...new Set(item.variants.map((v: any) => v.size).filter(Boolean))] as string[] : [];
+
+            return {
+                id: item.id,
+                name: item.name,
+                slug: slug,
+                price: '$25.00', // Placeholder
+                description: `A high-quality product: ${item.name}. More details coming soon.`, // Placeholder
+                imageUrl: item.thumbnail_url,
+                revolutLink: 'https://revolut.me/test-business-studio', // Placeholder
+                type: 'merch',
+                brand: 'Crude City',
+                availableRegions: ['UK', 'EU'],
+                sizes: sizes.length > 0 ? sizes : undefined,
+            };
+        }).filter((p): p is Product => p !== null);
+
+        return products;
+
+      } catch (error) {
+        console.error('Failed to fetch products from Printful, falling back to sample data.', error);
+        return sampleCrudeCityProducts;
+      }
     }
     
     return [];
