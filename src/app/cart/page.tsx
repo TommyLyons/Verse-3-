@@ -57,7 +57,7 @@ export default function CartPage() {
                       src={('image' in item && item.image ? item.image.imageUrl : item.imageUrl) || ''}
                       alt={item.name}
                       fill
-                      className="object-cover rounded-md"
+                      className="object-contain rounded-md"
                       sizes="96px"
                     />
                   </div>

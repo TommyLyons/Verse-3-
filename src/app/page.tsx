@@ -114,7 +114,7 @@ export default function Home() {
 
 
       {/* Hero Section */}
-      <section className="relative h-[80vh] w-full flex items-end justify-center text-center text-white overflow-hidden pb-12">
+      <section className="relative h-[60vh] md:h-[80vh] w-full flex items-end justify-center text-center text-white overflow-hidden pb-12">
         <video
           src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
           autoPlay
@@ -164,7 +164,7 @@ export default function Home() {
                                         src={item.imageUrl || ''}
                                         alt={item.description}
                                         fill
-                                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                        className="object-contain transition-transform duration-300 group-hover:scale-105"
                                         data-ai-hint={item.image?.imageHint || ''}
                                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                                     />
@@ -215,7 +215,7 @@ export default function Home() {
                                         src={item.imageUrl || ''}
                                         alt={item.description}
                                         fill
-                                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                        className="object-contain transition-transform duration-300 group-hover:scale-105"
                                         data-ai-hint={item.image?.imageHint || ''}
                                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                                     />
@@ -263,7 +263,7 @@ export default function Home() {
                                         src={profile.image.imageUrl}
                                         alt={`Spotify profile for ${profile.name}`}
                                         fill
-                                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                        className="object-contain transition-transform duration-300 group-hover:scale-105"
                                         sizes="(max-width: 640px) 100vw, 33vw"
                                         data-ai-hint={profile.image.imageHint}
                                     />
@@ -301,7 +301,7 @@ export default function Home() {
                                         src={item.imageUrl || ''}
                                         alt={item.description}
                                         fill
-                                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                                        className="object-contain transition-transform duration-300 group-hover:scale-105"
                                         data-ai-hint={item.image?.imageHint || ''}
                                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                                     />

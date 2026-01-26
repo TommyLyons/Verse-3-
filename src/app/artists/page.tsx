@@ -39,14 +39,14 @@ export default function ArtistsPage() {
           <Card key={artist.name} className="flex flex-col">
             <CardHeader className="items-center">
               {artist.image && (
-                <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-primary/50 mb-4">
+                <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-primary/50 mb-4">
                   <Image
                     src={artist.image.imageUrl}
                     alt={`Portrait of ${artist.name}`}
                     fill
-                    className="object-cover"
+                    className="object-contain"
                     data-ai-hint={artist.image.imageHint}
-                     sizes="160px"
+                     sizes="(max-width: 640px) 128px, 160px"
                   />
                 </div>
               )}

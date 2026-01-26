@@ -83,7 +83,7 @@ export function Header() {
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
+        <div className="container relative flex h-16 items-center justify-between">
           <div className="flex items-center">
             <div className="mr-4 md:hidden">
               <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -110,19 +110,20 @@ export function Header() {
                 </SheetContent>
               </Sheet>
             </div>
-            <div className="hidden md:block">
-              <Logo />
+            <div className="hidden md:flex items-center">
+                <Logo />
+                <nav className="flex items-center space-x-6 text-sm font-medium ml-6">
+                {navLinks.map((link) => (
+                    <NavLink key={link.href} href={link.href}>
+                    {link.label}
+                    </NavLink>
+                ))}
+                </nav>
             </div>
-            <nav className="hidden md:flex items-center space-x-6 text-sm font-medium ml-6">
-              {navLinks.map((link) => (
-                <NavLink key={link.href} href={link.href}>
-                  {link.label}
-                </NavLink>
-              ))}
-            </nav>
           </div>
-          <div className="md:hidden">
-              <Logo />
+          
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:hidden">
+            <Logo />
           </div>
 
           <div className="flex items-center space-x-2">
