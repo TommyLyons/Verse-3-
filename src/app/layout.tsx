@@ -18,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
@@ -31,7 +31,7 @@ export default function RootLayout({
         <FirebaseClientProvider>
           <RegionProvider>
             <CartProvider>
-              <div className="relative flex min-h-dvh flex-col bg-background">
+              <div className="relative flex min-h-dvh flex-col bg-background text-foreground">
                 <Header />
                 <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">{children}</main>
                 <Footer />

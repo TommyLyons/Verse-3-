@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -9,12 +8,12 @@ const headerLogoUrl = "https://firebasestorage.googleapis.com/v0/b/studio-696740
 
 export function Logo() {
   return (
-    <Link href="/" className="flex items-center space-x-2">
+    <Link href="/" className="flex items-center space-x-2 group">
       <Disc3
-        className="h-6 w-6 text-primary animate-spin"
+        className="h-6 w-6 text-[#FFFF00] animate-spin"
         style={{ animationDuration: '3s' }}
       />
-      <div className="relative h-10 w-32">
+      <div className="relative h-10 w-32 filter brightness-110">
         <Image
           src={headerLogoUrl}
           alt="Verse3 Records Logo"
@@ -25,7 +24,7 @@ export function Logo() {
         />
       </div>
       <Disc3
-        className="h-6 w-6 text-primary animate-spin"
+        className="h-6 w-6 text-[#FFFF00] animate-spin"
         style={{ animationDuration: '3s' }}
       />
     </Link>

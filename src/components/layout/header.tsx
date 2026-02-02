@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -42,8 +41,8 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
     <Link
       href={href}
       className={cn(
-        'text-sm font-medium transition-colors hover:text-primary',
-        isActive ? 'text-primary' : 'text-foreground/80'
+        'text-sm font-medium transition-colors hover:text-primary-foreground',
+        isActive ? 'text-primary-foreground' : 'text-white/80'
       )}
     >
       {children}
@@ -82,18 +81,18 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-sm supports-[backdrop-filter]:bg-background/60">
+      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/60 backdrop-blur-md">
         <div className="container relative flex h-16 items-center justify-between">
           <div className="flex items-center">
             <div className="mr-4 md:hidden">
               <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Menu className="h-6 w-6 text-primary" />
+                  <Button variant="ghost" size="icon" className="text-white hover:text-primary-foreground hover:bg-white/10">
+                    <Menu className="h-6 w-6" />
                     <span className="sr-only">Toggle Menu</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+                <SheetContent side="left" className="w-[300px] sm:w-[400px] bg-black border-white/10 text-white">
                   <nav className="flex flex-col gap-6 p-6">
                     <Logo />
                     {[{ href: '/', label: 'Home' }, ...navLinks].map((link) => (
@@ -101,7 +100,7 @@ export function Header() {
                         key={link.href}
                         href={link.href}
                         onClick={() => setIsSheetOpen(false)}
-                        className="text-lg font-medium text-foreground/80 hover:text-primary"
+                        className="text-lg font-medium text-white/80 hover:text-primary-foreground"
                       >
                         {link.label}
                       </Link>
@@ -127,10 +126,10 @@ export function Header() {
           </div>
 
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="icon" asChild>
+            <Button variant="ghost" size="icon" asChild className="text-white hover:text-primary-foreground hover:bg-white/10">
               <Link href="/cart" className="relative">
                 {cartItemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary-foreground text-xs font-bold text-black">
                     {cartItemCount}
                   </span>
                 )}
@@ -140,11 +139,11 @@ export function Header() {
             </Button>
 
             {isUserLoading ? (
-              <div className="h-10 w-10 animate-pulse rounded-full bg-muted" />
+              <div className="h-10 w-10 animate-pulse rounded-full bg-white/20" />
             ) : user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-white/10">
                     <Avatar className="h-10 w-10">
                       <AvatarImage src={user.photoURL ?? undefined} alt={user.displayName ?? 'User'} />
                       <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
@@ -180,10 +179,10 @@ export function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button onClick={() => setIsAuthDialogOpen(true)} className="hidden sm:inline-flex">Sign In</Button>
+              <Button onClick={() => setIsAuthDialogOpen(true)} variant="outline" className="hidden sm:inline-flex border-white/20 text-white hover:bg-white hover:text-black">Sign In</Button>
             )}
 
-            <Button asChild>
+            <Button asChild variant="default" className="shadow-none">
               <Link href="/store">Shop Now</Link>
             </Button>
           </div>
