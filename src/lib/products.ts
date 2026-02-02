@@ -1,7 +1,6 @@
 'use server';
 
 import { getProducts as getFlowProducts } from '@/ai/flows/get-products-flow';
-import { collection, getDocs } from 'firebase/firestore';
 import { firestore } from '@/firebase/server-init';
 import { type Product } from '@/lib/schemas';
 
@@ -17,10 +16,9 @@ export const getAllProducts = async (): Promise<Product[]> => {
     let dbProducts: Product[] = [];
     let flowProducts: Product[] = [];
 
-    // Attempt to fetch products from Firestore.
+    // Fetch products from Firestore using the Admin SDK (server-side).
     try {
-        const productsCollection = collection(firestore, 'products');
-        const snapshot = await getDocs(productsCollection);
+        const snapshot = await firestore.collection('products').get();
         dbProducts = snapshot.docs.map(doc => {
             const data = doc.data() as Product;
             // Force €35.00 price for merchandise
@@ -30,12 +28,15 @@ export const getAllProducts = async (): Promise<Product[]> => {
             return { ...data, id: doc.id };
         });
     } catch (error) {
-        console.warn("Warning: Could not fetch products from Firestore.", error);
+        console.warn("Warning: Could not fetch products from Firestore Admin.", error);
     }
 
-    // Attempt to fetch products from the Genkit flow (Printful).
-    // The flow itself is already updated to return €35.00 for its items (which are all merch).
-    flowProducts = await getFlowProducts('Crude City');
+    // Fetch products from the Genkit flow (Printful).
+    try {
+        flowProducts = await getFlowProducts('Crude City');
+    } catch (error) {
+        console.warn("Warning: Could not fetch products from Printful Flow.", error);
+    }
 
     // Combine the results.
     return [...dbProducts, ...flowProducts];
