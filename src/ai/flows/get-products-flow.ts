@@ -86,20 +86,11 @@ const getProductsFlow = ai.defineFlow(
           const slug = item.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
           const sizes = item.sync_variants ? [...new Set(item.sync_variants.map((v: any) => v.size).filter(Boolean))] as string[] : [];
           
-          const variantWithPrice = item.sync_variants?.find((v: any) => v.retail_price && parseFloat(v.retail_price) > 0);
-          let price = '£0.00'; // Default price
-
-          if (variantWithPrice) {
-              const priceAsNumber = parseFloat(variantWithPrice.retail_price);
-              const currencySymbol = variantWithPrice.currency === 'EUR' ? '€' : (variantWithPrice.currency === 'GBP' ? '£' : '$');
-              price = `${currencySymbol}${priceAsNumber.toFixed(2)}`;
-          }
-
           return {
               id: item.id,
               name: item.name,
               slug: slug,
-              price: price,
+              price: '€35.00', // All merch products are €35.00
               description: `A high-quality product: ${item.name}. More details coming soon.`, // Placeholder
               imageUrl: item.thumbnail_url,
               revolutLink: 'https://revolut.me/test-business-studio', // Placeholder

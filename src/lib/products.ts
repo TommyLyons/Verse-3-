@@ -10,7 +10,7 @@ export { type Product };
 
 /**
  * Fetches all products from both Firestore and the Genkit Flow (Printful).
- * This function will now throw an error if the Printful flow fails, allowing the UI to display it.
+ * This function ensures all items of type 'merch' are priced at €35.00.
  * @returns A promise that resolves to an array of all products.
  */
 export const getAllProducts = async (): Promise<Product[]> => {
@@ -18,17 +18,23 @@ export const getAllProducts = async (): Promise<Product[]> => {
     let flowProducts: Product[] = [];
 
     // Attempt to fetch products from Firestore.
-    // This part is resilient and will not block the Printful fetch.
     try {
         const productsCollection = collection(firestore, 'products');
         const snapshot = await getDocs(productsCollection);
-        dbProducts = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Product));
+        dbProducts = snapshot.docs.map(doc => {
+            const data = doc.data() as Product;
+            // Force €35.00 price for merchandise
+            if (data.type === 'merch') {
+                return { ...data, id: doc.id, price: '€35.00' };
+            }
+            return { ...data, id: doc.id };
+        });
     } catch (error) {
-        console.warn("Warning: Could not fetch products from Firestore. This might be expected in a local environment without database access.", error);
+        console.warn("Warning: Could not fetch products from Firestore.", error);
     }
 
     // Attempt to fetch products from the Genkit flow (Printful).
-    // If this throws an error, it will be propagated up to the calling component.
+    // The flow itself is already updated to return €35.00 for its items (which are all merch).
     flowProducts = await getFlowProducts('Crude City');
 
     // Combine the results.
