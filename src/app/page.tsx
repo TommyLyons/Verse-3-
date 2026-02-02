@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -124,10 +123,10 @@ export default function Home() {
           className="absolute top-1/2 left-1/2 w-full h-full min-w-full min-h-full object-cover -translate-x-1/2 -translate-y-1/2 z-0"
         />
         <div className="relative z-20 flex flex-wrap justify-center gap-4">
-          <Button size="lg" asChild>
+          <Button size="lg" variant="default" asChild className="bg-black text-[#FFFF00] hover:bg-black/90">
             <Link href="/store">Shop Merch</Link>
           </Button>
-          <Button size="lg" variant="outline" asChild>
+          <Button size="lg" variant="default" asChild className="bg-black text-[#FFFF00] hover:bg-black/90">
             <Link href="/music">Explore Music</Link>
           </Button>
         </div>
