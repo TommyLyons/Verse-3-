@@ -19,7 +19,6 @@ import React, { useState, useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-
 const ProductGrid = ({ products, isLoading, type }: { products: any[], isLoading?: boolean, type: 'merch' | 'music' }) => {
     if (isLoading) {
         return (
@@ -44,12 +43,11 @@ const ProductGrid = ({ products, isLoading, type }: { products: any[], isLoading
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {products.map((item) => {
-                const imageUrl = ('image' in item && item.image ? item.image.imageUrl : item.imageUrl) || 'https://picsum.photos/seed/placeholder/600/600';
-                const imageDesc = ('image' in item && item.image ? item.image.description : item.description) || item.name;
-                const imageHint = ('image' in item && item.image ? item.image.imageHint : '') || '';
+                const imageUrl = item.imageUrl || 'https://picsum.photos/seed/placeholder/600/600';
+                const imageDesc = item.description || item.name;
 
                 return (
-                    <Card key={item.id} className="overflow-hidden group relative flex flex-col">
+                    <Card key={item.id} className="overflow-hidden group relative flex flex-col border-border bg-card">
                         <CardContent className="p-0 flex-grow">
                             <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative">
                             <Image
@@ -58,17 +56,15 @@ const ProductGrid = ({ products, isLoading, type }: { products: any[], isLoading
                                 fill
                                 className="object-contain transition-transform duration-300 group-hover:scale-105"
                                 sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                                data-ai-hint={imageHint}
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent" />
                             </Link>
                         </CardContent>
                         <CardFooter className="p-4 flex justify-between items-center bg-card">
                         <div>
-                            <p className="font-semibold">{item.name}</p>
-                            <p className="text-sm text-primary">{item.price}</p>
+                            <p className="font-semibold text-foreground">{item.name}</p>
+                            <p className="text-sm text-muted-foreground">{item.price}</p>
                         </div>
-                        <Button size="sm" asChild>
+                        <Button size="sm" variant="default" className="bg-primary text-primary-foreground" asChild>
                             <Link href={`/store/${item.type}/${item.slug}`}>
                                 {item.digital ? <DownloadCloud className="mr-2 h-4 w-4"/> : <Eye className="mr-2 h-4 w-4"/>}
                                 {item.digital ? 'Purchase' : 'View'}
@@ -81,7 +77,6 @@ const ProductGrid = ({ products, isLoading, type }: { products: any[], isLoading
         </div>
     );
 };
-
 
 export default function StorePage() {
   const { region, setRegion } = useRegion();
@@ -113,43 +108,37 @@ export default function StorePage() {
   }, []);
 
   useEffect(() => {
-    // Filter products whenever they are fetched or the region changes.
     if (allProducts.length > 0) {
       setVerse3Merch(allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch'));
       setPhysicalMusic(allProducts.filter(p => p.type === 'music' && !p.digital));
       setDigitalMusic(allProducts.filter(p => p.type === 'music' && p.digital));
 
       const filteredCrudeCity = allProducts.filter(p => {
-        // Must be Crude City merch
         if (p.brand !== 'Crude City' || p.type !== 'merch') {
           return false;
         }
-        // If no regions are specified, show it everywhere.
         if (!p.availableRegions || !Array.isArray(p.availableRegions) || p.availableRegions.length === 0) {
           return true;
         }
-        // Otherwise, check if the current region is included in the product's available regions.
         return p.availableRegions.includes(region);
       });
       setCrudeCityMerch(filteredCrudeCity);
     }
   }, [allProducts, region]);
 
-
   return (
-    <div className="container py-12 md:py-24">
+    <div className="container py-12 md:py-24 bg-background">
       <BackButton />
        <div className="text-center mb-12">
         <h1 className="font-headline text-4xl md:text-5xl font-bold text-primary">Store</h1>
         <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">Browse our collection of merchandise, vinyls, and more.</p>
        </div>
 
-       {/* Region Selector */}
        <div className="mb-12 flex justify-center items-center gap-4">
          <Globe className="h-6 w-6 text-primary"/>
          <div className="max-w-xs w-full">
             <Select value={region} onValueChange={(value) => setRegion(value as 'UK' | 'EU')}>
-              <SelectTrigger>
+              <SelectTrigger className="border-input bg-background">
                   <SelectValue placeholder="Select your region for merch" />
               </SelectTrigger>
               <SelectContent>
@@ -174,26 +163,21 @@ export default function StorePage() {
         </Alert>
        )}
 
-
-       {/* Verse 3 Merch Section */}
        <section className="mb-16">
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Verse 3 Merch</h2>
             <ProductGrid products={verse3Merch} isLoading={isLoading} type="merch" />
        </section>
 
-       {/* Crude City Merch Section */}
        <section className="mb-16">
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Crude City</h2>
             <ProductGrid products={crudeCityMerch} isLoading={isLoading} type="merch" />
        </section>
        
-       {/* Digital Music Section */}
        <section className="mb-16">
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Digital Downloads</h2>
             <ProductGrid products={digitalMusic} isLoading={isLoading} type="music" />
        </section>
 
-       {/* Physical Music Section */}
        <section>
             <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Physical Music & More</h2>
             <ProductGrid products={physicalMusic} isLoading={isLoading} type="music" />
