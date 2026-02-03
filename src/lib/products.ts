@@ -24,6 +24,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
         
         dbProducts = snapshot.docs.map(doc => {
             const data = doc.data() as Product;
+            // Ensure all merchandise from DB is €35.00
             if (data.type === 'merch') {
                 return { ...data, id: doc.id, price: '€35.00' };
             }
@@ -39,6 +40,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
         console.warn("Warning: Could not fetch products from Printful Flow.", error);
     }
 
+    // Combine and enforce €35.00 pricing for all merchandise
     return [...dbProducts, ...flowProducts].map(p => {
         if (p.type === 'merch') {
             return { ...p, price: '€35.00' };
