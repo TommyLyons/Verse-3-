@@ -84,7 +84,7 @@ export function Header() {
       <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/80 backdrop-blur-md">
         <div className="container relative flex h-20 items-center">
           
-          {/* Mobile Layout - Professional Centered Logo */}
+          {/* Mobile Layout - Centered Logo */}
           <div className="flex w-full items-center md:hidden">
             <div className="flex w-1/4 justify-start">
               <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
