@@ -24,10 +24,6 @@ export const getAllProducts = async (): Promise<Product[]> => {
         
         dbProducts = snapshot.docs.map(doc => {
             const data = doc.data() as Product;
-            // Ensure all merchandise is €35.00
-            if (data.type === 'merch') {
-                return { ...data, id: doc.id, price: '€35.00' };
-            }
             return { ...data, id: doc.id };
         });
     } catch (error) {

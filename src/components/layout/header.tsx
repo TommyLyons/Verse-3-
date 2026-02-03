@@ -82,9 +82,9 @@ export function Header() {
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/80 backdrop-blur-md">
-        <div className="container relative flex h-20 items-center">
+        <div className="container relative flex h-20 items-center justify-between">
           
-          {/* Mobile Layout: Menu (Left), Logo (Center), Icons (Right) */}
+          {/* Mobile Layout: Balanced Center Logo */}
           <div className="flex w-full items-center justify-between md:hidden">
             <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
               <SheetTrigger asChild>
@@ -109,7 +109,7 @@ export function Header() {
               </SheetContent>
             </Sheet>
 
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div className="flex-1 flex justify-center">
               <Logo />
             </div>
 

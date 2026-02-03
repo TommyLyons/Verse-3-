@@ -6,7 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Disc, Eye, Instagram } from 'lucide-react';
+import { Disc, Eye } from 'lucide-react';
 import { getAllProducts, type Product } from '@/lib/products';
 import {
   Dialog,
@@ -20,12 +20,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
 
 const hotDrop = { id: 5, title: 'Midnight Drive', artist: 'DJ Lofty', videoSrc: 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.19.29.mp4?alt=media&token=fdad85e4-48e2-4911-b762-ce1a44bcd192' };
-
-const spotifyProfiles = [
-    { name: 'Verse3', url: 'https://open.spotify.com/artist/4EVUQ7kHLkDjq92K6H3GNZ?si=4I1DDMvoSEOE_5J4wS4yJg', image: getImage('artist-keith') },
-    { name: 'Lofty', url: 'https://open.spotify.com/artist/4EVUQ7kHLkDjq92K6H3GNZ?si=4I1DDMvoSEOE_5J4wS4yJg', image: getImage('artist-lofty') },
-    { name: 'Artist Three', url: '#', image: getImage('artist-alvin') }
-];
 
 const instagramImages = [
   getImage('hero-studio'),
@@ -92,18 +86,18 @@ export default function Home() {
         </DialogContent>
       </Dialog>
 
-      {/* Hero Section - Responsive Video */}
-      <section className="relative w-full h-[50vh] md:h-[80vh] flex items-center justify-center overflow-hidden">
+      {/* Hero Section - Restored original placement */}
+      <section className="relative w-full h-[60vh] md:h-[80vh] flex items-center justify-center overflow-hidden">
         <video
           src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
           autoPlay loop muted playsInline
           className="absolute inset-0 w-full h-full object-cover z-0"
         />
         <div className="relative z-10 flex flex-wrap justify-center gap-4 px-4">
-          <Button size="lg" asChild className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold min-w-[140px]">
+          <Button size="lg" asChild className="bg-black text-chart-1 hover:bg-black/90 font-bold min-w-[140px] border-none">
             <Link href="/store">Shop Merch</Link>
           </Button>
-          <Button size="lg" asChild className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold min-w-[140px]">
+          <Button size="lg" asChild className="bg-black text-chart-1 hover:bg-black/90 font-bold min-w-[140px] border-none">
             <Link href="/music">Explore Music</Link>
           </Button>
         </div>
@@ -112,7 +106,7 @@ export default function Home() {
       {/* Our Vision */}
       <section className="py-16 md:py-24 bg-white border-y">
           <div className="container max-w-4xl text-center">
-              <h2 className="font-headline text-3xl font-bold text-primary sm:text-4xl uppercase tracking-wider">Our Vision</h2>
+              <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl uppercase tracking-wider">Our Vision</h2>
               <p className="mt-6 text-muted-foreground md:text-lg leading-relaxed">
                   Our mission is to champion emerging talent and deliver emotionally powerful records that resonate. We believe that music is most powerful when crafted from real stories, and we are committed to fostering a community where artists can be vulnerable and authentic.
               </p>
@@ -123,7 +117,7 @@ export default function Home() {
        <section className="py-16 md:py-24">
             <div className="container">
                 <div className="text-center mb-12">
-                    <h2 className="font-headline text-3xl font-bold text-primary sm:text-4xl uppercase tracking-wider">Featured Merch</h2>
+                    <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl uppercase tracking-wider">Featured Merch</h2>
                     <p className="mt-2 text-muted-foreground">Rep the label with our latest gear.</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -141,7 +135,7 @@ export default function Home() {
                                 </Link>
                                 <div className="mt-4 flex justify-between items-center">
                                     <div>
-                                        <p className="font-bold">{item.name}</p>
+                                        <p className="font-bold text-black uppercase">{item.name}</p>
                                         <p className="text-sm font-medium">{item.price}</p>
                                     </div>
                                     <Button size="sm" asChild variant="secondary" className="bg-black text-chart-1 hover:bg-black/90">
@@ -164,7 +158,7 @@ export default function Home() {
        <section className="py-16 md:py-24 bg-secondary">
             <div className="container">
                 <div className="text-center mb-12">
-                    <h2 className="font-headline text-3xl font-bold text-primary sm:text-4xl uppercase tracking-wider">Latest Music</h2>
+                    <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl uppercase tracking-wider">Latest Music</h2>
                     <p className="mt-2 text-muted-foreground">Vinyl, posters, and more from our artists.</p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -182,7 +176,7 @@ export default function Home() {
                                 </Link>
                                 <div className="mt-4 flex justify-between items-center">
                                     <div>
-                                        <p className="font-bold">{item.name}</p>
+                                        <p className="font-bold text-black uppercase">{item.name}</p>
                                         <p className="text-sm font-medium">{item.price}</p>
                                     </div>
                                     <Button size="sm" asChild variant="secondary" className="bg-black text-chart-1 hover:bg-black/90">
@@ -205,7 +199,7 @@ export default function Home() {
        <section className="py-16 md:py-24">
           <div className="container max-w-5xl">
             <div className="text-center mb-12">
-                <h2 className="font-headline text-3xl font-bold text-primary sm:text-4xl md:text-5xl uppercase tracking-wider">Instagram</h2>
+                <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl md:text-5xl uppercase tracking-wider">Instagram</h2>
                 <p className="mt-2 text-muted-foreground">Get a behind-the-scenes look @verse3records</p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
