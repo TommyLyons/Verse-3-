@@ -82,38 +82,40 @@ export function Header() {
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/80 backdrop-blur-md">
-        <div className="container relative flex h-20 items-center justify-between">
+        <div className="container relative flex h-20 items-center">
           
-          {/* Mobile Layout: Balanced Center Logo */}
+          {/* Mobile Layout */}
           <div className="flex w-full items-center justify-between md:hidden">
-            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-white hover:text-chart-1">
-                  <Menu className="h-6 w-6" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-[300px] bg-black border-white/10 text-white">
-                <nav className="flex flex-col gap-6 p-6">
-                  <Logo />
-                  {[{ href: '/', label: 'Home' }, ...navLinks].map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setIsSheetOpen(false)}
-                      className="text-lg font-medium text-white/80 hover:text-chart-1"
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </nav>
-              </SheetContent>
-            </Sheet>
+            <div className="flex flex-1 justify-start">
+              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-white hover:text-chart-1">
+                    <Menu className="h-6 w-6" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-[300px] bg-black border-white/10 text-white">
+                  <nav className="flex flex-col gap-6 p-6">
+                    <Logo />
+                    {[{ href: '/', label: 'Home' }, ...navLinks].map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setIsSheetOpen(false)}
+                        className="text-lg font-medium text-white/80 hover:text-chart-1"
+                      >
+                        {link.label}
+                      </Link>
+                    ))}
+                  </nav>
+                </SheetContent>
+              </Sheet>
+            </div>
 
-            <div className="flex-1 flex justify-center">
+            <div className="flex flex-1 justify-center">
               <Logo />
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-1 items-center justify-end space-x-2">
                <Button variant="ghost" size="icon" asChild className="text-white hover:text-chart-1">
                 <Link href="/cart" className="relative">
                   {cartItemCount > 0 && (

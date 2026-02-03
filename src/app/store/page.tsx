@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import React, { useState, useEffect } from 'react';
-import { Skeleton } from '@/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const ProductGrid = ({ products, isLoading, type }: { products: any[], isLoading?: boolean, type: 'merch' | 'music' }) => {
     if (isLoading) {
@@ -111,7 +111,7 @@ export default function StorePage() {
                 <span className="text-xs font-bold uppercase">Region Selection</span>
             </div>
             <Select value={region} onValueChange={(value) => setRegion(value as 'UK' | 'EU')}>
-              <SelectTrigger className="border-black bg-white">
+              <SelectTrigger className="border-black bg-white text-black">
                   <SelectValue />
               </SelectTrigger>
               <SelectContent>
