@@ -41,8 +41,8 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
     <Link
       href={href}
       className={cn(
-        'text-sm font-medium transition-colors hover:text-primary-foreground',
-        isActive ? 'text-primary-foreground' : 'text-white/80'
+        'text-sm font-medium transition-colors hover:text-chart-1',
+        isActive ? 'text-chart-1' : 'text-white/80'
       )}
     >
       {children}
@@ -81,110 +81,123 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/60 backdrop-blur-md">
-        <div className="container relative flex h-16 items-center justify-between">
-          <div className="flex items-center">
-            <div className="mr-4 md:hidden">
-              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-white hover:text-primary-foreground hover:bg-white/10">
-                    <Menu className="h-6 w-6" />
-                    <span className="sr-only">Toggle Menu</span>
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-[300px] sm:w-[400px] bg-black border-white/10 text-white">
-                  <nav className="flex flex-col gap-6 p-6">
-                    <Logo />
-                    {[{ href: '/', label: 'Home' }, ...navLinks].map((link) => (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setIsSheetOpen(false)}
-                        className="text-lg font-medium text-white/80 hover:text-primary-foreground"
-                      >
-                        {link.label}
-                      </Link>
-                    ))}
-                  </nav>
-                </SheetContent>
-              </Sheet>
-            </div>
-            <div className="hidden md:flex items-center">
-                <Logo />
-                <nav className="flex items-center space-x-6 text-sm font-medium ml-6">
-                {navLinks.map((link) => (
-                    <NavLink key={link.href} href={link.href}>
-                    {link.label}
-                    </NavLink>
-                ))}
-                </nav>
-            </div>
-          </div>
+      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/80 backdrop-blur-md">
+        <div className="container relative flex h-20 items-center">
           
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:hidden">
-            <Logo />
+          {/* Mobile Layout: Menu (Left), Logo (Center), Icons (Right) */}
+          <div className="flex w-full items-center justify-between md:hidden">
+            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-white hover:text-chart-1">
+                  <Menu className="h-6 w-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[300px] bg-black border-white/10 text-white">
+                <nav className="flex flex-col gap-6 p-6">
+                  <Logo />
+                  {[{ href: '/', label: 'Home' }, ...navLinks].map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setIsSheetOpen(false)}
+                      className="text-lg font-medium text-white/80 hover:text-chart-1"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </nav>
+              </SheetContent>
+            </Sheet>
+
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+              <Logo />
+            </div>
+
+            <div className="flex items-center space-x-2">
+               <Button variant="ghost" size="icon" asChild className="text-white hover:text-chart-1">
+                <Link href="/cart" className="relative">
+                  {cartItemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-chart-1 text-[10px] font-bold text-black">
+                      {cartItemCount}
+                    </span>
+                  )}
+                  <ShoppingCart className="h-5 w-5" />
+                </Link>
+              </Button>
+              {user && (
+                 <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={user.photoURL ?? undefined} alt={user.displayName ?? 'User'} />
+                        <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild><Link href="/profile">Profile</Link></DropdownMenuItem>
+                    {isAdmin && <DropdownMenuItem asChild><Link href="/admin">Admin</Link></DropdownMenuItem>}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut}>Sign Out</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="icon" asChild className="text-white hover:text-primary-foreground hover:bg-white/10">
-              <Link href="/cart" className="relative">
-                {cartItemCount > 0 && (
-                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary-foreground text-xs font-bold text-black">
-                    {cartItemCount}
-                  </span>
-                )}
-                <ShoppingCart className="h-5 w-5" />
-                <span className="sr-only">Cart</span>
-              </Link>
-            </Button>
+          {/* Desktop Layout */}
+          <div className="hidden md:flex w-full items-center justify-between">
+            <div className="flex items-center space-x-8">
+              <Logo />
+              <nav className="flex items-center space-x-6">
+                {navLinks.map((link) => (
+                  <NavLink key={link.href} href={link.href}>{link.label}</NavLink>
+                ))}
+              </nav>
+            </div>
 
-            {isUserLoading ? (
-              <div className="h-10 w-10 animate-pulse rounded-full bg-white/20" />
-            ) : user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-white/10">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={user.photoURL ?? undefined} alt={user.displayName ?? 'User'} />
-                      <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user.displayName}</p>
-                      <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/profile">
-                      <UserIcon className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
-                    </Link>
-                  </DropdownMenuItem>
-                  {isAdmin && (
-                    <DropdownMenuItem asChild>
-                      <Link href="/admin">
-                        <Shield className="mr-2 h-4 w-4" />
-                        <span>Admin</span>
-                      </Link>
-                    </DropdownMenuItem>
+            <div className="flex items-center space-x-4">
+              <Button variant="ghost" size="icon" asChild className="text-white hover:text-chart-1">
+                <Link href="/cart" className="relative">
+                  {cartItemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-chart-1 text-xs font-bold text-black">
+                      {cartItemCount}
+                    </span>
                   )}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut}>
-                    Sign out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button onClick={() => setIsAuthDialogOpen(true)} variant="outline" className="hidden sm:inline-flex border-white/20 text-white hover:bg-white hover:text-black">Sign In</Button>
-            )}
+                  <ShoppingCart className="h-5 w-5" />
+                </Link>
+              </Button>
 
-            <Button asChild variant="default" className="shadow-none">
-              <Link href="/store">Shop Now</Link>
-            </Button>
+              {isUserLoading ? (
+                <div className="h-10 w-10 animate-pulse rounded-full bg-white/20" />
+              ) : user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={user.photoURL ?? undefined} alt={user.displayName ?? 'User'} />
+                        <AvatarFallback>{getInitials(user.displayName)}</AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end">
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium">{user.displayName}</p>
+                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild><Link href="/profile"><UserIcon className="mr-2 h-4 w-4" />Profile</Link></DropdownMenuItem>
+                    {isAdmin && <DropdownMenuItem asChild><Link href="/admin"><Shield className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut}>Sign Out</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button onClick={() => setIsAuthDialogOpen(true)} variant="outline" className="border-white/20 text-white hover:bg-white hover:text-black">Sign In</Button>
+              )}
+            </div>
           </div>
         </div>
       </header>

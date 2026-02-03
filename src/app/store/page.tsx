@@ -6,7 +6,7 @@ import { Product, getAllProducts } from '@/lib/products';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
-import { Eye, DownloadCloud, Globe, Terminal } from 'lucide-react';
+import { Eye, DownloadCloud, Globe } from 'lucide-react';
 import { useRegion } from '@/context/region-context';
 import {
   Select,
@@ -16,8 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import React, { useState, useEffect } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Skeleton } from '@/skeleton';
 
 const ProductGrid = ({ products, isLoading, type }: { products: any[], isLoading?: boolean, type: 'merch' | 'music' }) => {
     if (isLoading) {
@@ -25,7 +24,7 @@ const ProductGrid = ({ products, isLoading, type }: { products: any[], isLoading
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 {[...Array(4)].map((_, i) => (
                     <div key={i} className="flex flex-col space-y-3">
-                        <Skeleton className="h-[250px] w-full rounded-xl" />
+                        <Skeleton className="aspect-square w-full rounded-xl" />
                         <div className="space-y-2">
                             <Skeleton className="h-4 w-[200px]" />
                             <Skeleton className="h-4 w-[150px]" />
@@ -37,69 +36,54 @@ const ProductGrid = ({ products, isLoading, type }: { products: any[], isLoading
     }
 
     if (products.length === 0) {
-        return <p className="text-muted-foreground text-center py-8">No {type} products available for this selection.</p>;
+        return <p className="text-muted-foreground text-center py-8">No {type} products available.</p>;
     }
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            {products.map((item) => {
-                const imageUrl = item.imageUrl || 'https://picsum.photos/seed/placeholder/600/600';
-                const imageDesc = item.description || item.name;
-
-                return (
-                    <Card key={item.id} className="overflow-hidden group relative flex flex-col border-border bg-card">
-                        <CardContent className="p-0 flex-grow">
-                            <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative">
+            {products.map((item) => (
+                <Card key={item.id} className="overflow-hidden group flex flex-col border-none bg-transparent">
+                    <CardContent className="p-0">
+                        <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative bg-secondary rounded-lg overflow-hidden">
                             <Image
-                                src={imageUrl}
-                                alt={imageDesc}
+                                src={item.imageUrl || 'https://picsum.photos/seed/placeholder/600/600'}
+                                alt={item.name}
                                 fill
-                                className="object-contain transition-transform duration-300 group-hover:scale-105"
-                                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                                className="object-contain transition-transform duration-500 group-hover:scale-105"
+                                sizes="(max-width: 640px) 100vw, 25vw"
                             />
-                            </Link>
-                        </CardContent>
-                        <CardFooter className="p-4 flex justify-between items-center bg-card">
+                        </Link>
+                    </CardContent>
+                    <div className="mt-4 flex justify-between items-center">
                         <div>
-                            <p className="font-semibold text-foreground">{item.name}</p>
-                            <p className="text-sm text-muted-foreground">{item.price}</p>
+                            <p className="font-bold text-black uppercase">{item.name}</p>
+                            <p className="text-sm font-medium">{item.price}</p>
                         </div>
-                        <Button size="sm" variant="default" className="bg-primary text-primary-foreground" asChild>
+                        <Button size="sm" asChild className="bg-black text-chart-1 font-bold">
                             <Link href={`/store/${item.type}/${item.slug}`}>
-                                {item.digital ? <DownloadCloud className="mr-2 h-4 w-4"/> : <Eye className="mr-2 h-4 w-4"/>}
-                                {item.digital ? 'Purchase' : 'View'}
+                                {item.digital ? <DownloadCloud className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
                             </Link>
                         </Button>
-                        </CardFooter>
-                    </Card>
-                )
-            })}
+                    </div>
+                </Card>
+            ))}
         </div>
     );
 };
 
 export default function StorePage() {
   const { region, setRegion } = useRegion();
-
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [fetchError, setFetchError] = useState<string | null>(null);
-  
-  const [verse3Merch, setVerse3Merch] = useState<Product[]>([]);
-  const [crudeCityMerch, setCrudeCityMerch] = useState<Product[]>([]);
-  const [physicalMusic, setPhysicalMusic] = useState<Product[]>([]);
-  const [digitalMusic, setDigitalMusic] = useState<Product[]>([]);
 
   useEffect(() => {
     async function fetchProducts() {
         setIsLoading(true);
-        setFetchError(null);
         try {
             const products = await getAllProducts();
             setAllProducts(products);
-        } catch (error: any) {
+        } catch (error) {
             console.error("Failed to fetch products:", error);
-            setFetchError(error.message || "An unknown error occurred while fetching products.");
         } finally {
             setIsLoading(false);
         }
@@ -107,79 +91,54 @@ export default function StorePage() {
     fetchProducts();
   }, []);
 
-  useEffect(() => {
-    if (allProducts.length > 0) {
-      setVerse3Merch(allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch'));
-      setPhysicalMusic(allProducts.filter(p => p.type === 'music' && !p.digital));
-      setDigitalMusic(allProducts.filter(p => p.type === 'music' && p.digital));
-
-      const filteredCrudeCity = allProducts.filter(p => {
-        if (p.brand !== 'Crude City' || p.type !== 'merch') {
-          return false;
-        }
-        if (!p.availableRegions || !Array.isArray(p.availableRegions) || p.availableRegions.length === 0) {
-          return true;
-        }
-        return p.availableRegions.includes(region);
-      });
-      setCrudeCityMerch(filteredCrudeCity);
-    }
-  }, [allProducts, region]);
+  const verse3Merch = allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch');
+  const physicalMusic = allProducts.filter(p => p.type === 'music' && !p.digital);
+  const digitalMusic = allProducts.filter(p => p.type === 'music' && p.digital);
+  const crudeCityMerch = allProducts.filter(p => p.brand === 'Crude City' && p.type === 'merch' && (!p.availableRegions || p.availableRegions.includes(region)));
 
   return (
-    <div className="container py-12 md:py-24 bg-background">
+    <div className="container py-12 md:py-24 bg-white">
       <BackButton />
        <div className="text-center mb-12">
-        <h1 className="font-headline text-4xl md:text-5xl font-bold text-primary">Store</h1>
-        <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">Browse our collection of merchandise, vinyls, and more.</p>
+        <h1 className="font-headline text-4xl md:text-5xl font-bold text-black uppercase tracking-wider">Store</h1>
+        <p className="text-muted-foreground mt-2">Merchandise, vinyls, and more.</p>
        </div>
 
-       <div className="mb-12 flex justify-center items-center gap-4">
-         <Globe className="h-6 w-6 text-primary"/>
+       <div className="mb-12 flex flex-col items-center gap-4">
          <div className="max-w-xs w-full">
+            <div className="flex items-center justify-center gap-2 mb-2">
+                <Globe className="h-4 w-4 text-black"/>
+                <span className="text-xs font-bold uppercase">Region Selection</span>
+            </div>
             <Select value={region} onValueChange={(value) => setRegion(value as 'UK' | 'EU')}>
-              <SelectTrigger className="border-input bg-background">
-                  <SelectValue placeholder="Select your region for merch" />
+              <SelectTrigger className="border-black bg-white">
+                  <SelectValue />
               </SelectTrigger>
               <SelectContent>
                   <SelectItem value="UK">United Kingdom</SelectItem>
                   <SelectItem value="EU">European Union</SelectItem>
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground mt-2">Merchandise availability is based on your region.</p>
          </div>
        </div>
 
-       {fetchError && (
-        <Alert variant="destructive" className="mb-8">
-            <Terminal className="h-4 w-4" />
-            <AlertTitle>Error Fetching Products</AlertTitle>
-            <AlertDescription>
-                <p>There was a problem loading products from Printful.</p>
-                <pre className="mt-2 whitespace-pre-wrap rounded-md bg-muted p-4 text-xs font-mono">
-                    {fetchError}
-                </pre>
-            </AlertDescription>
-        </Alert>
-       )}
-
-       <section className="mb-16">
-            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Verse 3 Merch</h2>
+       <section className="mb-20">
+            <h2 className="font-headline text-2xl font-bold text-black mb-8 uppercase border-b pb-2">Verse 3 Merch</h2>
             <ProductGrid products={verse3Merch} isLoading={isLoading} type="merch" />
        </section>
 
-       <section className="mb-16">
-            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Crude City</h2>
+       <section className="mb-20">
+            <h2 className="font-headline text-2xl font-bold text-black mb-8 uppercase border-b pb-2">Crude City</h2>
             <ProductGrid products={crudeCityMerch} isLoading={isLoading} type="merch" />
        </section>
        
-       <section className="mb-16">
-            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Digital Downloads</h2>
+       <section className="mb-20">
+            <h2 className="font-headline text-2xl font-bold text-black mb-8 uppercase border-b pb-2">Digital Downloads</h2>
             <ProductGrid products={digitalMusic} isLoading={isLoading} type="music" />
        </section>
 
        <section>
-            <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl mb-8">Physical Music & More</h2>
+            <h2 className="font-headline text-2xl font-bold text-black mb-8 uppercase border-b pb-2">Physical Music</h2>
             <ProductGrid products={physicalMusic} isLoading={isLoading} type="music" />
        </section>
     </div>
