@@ -31,18 +31,6 @@ const hotDrop = { id: 5, title: 'Midnight Drive', artist: 'DJ Lofty', videoSrc: 
 
 const INSTAGRAM_URL = "https://www.instagram.com/verse3records?igsh=NXhzcW84N2NwZ3Iw";
 
-// Curated selection using actual brand assets for the Instagram feed
-const instagramImages = [
-  getImage('who-are-the-3-hero'), // Actual Founders Image
-  getImage('footer-logo'),       // Actual Branding Asset
-  getImage('header-logo'),       // Actual Branding Asset
-  getImage('album-art-2'),      // Thematic stock
-  getImage('hero-studio'),       // Thematic stock
-  getImage('merch-hoodie'),     // Thematic stock
-  getImage('artist-lofty'),     // Thematic stock
-  getImage('merch-vinyl')       // Thematic stock
-].filter(Boolean);
-
 export default function Home() {
   const [isHotDropOpen, setIsHotDropOpen] = useState(false);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
@@ -263,36 +251,28 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Instagram Feed */}
-       <section className="py-16 md:py-24 bg-white">
-          <div className="container max-w-5xl">
-            <div className="text-center mb-12">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                    <Instagram className="h-6 w-6 text-black" />
-                    <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl md:text-5xl uppercase tracking-wider">Instagram</h2>
+       {/* Instagram Feed (Text Call to Action Only) */}
+       <section className="py-20 md:py-32 bg-white">
+          <div className="container max-w-4xl text-center">
+            <div className="flex flex-col items-center gap-6">
+                <div className="p-4 bg-secondary rounded-full">
+                    <Instagram className="h-12 w-12 text-black" />
                 </div>
-                <p className="mt-2 text-muted-foreground">Follow our journey <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="text-black font-bold hover:underline">@verse3records</a></p>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {(instagramImages as any[]).map((image) => (
-                    <Link href={INSTAGRAM_URL} key={image.id} target="_blank" rel="noopener noreferrer" className="block aspect-square relative rounded-md overflow-hidden bg-secondary group">
-                        <Image
-                            src={image.imageUrl}
-                            alt={image.description}
-                            fill
-                            className="object-cover transition-all duration-500 group-hover:scale-110"
-                            sizes="(max-width: 768px) 50vw, 25vw"
-                        />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <Instagram className="text-white h-8 w-8" />
-                        </div>
-                    </Link>
-                ))}
-            </div>
-            <div className="text-center mt-12">
-                <Button asChild variant="outline" size="lg" className="border-black text-black font-bold hover:bg-black hover:text-white">
-                    <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">Follow Us on Instagram</a>
-                </Button>
+                <div>
+                    <h2 className="font-headline text-4xl md:text-6xl font-bold text-black uppercase tracking-tighter mb-4">
+                        Join the Journey
+                    </h2>
+                    <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                        Stay connected with Verse3 Records for exclusive behind-the-scenes content, live studio updates, and new releases.
+                    </p>
+                </div>
+                <div className="mt-4">
+                    <Button asChild size="lg" className="bg-black text-chart-1 font-bold h-16 px-12 text-xl hover:scale-105 transition-transform">
+                        <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">
+                            Follow @verse3records
+                        </a>
+                    </Button>
+                </div>
             </div>
           </div>
        </section>
