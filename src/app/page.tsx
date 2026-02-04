@@ -275,7 +275,7 @@ export default function Home() {
 
                 <div className="text-center space-y-3">
                     <h2 className="font-headline text-4xl md:text-6xl font-bold text-white uppercase tracking-tighter italic">
-                        JOIN THE <span className="text-chart-1">LEGACY</span>
+                        JOIN THE <span className="text-chart-1">JOURNEY</span>
                     </h2>
                     <p className="text-sm md:text-lg text-white/60 max-w-xl mx-auto font-medium leading-tight">
                         We don't just release music; we build culture. <br className="hidden md:block" /> 
