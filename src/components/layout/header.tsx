@@ -67,7 +67,7 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/95 backdrop-blur-md">
+      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black">
         <div className="container flex h-20 items-center">
           <div className="grid w-full grid-cols-3 items-center">
             
