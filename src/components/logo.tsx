@@ -13,7 +13,7 @@ export function Logo() {
           src={LOGO_URL}
           alt="Verse3 Records Logo"
           fill
-          className="object-contain"
+          className="object-cover scale-150"
           priority
           data-ai-hint="company logo"
           sizes="(max-width: 640px) 224px, 320px"

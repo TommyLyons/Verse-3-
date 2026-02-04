@@ -67,7 +67,7 @@ export function Header() {
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black">
-        <div className="container flex h-28 items-center">
+        <div className="container flex h-24 items-center">
           <div className="grid w-full grid-cols-3 items-center">
             
             {/* Left: Singular Menu Button */}
@@ -87,7 +87,7 @@ export function Header() {
                   <SheetDescription className="sr-only">Access site navigation links and user account options.</SheetDescription>
                   
                   {/* Header row inside sheet for consistent feel */}
-                  <div className="w-full h-28 flex items-center px-4 md:px-8 border-b border-white/10">
+                  <div className="w-full h-24 flex items-center px-4 md:px-8 border-b border-white/10">
                     <div className="grid w-full grid-cols-3 items-center">
                       <div className="flex justify-start">
                         <SheetClose asChild>
