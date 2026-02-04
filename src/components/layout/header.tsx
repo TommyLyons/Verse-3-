@@ -1,8 +1,7 @@
-
 'use client';
 
 import Link from 'next/link';
-import { Menu, ShoppingCart, User as UserIcon, Shield } from 'lucide-react';
+import { Menu, ShoppingCart, User as UserIcon, Shield, X } from 'lucide-react';
 import React from 'react';
 import {
   signInWithPopup,
@@ -11,7 +10,7 @@ import {
 } from 'firebase/auth';
 import { useUser, useAuth } from '@/firebase';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,9 +64,8 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/80 backdrop-blur-md">
+      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/90 backdrop-blur-md">
         <div className="container flex h-20 items-center">
-          {/* 3-Column Grid for consistent centering on all screen sizes */}
           <div className="grid w-full grid-cols-3 items-center">
             
             {/* Left: Singular Menu Button */}
@@ -75,26 +73,58 @@ export function Header() {
               <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="text-white hover:text-chart-1">
-                    <Menu className="h-7 w-7" />
+                    <Menu className="h-8 w-8" />
                     <span className="sr-only">Toggle menu</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[300px] bg-black border-white/10 text-white flex flex-col">
-                  <div className="py-4">
-                    <Logo />
+                <SheetContent 
+                  side="top" 
+                  className="w-full h-screen bg-black border-none text-white flex flex-col items-center justify-center p-0 transition-all duration-500 ease-in-out"
+                >
+                  <div className="absolute top-0 left-0 w-full h-20 flex items-center px-4 md:px-8 border-b border-white/10">
+                    <div className="grid w-full grid-cols-3 items-center">
+                      <div className="flex justify-start">
+                        <SheetClose asChild>
+                          <Button variant="ghost" size="icon" className="text-white hover:text-chart-1">
+                            <X className="h-8 w-8" />
+                          </Button>
+                        </SheetClose>
+                      </div>
+                      <div className="flex justify-center">
+                        <Logo />
+                      </div>
+                      <div className="flex justify-end">
+                        {/* Empty spacer to maintain centering */}
+                      </div>
+                    </div>
                   </div>
-                  <nav className="flex flex-col gap-4 mt-8">
+
+                  <nav className="flex flex-col items-center gap-8 md:gap-12 mt-20">
                     {navLinks.map((link) => (
                       <Link
                         key={link.href}
                         href={link.href}
                         onClick={() => setIsSheetOpen(false)}
-                        className="text-2xl font-headline tracking-wide text-white/90 hover:text-chart-1 transition-colors"
+                        className="text-4xl md:text-6xl font-headline tracking-tighter text-white hover:text-chart-1 transition-all duration-300 hover:scale-110"
                       >
                         {link.label}
                       </Link>
                     ))}
                   </nav>
+
+                  <div className="mt-16 flex items-center gap-8">
+                    {!user && (
+                      <Button 
+                        onClick={() => {
+                          setIsSheetOpen(false);
+                          setIsAuthDialogOpen(true);
+                        }}
+                        className="bg-chart-1 text-black hover:bg-chart-1/90 font-bold px-8"
+                      >
+                        Sign In / Register
+                      </Button>
+                    )}
+                  </div>
                 </SheetContent>
               </Sheet>
             </div>
@@ -144,24 +174,14 @@ export function Header() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <>
-                  <Button 
-                    onClick={() => setIsAuthDialogOpen(true)} 
-                    variant="outline" 
-                    size="sm"
-                    className="hidden sm:flex border-white/20 text-white hover:bg-white hover:text-black font-bold"
-                  >
-                    Sign In
-                  </Button>
-                  <Button 
-                    onClick={() => setIsAuthDialogOpen(true)} 
-                    variant="ghost" 
-                    size="icon"
-                    className="sm:hidden text-white"
-                  >
-                    <UserIcon className="h-5 w-5" />
-                  </Button>
-                </>
+                <Button 
+                  onClick={() => setIsAuthDialogOpen(true)} 
+                  variant="ghost" 
+                  size="icon"
+                  className="text-white hover:text-chart-1"
+                >
+                  <UserIcon className="h-5 w-5" />
+                </Button>
               )}
             </div>
           </div>
