@@ -17,6 +17,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 
 const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
 
@@ -87,19 +94,19 @@ export default function Home() {
         </DialogContent>
       </Dialog>
 
-      {/* Hero Section - Buttons side-by-side on mobile, bottom third */}
+      {/* Hero Section */}
       <section className="relative w-full h-[70vh] md:h-[85vh] flex flex-col items-center justify-end overflow-hidden pb-12 md:pb-20">
         <video
           src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
           autoPlay loop muted playsInline
-          className="absolute inset-0 w-full h-full object-cover md:object-center z-0"
-          style={{ objectPosition: 'center 30%' }}
+          className="absolute inset-0 w-full h-full object-cover z-0"
+          style={{ objectPosition: 'center 40%' }}
         />
         <div className="relative z-10 flex flex-row justify-center gap-3 px-4 w-full max-w-md mx-auto">
-          <Button size="lg" asChild className="flex-1 bg-black text-chart-1 hover:bg-black/90 font-bold border-none shadow-2xl text-sm md:text-base px-2">
+          <Button size="lg" asChild className="flex-1 bg-black text-chart-1 hover:bg-black/90 font-bold border-none shadow-2xl text-xs md:text-base px-2 h-12 md:h-14">
             <Link href="/store">Shop Merch</Link>
           </Button>
-          <Button size="lg" asChild className="flex-1 bg-black text-chart-1 hover:bg-black/90 font-bold border-none shadow-2xl text-sm md:text-base px-2">
+          <Button size="lg" asChild className="flex-1 bg-black text-chart-1 hover:bg-black/90 font-bold border-none shadow-2xl text-xs md:text-base px-2 h-12 md:h-14">
             <Link href="/music">Explore Music</Link>
           </Button>
         </div>
@@ -115,39 +122,61 @@ export default function Home() {
           </div>
       </section>
 
-       {/* Featured Merch */}
+       {/* Featured Merch - Swipable on Mobile */}
        <section className="py-16 md:py-24 bg-white">
-            <div className="container">
+            <div className="container overflow-hidden">
                 <div className="text-center mb-12">
                     <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl uppercase tracking-wider">Featured Merch</h2>
                     <p className="mt-2 text-muted-foreground">Rep the label with our latest gear.</p>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {isLoading ? [...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full" />) :
-                        merchProducts.map((item) => (
-                            <Card key={item.id} className="overflow-hidden group flex flex-col border-none shadow-none bg-transparent">
-                                <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative bg-secondary rounded-lg overflow-hidden">
-                                    <Image
-                                        src={item.imageUrl || ''}
-                                        alt={item.name}
-                                        fill
-                                        className="object-contain transition-transform duration-500 group-hover:scale-105"
-                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                                    />
-                                </Link>
-                                <div className="mt-4 flex justify-between items-center">
-                                    <div>
-                                        <p className="font-bold text-black uppercase">{item.name}</p>
-                                        <p className="text-sm font-medium">{item.price}</p>
-                                    </div>
-                                    <Button size="sm" asChild variant="secondary" className="bg-black text-chart-1 hover:bg-black/90">
-                                        <Link href={`/store/${item.type}/${item.slug}`}><Eye className="h-4 w-4"/></Link>
-                                    </Button>
-                                </div>
-                            </Card>
-                        ))
-                    }
-                </div>
+                
+                {isLoading ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {[...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full" />)}
+                    </div>
+                ) : (
+                    <div className="relative">
+                        <Carousel
+                            opts={{
+                                align: "start",
+                                loop: true,
+                            }}
+                            className="w-full"
+                        >
+                            <CarouselContent className="-ml-4">
+                                {merchProducts.map((item) => (
+                                    <CarouselItem key={item.id} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/4">
+                                        <Card className="overflow-hidden group flex flex-col border-none shadow-none bg-transparent">
+                                            <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative bg-secondary rounded-lg overflow-hidden">
+                                                <Image
+                                                    src={item.imageUrl || ''}
+                                                    alt={item.name}
+                                                    fill
+                                                    className="object-contain transition-transform duration-500 group-hover:scale-105"
+                                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                                                />
+                                            </Link>
+                                            <div className="mt-4 flex justify-between items-center px-1">
+                                                <div>
+                                                    <p className="font-bold text-black uppercase">{item.name}</p>
+                                                    <p className="text-sm font-medium">{item.price}</p>
+                                                </div>
+                                                <Button size="sm" asChild variant="secondary" className="bg-black text-chart-1 hover:bg-black/90">
+                                                    <Link href={`/store/${item.type}/${item.slug}`}><Eye className="h-4 w-4"/></Link>
+                                                </Button>
+                                            </div>
+                                        </Card>
+                                    </CarouselItem>
+                                ))}
+                            </CarouselContent>
+                            <div className="hidden lg:block">
+                                <CarouselPrevious className="-left-12" />
+                                <CarouselNext className="-right-12" />
+                            </div>
+                        </Carousel>
+                    </div>
+                )}
+
                 <div className="text-center mt-12">
                     <Button asChild size="lg" className="bg-black text-chart-1 font-bold">
                         <Link href="/store">View All Merch</Link>
