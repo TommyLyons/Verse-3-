@@ -87,8 +87,8 @@ export default function Home() {
         </DialogContent>
       </Dialog>
 
-      {/* Hero Section - Buttons strictly moved to the bottom third */}
-      <section className="relative w-full h-[75vh] md:h-[85vh] flex flex-col items-center justify-end overflow-hidden pb-8 md:pb-12">
+      {/* Hero Section - Buttons moved to the bottom third */}
+      <section className="relative w-full h-[75vh] md:h-[85vh] flex flex-col items-center justify-end overflow-hidden pb-12 md:pb-20">
         <video
           src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
           autoPlay loop muted playsInline

@@ -1,7 +1,6 @@
 
 "use client"
 
-import * as React from "react"
 import { useState, useEffect } from "react"
 import type { ToastActionElement, ToastProps } from "@/components/ui/toast"
 
@@ -52,6 +51,9 @@ const addToRemoveQueue = (toastId: string) => {
   toastTimeouts.set(toastId, timeout)
 }
 
+let memoryState: State = { toasts: [] }
+const listeners: Array<(state: State) => void> = []
+
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case "ADD_TOAST":
@@ -79,9 +81,6 @@ export const reducer = (state: State, action: Action): State => {
       return state
   }
 }
-
-const listeners: Array<(state: State) => void> = []
-let memoryState: State = { toasts: [] }
 
 function dispatch(action: Action) {
   memoryState = reducer(memoryState, action)

@@ -148,18 +148,27 @@ export function Header() {
             </div>
           </div>
 
-          {/* Desktop Layout */}
-          <div className="hidden md:flex w-full items-center justify-between">
-            <div className="flex items-center space-x-8">
-              <Logo />
+          {/* Desktop Layout - Centered Logo */}
+          <div className="hidden md:grid w-full grid-cols-3 items-center">
+            <div className="flex items-center space-x-6">
               <nav className="flex items-center space-x-6">
-                {navLinks.map((link) => (
+                {navLinks.slice(0, 3).map((link) => (
                   <NavLink key={link.href} href={link.href}>{link.label}</NavLink>
                 ))}
               </nav>
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex justify-center">
+              <Logo />
+            </div>
+
+            <div className="flex items-center justify-end space-x-4">
+              <nav className="flex items-center space-x-6 mr-4">
+                {navLinks.slice(3).map((link) => (
+                  <NavLink key={link.href} href={link.href}>{link.label}</NavLink>
+                ))}
+              </nav>
+              
               <Button variant="ghost" size="icon" asChild className="text-white hover:text-chart-1">
                 <Link href="/cart" className="relative">
                   {cartItemCount > 0 && (
