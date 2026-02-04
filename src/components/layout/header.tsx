@@ -80,7 +80,7 @@ export function Header() {
                 </SheetTrigger>
                 <SheetContent 
                   side="top" 
-                  className="w-full h-screen bg-black border-none text-white flex flex-col items-center justify-center p-0 transition-all duration-500 ease-in-out"
+                  className="w-full h-screen bg-black border-none text-white flex flex-col items-center justify-center p-0 transition-all duration-500 ease-in-out overflow-hidden"
                 >
                   <div className="absolute top-0 left-0 w-full h-20 flex items-center px-4 md:px-8 border-b border-white/10">
                     <div className="grid w-full grid-cols-3 items-center">
@@ -100,27 +100,28 @@ export function Header() {
                     </div>
                   </div>
 
-                  <nav className="flex flex-col items-center gap-4 md:gap-6 mt-16">
+                  <nav className="flex flex-col items-center gap-2 md:gap-4 mt-8">
                     {navLinks.map((link) => (
                       <Link
                         key={link.href}
                         href={link.href}
                         onClick={() => setIsSheetOpen(false)}
-                        className="text-2xl md:text-4xl font-headline tracking-tighter text-white hover:text-chart-1 transition-all duration-300 hover:scale-110"
+                        className="text-xl md:text-2xl font-headline tracking-tighter text-white hover:text-chart-1 transition-all duration-300 hover:scale-110"
                       >
                         {link.label}
                       </Link>
                     ))}
                   </nav>
 
-                  <div className="mt-8 flex items-center gap-8">
+                  <div className="mt-6 flex items-center gap-8">
                     {!user && (
                       <Button 
                         onClick={() => {
                           setIsSheetOpen(false);
                           setIsAuthDialogOpen(true);
                         }}
-                        className="bg-chart-1 text-black hover:bg-chart-1/90 font-bold px-8"
+                        size="sm"
+                        className="bg-chart-1 text-black hover:bg-chart-1/90 font-bold px-6"
                       >
                         Sign In / Register
                       </Button>
