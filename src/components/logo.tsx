@@ -3,20 +3,20 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
-const LOGO_URL = "https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/IMG-20260204-WA0001~2.jpg?alt=media&token=7ffc7bdb-67bd-4011-a0dc-b7aab17f908e";
+const LOGO_URL = "https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/IMG-20260204-WA0001~2.jpg?alt=media&token=45b80a78-89ad-40ca-a55a-e185c9447432";
 
 export function Logo() {
   return (
     <Link href="/" className="flex items-center group">
-      <div className="relative h-20 w-64 sm:w-80 overflow-hidden transition-opacity group-hover:opacity-90">
+      <div className="relative h-16 w-48 sm:w-64 overflow-hidden transition-opacity group-hover:opacity-90">
         <Image
           src={LOGO_URL}
           alt="Verse3 Records Logo"
           fill
-          className="object-cover scale-[2.2]"
+          className="object-cover scale-[1.8]"
           priority
           data-ai-hint="company logo"
-          sizes="(max-width: 640px) 256px, 320px"
+          sizes="(max-width: 640px) 192px, 256px"
         />
       </div>
     </Link>
