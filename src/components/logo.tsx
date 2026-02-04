@@ -9,7 +9,7 @@ const LOGO_URL = "https://firebasestorage.googleapis.com/v0/b/studio-6967403383-
 export function Logo() {
   return (
     <Link href="/" className="flex items-center group">
-      <div className="relative h-12 w-36 sm:h-14 sm:w-44 transition-opacity group-hover:opacity-90">
+      <div className="relative h-12 w-36 sm:h-14 sm:w-44 transition-opacity group-hover:opacity-90 rounded-lg overflow-hidden shadow-sm">
         <Image
           src={LOGO_URL}
           alt="Verse3 Records Logo"
