@@ -29,19 +29,19 @@ const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
 
 const hotDrop = { id: 5, title: 'Midnight Drive', artist: 'DJ Lofty', videoSrc: 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.19.29.mp4?alt=media&token=fdad85e4-48e2-4911-b762-ce1a44bcd192' };
 
-// Curated selection for the Instagram section to feel more like the actual profile
-const instagramImages = [
-  getImage('who-are-the-3-hero'), // Founders
-  getImage('hero-studio'),       // Studio
-  getImage('album-art-2'),      // Music/Vinyl
-  getImage('merch-hoodie'),     // Merch
-  getImage('artist-lofty'),     // Artist Lofty
-  getImage('merch-vinyl'),      // Vinyl Record
-  getImage('event-1'),          // Live/Events
-  getImage('album-art-1')       // Aesthetic Abstract
-].filter(Boolean) as typeof PlaceHolderImages;
-
 const INSTAGRAM_URL = "https://www.instagram.com/verse3records?igsh=NXhzcW84N2NwZ3Iw";
+
+// Curated selection using actual brand assets for the Instagram feed
+const instagramImages = [
+  getImage('who-are-the-3-hero'), // Actual Founders Image
+  getImage('footer-logo'),       // Actual Branding Asset
+  getImage('header-logo'),       // Actual Branding Asset
+  getImage('album-art-2'),      // Thematic stock
+  getImage('hero-studio'),       // Thematic stock
+  getImage('merch-hoodie'),     // Thematic stock
+  getImage('artist-lofty'),     // Thematic stock
+  getImage('merch-vinyl')       // Thematic stock
+].filter(Boolean);
 
 export default function Home() {
   const [isHotDropOpen, setIsHotDropOpen] = useState(false);
@@ -274,7 +274,7 @@ export default function Home() {
                 <p className="mt-2 text-muted-foreground">Follow our journey <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="text-black font-bold hover:underline">@verse3records</a></p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {instagramImages.map((image) => (
+                {(instagramImages as any[]).map((image) => (
                     <Link href={INSTAGRAM_URL} key={image.id} target="_blank" rel="noopener noreferrer" className="block aspect-square relative rounded-md overflow-hidden bg-secondary group">
                         <Image
                             src={image.imageUrl}

@@ -91,9 +91,15 @@
       "imageHint": "founders portrait"
     },
     {
+      "id": "footer-logo",
+      "description": "The Verse3 Records footer logo.",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/Verse3.jpeg?alt=media&token=7420284c-1e5d-46f7-9aa6-ad77fed151f4",
+      "imageHint": "company logo"
+    },
+    {
       "id": "header-logo",
       "description": "The Verse3 Records logo.",
-      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/85b09a95-3871-44e0-8207-aca37bf004cb%202.JPG?alt=media&token=71ef21d5-0b7b-43cb-bbf6-143b9e968ad2",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/IMG-20260204-WA0001~2.jpg?alt=media&token=45b80a78-89ad-40ca-a55a-e185c9447432",
       "imageHint": "company logo"
     }
   ]
