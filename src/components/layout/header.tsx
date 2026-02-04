@@ -1,6 +1,8 @@
+
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Menu, ShoppingCart, User as UserIcon, Shield, X } from 'lucide-react';
 import React from 'react';
 import {
@@ -34,6 +36,7 @@ const navLinks = [
 ];
 
 export function Header() {
+  const pathname = usePathname();
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
   const [isAuthDialogOpen, setIsAuthDialogOpen] = React.useState(false);
   const { user, isUserLoading } = useUser();
@@ -99,17 +102,22 @@ export function Header() {
                     </div>
                   </div>
 
-                  <nav className="flex flex-col items-center gap-2 md:gap-4 mt-12">
-                    {navLinks.map((link) => (
-                      <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setIsSheetOpen(false)}
-                        className="text-xl md:text-2xl font-headline tracking-tighter text-white hover:text-chart-1 transition-all duration-300 hover:scale-110"
-                      >
-                        {link.label}
-                      </Link>
-                    ))}
+                  <nav className="flex flex-col items-center gap-2 md:gap-4 mt-8">
+                    {navLinks.map((link) => {
+                      const isActive = link.href === '/' ? pathname === '/' : pathname.startsWith(link.href);
+                      return (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setIsSheetOpen(false)}
+                          className={`text-xl md:text-2xl font-headline tracking-tighter transition-all duration-300 hover:scale-110 ${
+                            isActive ? 'text-chart-1' : 'text-white hover:text-chart-1'
+                          }`}
+                        >
+                          {link.label}
+                        </Link>
+                      );
+                    })}
                   </nav>
 
                   <div className="mt-8 flex items-center gap-8">
