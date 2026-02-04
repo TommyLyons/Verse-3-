@@ -67,7 +67,7 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/90 backdrop-blur-md">
+      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/95 backdrop-blur-md">
         <div className="container flex h-20 items-center">
           <div className="grid w-full grid-cols-3 items-center">
             
@@ -86,6 +86,8 @@ export function Header() {
                 >
                   <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                   <SheetDescription className="sr-only">Access site navigation links and user account options.</SheetDescription>
+                  
+                  {/* Header row inside sheet for consistent feel */}
                   <div className="w-full h-20 flex items-center px-4 md:px-8 border-b border-white/10">
                     <div className="grid w-full grid-cols-3 items-center">
                       <div className="flex justify-start">
@@ -98,13 +100,11 @@ export function Header() {
                       <div className="flex justify-center">
                         <Logo />
                       </div>
-                      <div className="flex justify-end">
-                        {/* Empty spacer to maintain centering */}
-                      </div>
+                      <div className="flex justify-end" />
                     </div>
                   </div>
 
-                  <nav className="flex flex-col items-center gap-2 md:gap-4 mt-8">
+                  <nav className="flex flex-col items-center gap-4 mt-12 md:mt-16">
                     {navLinks.map((link) => {
                       const isActive = link.href === '/' ? pathname === '/' : pathname.startsWith(link.href);
                       return (
@@ -112,7 +112,7 @@ export function Header() {
                           key={link.href}
                           href={link.href}
                           onClick={() => setIsSheetOpen(false)}
-                          className={`text-xl md:text-2xl font-headline tracking-tighter transition-all duration-300 hover:scale-110 ${
+                          className={`text-2xl md:text-4xl font-headline tracking-tighter transition-all duration-300 hover:scale-105 ${
                             isActive ? 'text-chart-1' : 'text-white hover:text-chart-1'
                           }`}
                         >
@@ -122,18 +122,32 @@ export function Header() {
                     })}
                   </nav>
 
-                  <div className="mt-8 flex items-center gap-8">
-                    {!user && (
+                  <div className="mt-12 md:mt-16 flex flex-col items-center w-full px-8">
+                    {!user ? (
                       <Button 
                         onClick={() => {
                           setIsSheetOpen(false);
                           setIsAuthDialogOpen(true);
                         }}
-                        size="sm"
-                        className="bg-chart-1 text-black hover:bg-chart-1/90 font-bold px-6"
+                        size="lg"
+                        className="w-full max-w-xs bg-chart-1 text-black hover:bg-chart-1/90 font-bold py-6 text-xl"
                       >
                         Sign In / Register
                       </Button>
+                    ) : (
+                      <div className="text-center">
+                        <p className="text-muted-foreground mb-4">Signed in as {user.displayName}</p>
+                        <Button 
+                          variant="outline" 
+                          onClick={() => {
+                            setIsSheetOpen(false);
+                            handleSignOut();
+                          }}
+                          className="border-white/20 text-white hover:bg-white/10"
+                        >
+                          Sign Out
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </SheetContent>
