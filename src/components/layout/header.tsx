@@ -80,9 +80,9 @@ export function Header() {
                 </SheetTrigger>
                 <SheetContent 
                   side="top" 
-                  className="w-full h-screen bg-black border-none text-white flex flex-col items-center justify-center p-0 transition-all duration-500 ease-in-out overflow-hidden"
+                  className="w-full h-screen bg-black border-none text-white flex flex-col items-center justify-start p-0 transition-all duration-500 ease-in-out overflow-hidden"
                 >
-                  <div className="absolute top-0 left-0 w-full h-20 flex items-center px-4 md:px-8 border-b border-white/10">
+                  <div className="w-full h-20 flex items-center px-4 md:px-8 border-b border-white/10">
                     <div className="grid w-full grid-cols-3 items-center">
                       <div className="flex justify-start">
                         <SheetClose asChild>
@@ -100,7 +100,7 @@ export function Header() {
                     </div>
                   </div>
 
-                  <nav className="flex flex-col items-center gap-2 md:gap-4 mt-8">
+                  <nav className="flex flex-col items-center gap-2 md:gap-4 mt-24">
                     {navLinks.map((link) => (
                       <Link
                         key={link.href}
@@ -113,7 +113,7 @@ export function Header() {
                     ))}
                   </nav>
 
-                  <div className="mt-6 flex items-center gap-8">
+                  <div className="mt-8 flex items-center gap-8">
                     {!user && (
                       <Button 
                         onClick={() => {
