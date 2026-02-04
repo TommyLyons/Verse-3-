@@ -250,58 +250,58 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Funky Instagram Section */}
-       <section className="relative py-16 md:py-24 bg-black overflow-hidden group">
+       {/* Funky Instagram Section - Compacted */}
+       <section className="relative py-10 md:py-16 bg-black overflow-hidden group">
           {/* Kinetic background elements */}
           <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] border-[40px] border-chart-1/10 rounded-full animate-spin" style={{ animationDuration: '60s' }} />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] border-[20px] border-chart-1/5 rounded-full animate-spin" style={{ animationDuration: '45s', animationDirection: 'reverse' }} />
           </div>
 
-          {/* Large decorative text */}
-          <div className="absolute -bottom-10 -right-10 md:-bottom-20 md:-right-20 select-none opacity-10">
-            <h3 className="font-headline text-[10rem] md:text-[18rem] text-chart-1 leading-none">V3</h3>
+          {/* Decorative text - Scaled down */}
+          <div className="absolute -bottom-6 -right-6 md:-bottom-12 md:-right-12 select-none opacity-10">
+            <h3 className="font-headline text-[6rem] md:text-[10rem] text-chart-1 leading-none">V3</h3>
           </div>
           
           <div className="container relative z-10">
             <div className="max-w-5xl mx-auto flex flex-col items-center">
-                {/* Visual anchor */}
-                <div className="mb-8 relative">
-                    <div className="absolute inset-0 bg-chart-1 blur-[80px] opacity-20 rounded-full animate-pulse"></div>
-                    <div className="relative h-20 w-20 md:h-24 md:w-24 bg-chart-1 flex items-center justify-center rounded-2xl rotate-12 group-hover:rotate-0 transition-all duration-700 shadow-[0_0_40px_rgba(255,255,255,0.1)]">
-                        <Instagram className="h-10 w-10 md:h-12 md:w-12 text-black" />
+                {/* Visual anchor - Scaled down */}
+                <div className="mb-6 relative">
+                    <div className="absolute inset-0 bg-chart-1 blur-[60px] opacity-20 rounded-full animate-pulse"></div>
+                    <div className="relative h-16 w-16 md:h-20 md:w-20 bg-chart-1 flex items-center justify-center rounded-xl rotate-12 group-hover:rotate-0 transition-all duration-700 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+                        <Instagram className="h-8 w-8 md:h-10 md:w-10 text-black" />
                     </div>
                 </div>
 
-                <div className="text-center space-y-4">
-                    <h2 className="font-headline text-5xl md:text-7xl font-bold text-white uppercase tracking-tighter italic">
+                <div className="text-center space-y-3">
+                    <h2 className="font-headline text-4xl md:text-6xl font-bold text-white uppercase tracking-tighter italic">
                         JOIN THE <span className="text-chart-1">LEGACY</span>
                     </h2>
-                    <p className="text-base md:text-xl text-white/60 max-w-2xl mx-auto font-medium leading-tight">
+                    <p className="text-sm md:text-lg text-white/60 max-w-xl mx-auto font-medium leading-tight">
                         We don't just release music; we build culture. <br className="hidden md:block" /> 
                         Get the raw, unfiltered view inside Verse3.
                     </p>
                 </div>
 
-                <div className="mt-12 w-full max-w-md">
-                    <Button asChild size="lg" className="w-full h-16 bg-chart-1 text-black hover:bg-white transition-all duration-500 font-bold text-xl md:text-2xl uppercase italic tracking-tighter border-none rounded-none shadow-[6px_6px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1">
+                <div className="mt-8 w-full max-w-xs md:max-w-sm">
+                    <Button asChild size="lg" className="w-full h-12 md:h-14 bg-chart-1 text-black hover:bg-white transition-all duration-500 font-bold text-lg md:text-xl uppercase italic tracking-tighter border-none rounded-none shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1">
                         <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">
                             Follow @verse3records
                         </a>
                     </Button>
                     
-                    <div className="mt-8 flex justify-center gap-8 md:gap-12">
+                    <div className="mt-6 flex justify-center gap-6 md:gap-10">
                          <div className="flex flex-col items-center">
-                            <span className="text-chart-1 font-headline text-xl">LATEST</span>
-                            <span className="text-white/40 text-[9px] uppercase tracking-widest">Releases</span>
+                            <span className="text-chart-1 font-headline text-lg">LATEST</span>
+                            <span className="text-white/40 text-[8px] uppercase tracking-widest">Releases</span>
                          </div>
                          <div className="flex flex-col items-center">
-                            <span className="text-chart-1 font-headline text-xl">BEHIND</span>
-                            <span className="text-white/40 text-[9px] uppercase tracking-widest">The Scenes</span>
+                            <span className="text-chart-1 font-headline text-lg">BEHIND</span>
+                            <span className="text-white/40 text-[8px] uppercase tracking-widest">The Scenes</span>
                          </div>
                          <div className="flex flex-col items-center">
-                            <span className="text-chart-1 font-headline text-xl">DIRECT</span>
-                            <span className="text-white/40 text-[9px] uppercase tracking-widest">Connect</span>
+                            <span className="text-chart-1 font-headline text-lg">DIRECT</span>
+                            <span className="text-white/40 text-[8px] uppercase tracking-widest">Connect</span>
                          </div>
                     </div>
                 </div>
