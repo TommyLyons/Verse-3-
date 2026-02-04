@@ -100,7 +100,7 @@ export default function Home() {
           <video
             src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
             autoPlay loop muted playsInline
-            className="w-full h-full object-cover md:object-contain mix-blend-multiply"
+            className="w-full h-full object-contain mix-blend-multiply scale-110 md:scale-100"
           />
         </div>
         
