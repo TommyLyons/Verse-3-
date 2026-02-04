@@ -95,17 +95,21 @@ export default function Home() {
       </Dialog>
 
       {/* Hero Section */}
-      <section className="relative w-full h-[60vh] md:h-[85vh] flex flex-col items-center justify-end overflow-hidden pb-12 md:pb-16 bg-black">
-        <video
-          src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
-          autoPlay loop muted playsInline
-          className="absolute inset-0 w-full h-full object-contain md:object-cover z-0"
-        />
-        <div className="relative z-10 flex flex-row justify-center gap-3 px-4 w-full max-w-md mx-auto">
-          <Button size="lg" asChild className="flex-1 bg-black text-chart-1 hover:bg-black/90 font-bold border-none shadow-2xl text-xs md:text-base px-2 h-12 md:h-14">
+      <section className="relative w-full h-[60vh] md:h-[80vh] flex flex-col items-center justify-center overflow-hidden bg-white">
+        <div className="absolute inset-0 z-0 flex items-center justify-center p-4">
+          <video
+            src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
+            autoPlay loop muted playsInline
+            className="w-full h-full max-w-4xl object-contain mix-blend-multiply"
+          />
+        </div>
+        
+        {/* Actions positioned at the bottom of the hero */}
+        <div className="absolute bottom-12 md:bottom-16 z-10 flex flex-row justify-center gap-3 px-4 w-full max-w-md mx-auto">
+          <Button size="lg" asChild className="flex-1 bg-black text-chart-1 hover:bg-black/90 font-bold border-none shadow-xl text-xs md:text-base px-2 h-12 md:h-14">
             <Link href="/store">Shop Merch</Link>
           </Button>
-          <Button size="lg" asChild className="flex-1 bg-black text-chart-1 hover:bg-black/90 font-bold border-none shadow-2xl text-xs md:text-base px-2 h-12 md:h-14">
+          <Button size="lg" asChild className="flex-1 bg-black text-chart-1 hover:bg-black/90 font-bold border-none shadow-xl text-xs md:text-base px-2 h-12 md:h-14">
             <Link href="/music">Explore Music</Link>
           </Button>
         </div>
@@ -175,9 +179,9 @@ export default function Home() {
                         </Carousel>
                         
                         {/* Mobile Swipe Indicator */}
-                        <div className="flex lg:hidden items-center justify-center mt-6 gap-2 text-primary font-bold animate-pulse">
-                          <span className="text-xs uppercase tracking-widest">Swipe to explore</span>
-                          <ChevronRight className="h-4 w-4" />
+                        <div className="flex lg:hidden items-center justify-center mt-8 gap-2 text-black font-bold animate-pulse">
+                          <span className="text-[10px] uppercase tracking-[0.2em]">Swipe to explore</span>
+                          <ChevronRight className="h-3 w-3" />
                         </div>
                     </div>
                 )}
