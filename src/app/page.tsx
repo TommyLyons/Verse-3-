@@ -66,8 +66,8 @@ export default function Home() {
     fetchProducts();
   }, []);
   
-  const merchProducts = allProducts.filter(p => p.type === 'merch').slice(0, 4);
-  const musicProducts = allProducts.filter(p => p.type === 'music' && !p.digital).slice(0, 4);
+  const merchProducts = allProducts.filter(p => p.type === 'merch').slice(0, 8);
+  const musicProducts = allProducts.filter(p => p.type === 'music' && !p.digital).slice(0, 8);
 
   return (
     <div className="flex flex-col">
@@ -125,7 +125,7 @@ export default function Home() {
           </div>
       </section>
 
-       {/* Featured Merch */}
+       {/* Featured Merch Carousel */}
        <section className="py-16 md:py-24 bg-white">
             <div className="container overflow-hidden">
                 <div className="text-center mb-12">
@@ -194,39 +194,67 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Latest Music */}
+       {/* Latest Music Carousel */}
        <section className="py-16 md:py-24 bg-secondary">
-            <div className="container">
+            <div className="container overflow-hidden">
                 <div className="text-center mb-12">
                     <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl uppercase tracking-wider">Latest Music</h2>
                     <p className="mt-2 text-muted-foreground">Vinyl, posters, and more from our artists.</p>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {isLoading ? [...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full" />) :
-                        musicProducts.map((item) => (
-                            <Card key={item.id} className="overflow-hidden group flex flex-col border-none shadow-none bg-transparent">
-                                <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative rounded-lg overflow-hidden bg-white shadow-sm">
-                                    <Image
-                                        src={item.imageUrl || ''}
-                                        alt={item.name}
-                                        fill
-                                        className="object-contain transition-transform duration-500 group-hover:scale-105"
-                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                                    />
-                                </Link>
-                                <div className="mt-4 flex justify-between items-center">
-                                    <div>
-                                        <p className="font-bold text-black uppercase">{item.name}</p>
-                                        <p className="text-sm font-medium">{item.price}</p>
-                                    </div>
-                                    <Button size="sm" asChild variant="secondary" className="bg-black text-chart-1 hover:bg-black/90">
-                                        <Link href={`/store/${item.type}/${item.slug}`}><Eye className="h-4 w-4"/></Link>
-                                    </Button>
-                                </div>
-                            </Card>
-                        ))
-                    }
-                </div>
+
+                {isLoading ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {[...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full" />)}
+                    </div>
+                ) : (
+                    <div className="relative">
+                        <Carousel
+                            opts={{
+                                align: "start",
+                                loop: true,
+                            }}
+                            className="w-full"
+                        >
+                            <CarouselContent className="-ml-4">
+                                {musicProducts.map((item) => (
+                                    <CarouselItem key={item.id} className="pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/4">
+                                        <Card className="overflow-hidden group flex flex-col border-none shadow-none bg-transparent">
+                                            <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative rounded-lg overflow-hidden bg-white shadow-sm">
+                                                <Image
+                                                    src={item.imageUrl || ''}
+                                                    alt={item.name}
+                                                    fill
+                                                    className="object-contain transition-transform duration-500 group-hover:scale-105"
+                                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                                                />
+                                            </Link>
+                                            <div className="mt-4 flex justify-between items-center px-1">
+                                                <div>
+                                                    <p className="font-bold text-black uppercase">{item.name}</p>
+                                                    <p className="text-sm font-medium">{item.price}</p>
+                                                </div>
+                                                <Button size="sm" asChild variant="secondary" className="bg-black text-chart-1 hover:bg-black/90">
+                                                    <Link href={`/store/${item.type}/${item.slug}`}><Eye className="h-4 w-4"/></Link>
+                                                </Button>
+                                            </div>
+                                        </Card>
+                                    </CarouselItem>
+                                ))}
+                            </CarouselContent>
+                            <div className="hidden lg:block">
+                                <CarouselPrevious className="-left-12" />
+                                <CarouselNext className="-right-12" />
+                            </div>
+                        </Carousel>
+                        
+                        {/* Mobile Swipe Indicator */}
+                        <div className="flex lg:hidden items-center justify-center mt-8 gap-2 text-black font-bold animate-pulse">
+                          <span className="text-[10px] uppercase tracking-[0.2em]">Swipe to explore</span>
+                          <ChevronRight className="h-3 w-3" />
+                        </div>
+                    </div>
+                )}
+
                 <div className="text-center mt-12">
                     <Button asChild size="lg" className="bg-black text-chart-1 font-bold">
                         <Link href="/store/music">View All Music</Link>
