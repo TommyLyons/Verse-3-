@@ -95,17 +95,17 @@ export default function Home() {
       </Dialog>
 
       {/* Hero Section - Optimized for Logo Focus */}
-      <section className="relative w-full h-[75vh] md:h-[85vh] flex flex-col items-center justify-center overflow-hidden bg-white">
-        <div className="absolute inset-0 z-0 flex items-center justify-center p-4">
+      <section className="relative w-full h-[80vh] md:h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-white">
+        <div className="absolute inset-0 z-0 flex items-center justify-center p-2">
           <video
             src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
             autoPlay loop muted playsInline
-            className="w-full h-full max-w-[1200px] object-contain mix-blend-multiply"
+            className="w-full h-full max-w-[1500px] object-contain mix-blend-multiply"
           />
         </div>
         
         {/* Actions - Standard sized side-by-side */}
-        <div className="absolute bottom-10 md:bottom-16 z-10 flex flex-row justify-center gap-4 px-6 w-full max-w-md mx-auto">
+        <div className="absolute bottom-10 md:bottom-12 z-10 flex flex-row justify-center gap-4 px-6 w-full max-w-md mx-auto">
           <Button asChild className="flex-1 bg-black text-chart-1 hover:bg-black/90 font-bold border-none shadow-xl h-12">
             <Link href="/store">Shop Merch</Link>
           </Button>
