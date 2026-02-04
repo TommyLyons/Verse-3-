@@ -10,7 +10,7 @@ export function Footer() {
       <div className="container py-12">
         <div className="grid grid-cols-1 gap-8 text-center md:grid-cols-3 md:text-left">
           <div className="flex flex-col items-center gap-4 md:items-start">
-            <Logo />
+            <Logo variant="footer" />
             <p className="text-sm text-muted-foreground">
               Championing emotionally driven, forward-thinking electronic music.
             </p>
