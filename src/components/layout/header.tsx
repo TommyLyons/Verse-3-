@@ -67,7 +67,7 @@ export function Header() {
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black">
-        <div className="container flex h-24 items-center">
+        <div className="container flex h-20 items-center">
           <div className="grid w-full grid-cols-3 items-center">
             
             {/* Left: Singular Menu Button */}
@@ -75,7 +75,7 @@ export function Header() {
               <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="text-white hover:text-chart-1">
-                    <Menu className="h-8 w-8" />
+                    <Menu className="h-7 w-7" />
                     <span className="sr-only">Toggle menu</span>
                   </Button>
                 </SheetTrigger>
@@ -87,12 +87,12 @@ export function Header() {
                   <SheetDescription className="sr-only">Access site navigation links and user account options.</SheetDescription>
                   
                   {/* Header row inside sheet for consistent feel */}
-                  <div className="w-full h-24 flex items-center px-4 md:px-8 border-b border-white/10">
+                  <div className="w-full h-20 flex items-center px-4 md:px-8 border-b border-white/10">
                     <div className="grid w-full grid-cols-3 items-center">
                       <div className="flex justify-start">
                         <SheetClose asChild>
                           <Button variant="ghost" size="icon" className="text-white hover:text-chart-1">
-                            <X className="h-8 w-8" />
+                            <X className="h-7 w-7" />
                           </Button>
                         </SheetClose>
                       </div>
@@ -176,8 +176,8 @@ export function Header() {
               ) : user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-10 w-10 md:h-12 md:w-12 rounded-full">
-                      <Avatar className="h-10 w-10 md:h-12 md:w-12">
+                    <Button variant="ghost" className="relative h-9 w-9 md:h-10 md:w-10 rounded-full">
+                      <Avatar className="h-9 w-9 md:h-10 md:w-10">
                         <AvatarImage src={user.photoURL ?? undefined} alt={user.displayName ?? 'User'} />
                         <AvatarFallback className="bg-white/10 text-white font-bold">{getInitials(user.displayName)}</AvatarFallback>
                       </Avatar>
