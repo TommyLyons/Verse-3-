@@ -12,7 +12,7 @@ import {
 } from 'firebase/auth';
 import { useUser, useAuth } from '@/firebase';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -84,6 +84,8 @@ export function Header() {
                   side="top" 
                   className="w-full h-screen bg-black border-none text-white flex flex-col items-center justify-start p-0 transition-all duration-500 ease-in-out overflow-hidden"
                 >
+                  <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                  <SheetDescription className="sr-only">Access site navigation links and user account options.</SheetDescription>
                   <div className="w-full h-20 flex items-center px-4 md:px-8 border-b border-white/10">
                     <div className="grid w-full grid-cols-3 items-center">
                       <div className="flex justify-start">
