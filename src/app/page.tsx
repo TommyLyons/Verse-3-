@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -7,7 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Disc, Eye, ChevronRight } from 'lucide-react';
+import { Disc, Eye, ChevronRight, Instagram } from 'lucide-react';
 import { getAllProducts, type Product } from '@/lib/products';
 import {
   Dialog,
@@ -39,6 +38,8 @@ const instagramImages = [
   getImage('merch-cap'),
   getImage('merch-vinyl')
 ].filter(Boolean) as typeof PlaceHolderImages;
+
+const INSTAGRAM_URL = "https://www.instagram.com/verse3records?igsh=NXhzcW84N2NwZ3Iw";
 
 export default function Home() {
   const [isHotDropOpen, setIsHotDropOpen] = useState(false);
@@ -267,21 +268,32 @@ export default function Home() {
        <section className="py-16 md:py-24 bg-white">
           <div className="container max-w-5xl">
             <div className="text-center mb-12">
-                <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl md:text-5xl uppercase tracking-wider">Instagram</h2>
-                <p className="mt-2 text-muted-foreground">Get a behind-the-scenes look @verse3records</p>
+                <div className="flex items-center justify-center gap-2 mb-2">
+                    <Instagram className="h-6 w-6 text-black" />
+                    <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl md:text-5xl uppercase tracking-wider">Instagram</h2>
+                </div>
+                <p className="mt-2 text-muted-foreground">Get a behind-the-scenes look <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="text-black font-bold hover:underline">@verse3records</a></p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {instagramImages.map((image) => (
-                    <Link href="https://www.instagram.com/verse3records" key={image.id} target="_blank" rel="noopener noreferrer" className="block aspect-square relative rounded-md overflow-hidden bg-secondary">
+                    <Link href={INSTAGRAM_URL} key={image.id} target="_blank" rel="noopener noreferrer" className="block aspect-square relative rounded-md overflow-hidden bg-secondary group">
                         <Image
                             src={image.imageUrl}
                             alt={image.description}
                             fill
-                            className="object-cover transition-all duration-500 hover:scale-110"
+                            className="object-cover transition-all duration-500 group-hover:scale-110"
                             sizes="(max-width: 768px) 50vw, 25vw"
                         />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <Instagram className="text-white h-8 w-8" />
+                        </div>
                     </Link>
                 ))}
+            </div>
+            <div className="text-center mt-12">
+                <Button asChild variant="outline" size="lg" className="border-black text-black font-bold hover:bg-black hover:text-white">
+                    <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">Follow Us on Instagram</a>
+                </Button>
             </div>
           </div>
        </section>

@@ -1,10 +1,11 @@
-
 import { Twitter, Instagram, Facebook } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 
 export function Footer() {
+  const INSTAGRAM_URL = "https://www.instagram.com/verse3records?igsh=NXhzcW84N2NwZ3Iw";
+
   return (
     <footer className="border-t border-border/40 bg-background">
       <div className="container py-12">
@@ -36,7 +37,7 @@ export function Footer() {
                 </a>
               </Button>
               <Button variant="ghost" size="icon" asChild>
-                <a href="#" aria-label="Instagram">
+                <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                   <Instagram className="h-5 w-5" />
                 </a>
               </Button>
