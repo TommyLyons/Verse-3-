@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Disc, Eye } from 'lucide-react';
+import { Disc, Eye, ChevronRight } from 'lucide-react';
 import { getAllProducts, type Product } from '@/lib/products';
 import {
   Dialog,
@@ -95,12 +95,11 @@ export default function Home() {
       </Dialog>
 
       {/* Hero Section */}
-      <section className="relative w-full h-[70vh] md:h-[85vh] flex flex-col items-center justify-end overflow-hidden pb-12 md:pb-16">
+      <section className="relative w-full h-[60vh] md:h-[85vh] flex flex-col items-center justify-end overflow-hidden pb-12 md:pb-16 bg-black">
         <video
           src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
           autoPlay loop muted playsInline
-          className="absolute inset-0 w-full h-full object-cover z-0"
-          style={{ objectPosition: 'center 40%' }}
+          className="absolute inset-0 w-full h-full object-contain md:object-cover z-0"
         />
         <div className="relative z-10 flex flex-row justify-center gap-3 px-4 w-full max-w-md mx-auto">
           <Button size="lg" asChild className="flex-1 bg-black text-chart-1 hover:bg-black/90 font-bold border-none shadow-2xl text-xs md:text-base px-2 h-12 md:h-14">
@@ -122,7 +121,7 @@ export default function Home() {
           </div>
       </section>
 
-       {/* Featured Merch - Swipable on Mobile */}
+       {/* Featured Merch */}
        <section className="py-16 md:py-24 bg-white">
             <div className="container overflow-hidden">
                 <div className="text-center mb-12">
@@ -174,9 +173,11 @@ export default function Home() {
                                 <CarouselNext className="-right-12" />
                             </div>
                         </Carousel>
-                        {/* Mobile Swipe Indicator (Arrow hint) */}
-                        <div className="flex lg:hidden justify-center mt-4 gap-2 text-muted-foreground animate-pulse">
-                          <span className="text-xs font-bold uppercase tracking-widest">Swipe to explore</span>
+                        
+                        {/* Mobile Swipe Indicator */}
+                        <div className="flex lg:hidden items-center justify-center mt-6 gap-2 text-primary font-bold animate-pulse">
+                          <span className="text-xs uppercase tracking-widest">Swipe to explore</span>
+                          <ChevronRight className="h-4 w-4" />
                         </div>
                     </div>
                 )}
