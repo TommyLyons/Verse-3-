@@ -84,9 +84,9 @@ export function Header() {
       <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/80 backdrop-blur-md">
         <div className="container relative flex h-20 items-center">
           
-          {/* Mobile Layout - Centered Logo */}
-          <div className="flex w-full items-center md:hidden">
-            <div className="flex w-1/4 justify-start">
+          {/* Professional Mobile Layout - 3-column grid for perfect logo centering */}
+          <div className="grid w-full grid-cols-3 items-center md:hidden">
+            <div className="flex justify-start">
               <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetTrigger asChild>
                   <Button variant="ghost" size="icon" className="text-white hover:text-chart-1">
@@ -111,11 +111,11 @@ export function Header() {
               </Sheet>
             </div>
 
-            <div className="flex flex-grow justify-center">
+            <div className="flex justify-center">
               <Logo />
             </div>
 
-            <div className="flex w-1/4 items-center justify-end space-x-2">
+            <div className="flex items-center justify-end space-x-2">
                <Button variant="ghost" size="icon" asChild className="text-white hover:text-chart-1">
                 <Link href="/cart" className="relative">
                   {cartItemCount > 0 && (

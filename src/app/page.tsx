@@ -86,7 +86,7 @@ export default function Home() {
         </DialogContent>
       </Dialog>
 
-      {/* Hero Section - Buttons moved to the bottom third */}
+      {/* Hero Section - Buttons positioned in the bottom third */}
       <section className="relative w-full h-[70vh] md:h-[85vh] flex flex-col items-center justify-end overflow-hidden pb-20 md:pb-32">
         <video
           src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
@@ -94,10 +94,10 @@ export default function Home() {
           className="absolute inset-0 w-full h-full object-cover z-0"
         />
         <div className="relative z-10 flex flex-wrap justify-center gap-4 px-4">
-          <Button size="lg" asChild className="bg-black text-chart-1 hover:bg-black/90 font-bold min-w-[140px] border-none">
+          <Button size="lg" asChild className="bg-black text-chart-1 hover:bg-black/90 font-bold min-w-[140px] border-none shadow-xl">
             <Link href="/store">Shop Merch</Link>
           </Button>
-          <Button size="lg" asChild className="bg-black text-chart-1 hover:bg-black/90 font-bold min-w-[140px] border-none">
+          <Button size="lg" asChild className="bg-black text-chart-1 hover:bg-black/90 font-bold min-w-[140px] border-none shadow-xl">
             <Link href="/music">Explore Music</Link>
           </Button>
         </div>
@@ -114,7 +114,7 @@ export default function Home() {
       </section>
 
        {/* Featured Merch */}
-       <section className="py-16 md:py-24">
+       <section className="py-16 md:py-24 bg-white">
             <div className="container">
                 <div className="text-center mb-12">
                     <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl uppercase tracking-wider">Featured Merch</h2>
@@ -123,7 +123,7 @@ export default function Home() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                     {isLoading ? [...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full" />) :
                         merchProducts.map((item) => (
-                            <Card key={item.id} className="overflow-hidden group flex flex-col border-none shadow-none">
+                            <Card key={item.id} className="overflow-hidden group flex flex-col border-none shadow-none bg-transparent">
                                 <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative bg-secondary rounded-lg overflow-hidden">
                                     <Image
                                         src={item.imageUrl || ''}
@@ -196,7 +196,7 @@ export default function Home() {
        </section>
 
        {/* Instagram Feed */}
-       <section className="py-16 md:py-24">
+       <section className="py-16 md:py-24 bg-white">
           <div className="container max-w-5xl">
             <div className="text-center mb-12">
                 <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl md:text-5xl uppercase tracking-wider">Instagram</h2>
