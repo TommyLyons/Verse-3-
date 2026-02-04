@@ -86,18 +86,18 @@ export default function Home() {
         </DialogContent>
       </Dialog>
 
-      {/* Hero Section - Buttons positioned in the bottom third */}
-      <section className="relative w-full h-[70vh] md:h-[85vh] flex flex-col items-center justify-end overflow-hidden pb-20 md:pb-32">
+      {/* Hero Section - Buttons strictly moved to the bottom third */}
+      <section className="relative w-full h-[75vh] md:h-[85vh] flex flex-col items-center justify-end overflow-hidden pb-12 md:pb-24">
         <video
           src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
           autoPlay loop muted playsInline
           className="absolute inset-0 w-full h-full object-cover z-0"
         />
         <div className="relative z-10 flex flex-wrap justify-center gap-4 px-4">
-          <Button size="lg" asChild className="bg-black text-chart-1 hover:bg-black/90 font-bold min-w-[140px] border-none shadow-xl">
+          <Button size="lg" asChild className="bg-black text-chart-1 hover:bg-black/90 font-bold min-w-[160px] border-none shadow-2xl">
             <Link href="/store">Shop Merch</Link>
           </Button>
-          <Button size="lg" asChild className="bg-black text-chart-1 hover:bg-black/90 font-bold min-w-[140px] border-none shadow-xl">
+          <Button size="lg" asChild className="bg-black text-chart-1 hover:bg-black/90 font-bold min-w-[160px] border-none shadow-2xl">
             <Link href="/music">Explore Music</Link>
           </Button>
         </div>
