@@ -145,7 +145,7 @@ export default function Home() {
                         >
                             <CarouselContent className="-ml-4">
                                 {merchProducts.map((item) => (
-                                    <CarouselItem key={item.id} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/4">
+                                    <CarouselItem key={item.id} className="pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/4">
                                         <Card className="overflow-hidden group flex flex-col border-none shadow-none bg-transparent">
                                             <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative bg-secondary rounded-lg overflow-hidden">
                                                 <Image
@@ -174,6 +174,10 @@ export default function Home() {
                                 <CarouselNext className="-right-12" />
                             </div>
                         </Carousel>
+                        {/* Mobile Swipe Indicator (Arrow hint) */}
+                        <div className="flex lg:hidden justify-center mt-4 gap-2 text-muted-foreground animate-pulse">
+                          <span className="text-xs font-bold uppercase tracking-widest">Swipe to explore</span>
+                        </div>
                     </div>
                 )}
 
