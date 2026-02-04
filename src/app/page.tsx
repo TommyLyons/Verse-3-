@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -28,15 +29,16 @@ const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
 
 const hotDrop = { id: 5, title: 'Midnight Drive', artist: 'DJ Lofty', videoSrc: 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.19.29.mp4?alt=media&token=fdad85e4-48e2-4911-b762-ce1a44bcd192' };
 
+// Curated selection for the Instagram section to feel more like the actual profile
 const instagramImages = [
-  getImage('hero-studio'),
-  getImage('album-art-2'),
-  getImage('merch-hoodie'),
-  getImage('artist-lofty'),
-  getImage('artist-keith'),
-  getImage('artist-alvin'),
-  getImage('merch-cap'),
-  getImage('merch-vinyl')
+  getImage('who-are-the-3-hero'), // Founders
+  getImage('hero-studio'),       // Studio
+  getImage('album-art-2'),      // Music/Vinyl
+  getImage('merch-hoodie'),     // Merch
+  getImage('artist-lofty'),     // Artist Lofty
+  getImage('merch-vinyl'),      // Vinyl Record
+  getImage('event-1'),          // Live/Events
+  getImage('album-art-1')       // Aesthetic Abstract
 ].filter(Boolean) as typeof PlaceHolderImages;
 
 const INSTAGRAM_URL = "https://www.instagram.com/verse3records?igsh=NXhzcW84N2NwZ3Iw";
@@ -95,7 +97,7 @@ export default function Home() {
         </DialogContent>
       </Dialog>
 
-      {/* Hero Section - Optimized for Logo Focus */}
+      {/* Hero Section */}
       <section className="relative w-full h-[80vh] md:h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-white">
         <div className="absolute inset-0 z-0 flex items-center justify-center">
           <video
@@ -105,7 +107,6 @@ export default function Home() {
           />
         </div>
         
-        {/* Actions - Standard sized side-by-side */}
         <div className="absolute bottom-10 md:bottom-12 z-10 flex flex-row justify-center gap-4 px-6 w-full max-w-md mx-auto">
           <Button asChild className="flex-1 bg-black text-chart-1 hover:bg-black/90 font-bold border-none shadow-xl h-12">
             <Link href="/store">Shop Merch</Link>
@@ -179,7 +180,6 @@ export default function Home() {
                             </div>
                         </Carousel>
                         
-                        {/* Mobile Swipe Indicator */}
                         <div className="flex lg:hidden items-center justify-center mt-8 gap-2 text-black font-bold animate-pulse">
                           <span className="text-[10px] uppercase tracking-[0.2em]">Swipe to explore</span>
                           <ChevronRight className="h-3 w-3" />
@@ -248,7 +248,6 @@ export default function Home() {
                             </div>
                         </Carousel>
                         
-                        {/* Mobile Swipe Indicator */}
                         <div className="flex lg:hidden items-center justify-center mt-8 gap-2 text-black font-bold animate-pulse">
                           <span className="text-[10px] uppercase tracking-[0.2em]">Swipe to explore</span>
                           <ChevronRight className="h-3 w-3" />
@@ -272,7 +271,7 @@ export default function Home() {
                     <Instagram className="h-6 w-6 text-black" />
                     <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl md:text-5xl uppercase tracking-wider">Instagram</h2>
                 </div>
-                <p className="mt-2 text-muted-foreground">Get a behind-the-scenes look <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="text-black font-bold hover:underline">@verse3records</a></p>
+                <p className="mt-2 text-muted-foreground">Follow our journey <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="text-black font-bold hover:underline">@verse3records</a></p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {instagramImages.map((image) => (
