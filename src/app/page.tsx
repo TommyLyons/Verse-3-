@@ -95,21 +95,21 @@ export default function Home() {
       </Dialog>
 
       {/* Hero Section */}
-      <section className="relative w-full h-[60vh] md:h-[80vh] flex flex-col items-center justify-center overflow-hidden bg-white">
-        <div className="absolute inset-0 z-0 flex items-center justify-center p-4">
+      <section className="relative w-full h-[70vh] md:h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-white">
+        <div className="absolute inset-0 z-0 flex items-center justify-center p-6 md:p-12">
           <video
             src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
             autoPlay loop muted playsInline
-            className="w-full h-full max-w-4xl object-contain mix-blend-multiply"
+            className="w-full h-full max-w-5xl object-contain mix-blend-multiply"
           />
         </div>
         
         {/* Actions positioned at the bottom of the hero */}
-        <div className="absolute bottom-12 md:bottom-16 z-10 flex flex-row justify-center gap-3 px-4 w-full max-w-md mx-auto">
-          <Button size="lg" asChild className="flex-1 bg-black text-chart-1 hover:bg-black/90 font-bold border-none shadow-xl text-xs md:text-base px-2 h-12 md:h-14">
+        <div className="absolute bottom-12 md:bottom-20 z-10 flex flex-row justify-center gap-3 px-4 w-full max-w-lg mx-auto">
+          <Button size="lg" asChild className="flex-1 bg-black text-chart-1 hover:bg-black/90 font-bold border-none shadow-2xl text-xs md:text-lg px-2 h-14 md:h-16">
             <Link href="/store">Shop Merch</Link>
           </Button>
-          <Button size="lg" asChild className="flex-1 bg-black text-chart-1 hover:bg-black/90 font-bold border-none shadow-xl text-xs md:text-base px-2 h-12 md:h-14">
+          <Button size="lg" asChild className="flex-1 bg-black text-chart-1 hover:bg-black/90 font-bold border-none shadow-2xl text-xs md:text-lg px-2 h-14 md:h-16">
             <Link href="/music">Explore Music</Link>
           </Button>
         </div>
