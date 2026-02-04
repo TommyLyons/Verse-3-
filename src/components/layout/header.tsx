@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -68,7 +67,7 @@ export function Header() {
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black">
-        <div className="container flex h-20 items-center">
+        <div className="container flex h-28 items-center">
           <div className="grid w-full grid-cols-3 items-center">
             
             {/* Left: Singular Menu Button */}
@@ -88,7 +87,7 @@ export function Header() {
                   <SheetDescription className="sr-only">Access site navigation links and user account options.</SheetDescription>
                   
                   {/* Header row inside sheet for consistent feel */}
-                  <div className="w-full h-20 flex items-center px-4 md:px-8 border-b border-white/10">
+                  <div className="w-full h-28 flex items-center px-4 md:px-8 border-b border-white/10">
                     <div className="grid w-full grid-cols-3 items-center">
                       <div className="flex justify-start">
                         <SheetClose asChild>
@@ -168,7 +167,7 @@ export function Header() {
                       {cartItemCount}
                     </span>
                   )}
-                  <ShoppingCart className="h-5 w-5" />
+                  <ShoppingCart className="h-6 w-6" />
                 </Link>
               </Button>
 
@@ -177,8 +176,8 @@ export function Header() {
               ) : user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 md:h-10 md:w-10 rounded-full">
-                      <Avatar className="h-8 w-8 md:h-10 md:w-10">
+                    <Button variant="ghost" className="relative h-10 w-10 md:h-12 md:w-12 rounded-full">
+                      <Avatar className="h-10 w-10 md:h-12 md:w-12">
                         <AvatarImage src={user.photoURL ?? undefined} alt={user.displayName ?? 'User'} />
                         <AvatarFallback className="bg-white/10 text-white font-bold">{getInitials(user.displayName)}</AvatarFallback>
                       </Avatar>
@@ -192,8 +191,8 @@ export function Header() {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild><Link href="/profile"><UserIcon className="mr-2 h-4 w-4" />Profile</Link></DropdownMenuItem>
-                    {isAdmin && <DropdownMenuItem asChild><Link href="/admin"><Shield className="mr-2 h-4 w-4" />Admin</Link></DropdownMenuItem>}
+                    <DropdownMenuItem asChild><UserIcon className="mr-2 h-4 w-4" /><Link href="/profile">Profile</Link></DropdownMenuItem>
+                    {isAdmin && <DropdownMenuItem asChild><Shield className="mr-2 h-4 w-4" /><Link href="/admin">Admin</Link></DropdownMenuItem>}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut}>Sign Out</DropdownMenuItem>
                   </DropdownMenuContent>
@@ -205,7 +204,7 @@ export function Header() {
                   size="icon"
                   className="text-white hover:text-chart-1"
                 >
-                  <UserIcon className="h-5 w-5" />
+                  <UserIcon className="h-6 w-6" />
                 </Button>
               )}
             </div>

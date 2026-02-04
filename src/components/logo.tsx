@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -9,7 +8,7 @@ const LOGO_URL = "https://firebasestorage.googleapis.com/v0/b/studio-6967403383-
 export function Logo() {
   return (
     <Link href="/" className="flex items-center group">
-      <div className="relative h-14 w-40 sm:h-16 sm:w-52 transition-opacity group-hover:opacity-90 rounded-xl overflow-hidden">
+      <div className="relative h-20 w-56 sm:h-24 sm:w-80 transition-opacity group-hover:opacity-90 overflow-hidden">
         <Image
           src={LOGO_URL}
           alt="Verse3 Records Logo"
@@ -17,7 +16,7 @@ export function Logo() {
           className="object-contain"
           priority
           data-ai-hint="company logo"
-          sizes="(max-width: 640px) 160px, 208px"
+          sizes="(max-width: 640px) 224px, 320px"
         />
       </div>
     </Link>
