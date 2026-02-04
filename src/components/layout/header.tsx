@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -99,20 +100,20 @@ export function Header() {
                     </div>
                   </div>
 
-                  <nav className="flex flex-col items-center gap-8 md:gap-12 mt-20">
+                  <nav className="flex flex-col items-center gap-4 md:gap-6 mt-16">
                     {navLinks.map((link) => (
                       <Link
                         key={link.href}
                         href={link.href}
                         onClick={() => setIsSheetOpen(false)}
-                        className="text-4xl md:text-6xl font-headline tracking-tighter text-white hover:text-chart-1 transition-all duration-300 hover:scale-110"
+                        className="text-2xl md:text-4xl font-headline tracking-tighter text-white hover:text-chart-1 transition-all duration-300 hover:scale-110"
                       >
                         {link.label}
                       </Link>
                     ))}
                   </nav>
 
-                  <div className="mt-16 flex items-center gap-8">
+                  <div className="mt-8 flex items-center gap-8">
                     {!user && (
                       <Button 
                         onClick={() => {
