@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
@@ -11,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BarChart, Terminal, FileAudio, FileImage, PlusCircle, Mail } from 'lucide-react';
+import { BarChart, Terminal, FileAudio, FileImage, PlusCircle, Mail, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   Dialog,
@@ -37,7 +36,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 
-
 const adminEmail = 'verse3records@gmail.com';
 
 const NewsletterSubscribers = () => {
@@ -49,53 +47,58 @@ const NewsletterSubscribers = () => {
     const { data: subscribers, isLoading, error } = useCollection(subscribersQuery);
 
     if (isLoading) {
-        return <Skeleton className="h-40 w-full" />
+        return <Skeleton className="h-64 w-full" />
     }
 
     if (error) {
         return (
             <Alert variant="destructive">
                 <Terminal className="h-4 w-4" />
-                <AlertTitle>Error Loading Subscribers</AlertTitle>
+                <AlertTitle>Permission Denied</AlertTitle>
                 <AlertDescription>
-                    Could not fetch newsletter subscribers. Ensure you are signed in as admin.
+                    Only the administrative account can view subscriber data.
                 </AlertDescription>
             </Alert>
         )
     }
 
-    if (!subscribers || subscribers.length === 0) {
-        return <p className="text-muted-foreground p-4 border rounded-lg">No newsletter subscribers yet.</p>
-    }
-
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <Mail className="h-5 w-5" />
-                    Newsletter Subscribers
+        <Card className="border-2 border-chart-1/20">
+            <CardHeader className="bg-black text-white rounded-t-lg">
+                <CardTitle className="flex items-center gap-2 font-headline text-2xl uppercase italic">
+                    <Users className="h-6 w-6 text-chart-1" />
+                    V3 Family Subscribers
                 </CardTitle>
-                <CardDescription>Emails from users who joined the V3 Family via the newsletter signup.</CardDescription>
+                <CardDescription className="text-chart-1/60">
+                    Email list of users who joined via the newsletter signup.
+                </CardDescription>
             </CardHeader>
-            <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Email Address</TableHead>
-                            <TableHead>Joined On</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {subscribers.map((sub: any) => (
-                            <TableRow key={sub.id}>
-                                <TableCell className="font-medium">{sub.email}</TableCell>
-                                <TableCell>
-                                    {sub.subscribedAt ? format(sub.subscribedAt.toDate(), 'PPP p') : 'N/A'}
-                                </TableCell>
+            <CardContent className="pt-6">
+                {!subscribers || subscribers.length === 0 ? (
+                    <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                        <Mail className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                        <p className="text-muted-foreground">No subscribers yet.</p>
+                    </div>
+                ) : (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="font-bold uppercase text-[10px] tracking-widest">Email Address</TableHead>
+                                <TableHead className="font-bold uppercase text-[10px] tracking-widest text-right">Joined On</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {subscribers.map((sub: any) => (
+                                <TableRow key={sub.id} className="hover:bg-chart-1/5 transition-colors">
+                                    <TableCell className="font-medium text-lg">{sub.email}</TableCell>
+                                    <TableCell className="text-right text-muted-foreground">
+                                        {sub.subscribedAt ? format(sub.subscribedAt.toDate(), 'PPP p') : 'N/A'}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                )}
             </CardContent>
         </Card>
     )
@@ -110,19 +113,7 @@ const MusicSubmissions = () => {
     const { data: submissions, isLoading, error } = useCollection(submissionsQuery);
 
     if (isLoading) {
-        return (
-            <div className="space-y-4">
-                {[...Array(3)].map((_, i) => (
-                    <div key={i} className="flex items-center space-x-4">
-                        <Skeleton className="h-12 w-12 rounded-full" />
-                        <div className="space-y-2">
-                            <Skeleton className="h-4 w-[250px]" />
-                            <Skeleton className="h-4 w-[200px]" />
-                        </div>
-                    </div>
-                ))}
-            </div>
-        )
+        return <Skeleton className="h-64 w-full" />
     }
 
     if (error) {
@@ -131,63 +122,63 @@ const MusicSubmissions = () => {
                 <Terminal className="h-4 w-4" />
                 <AlertTitle>Error Loading Submissions</AlertTitle>
                 <AlertDescription>
-                    There was a problem fetching the music submissions. Please check your connection and security rules.
+                    There was a problem fetching the music submissions.
                 </AlertDescription>
             </Alert>
         )
     }
 
-    if (!submissions || submissions.length === 0) {
-        return <p className="text-muted-foreground">No demo submissions yet.</p>
-    }
-
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Music Submissions</CardTitle>
+                <CardTitle className="font-headline text-2xl uppercase italic">Music Submissions</CardTitle>
                 <CardDescription>Review demos and EPs uploaded by artists.</CardDescription>
             </CardHeader>
             <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Artist</TableHead>
-                            <TableHead>Track Title</TableHead>
-                            <TableHead>Submitted On</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {submissions.map((submission: any) => (
-                            <TableRow key={submission.id}>
-                                <TableCell>
-                                    <div className="font-medium">{submission.artistName}</div>
-                                    <div className="text-sm text-muted-foreground">{submission.artistEmail}</div>
-                                </TableCell>
-                                <TableCell>{submission.trackTitle}</TableCell>
-                                <TableCell>
-                                    {submission.submittedAt ? format(submission.submittedAt.toDate(), 'PPP') : 'N/A'}
-                                </TableCell>
-                                <TableCell className="text-right space-x-2">
-                                    {submission.audioUrl && (
-                                        <Button variant="outline" size="sm" asChild>
-                                            <a href={submission.audioUrl} target="_blank" rel="noopener noreferrer">
-                                                <FileAudio className="mr-2 h-4 w-4" /> Audio
-                                            </a>
-                                        </Button>
-                                    )}
-                                    {submission.imageUrl && (
-                                        <Button variant="outline" size="sm" asChild>
-                                            <a href={submission.imageUrl} target="_blank" rel="noopener noreferrer">
-                                                <FileImage className="mr-2 h-4 w-4" /> Art
-                                            </a>
-                                        </Button>
-                                    )}
-                                </TableCell>
+                {!submissions || submissions.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-8">No demo submissions yet.</p>
+                ) : (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Artist</TableHead>
+                                <TableHead>Track Title</TableHead>
+                                <TableHead>Submitted On</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {submissions.map((submission: any) => (
+                                <TableRow key={submission.id}>
+                                    <TableCell>
+                                        <div className="font-medium">{submission.artistName}</div>
+                                        <div className="text-sm text-muted-foreground">{submission.artistEmail}</div>
+                                    </TableCell>
+                                    <TableCell>{submission.trackTitle}</TableCell>
+                                    <TableCell>
+                                        {submission.submittedAt ? format(submission.submittedAt.toDate(), 'PPP') : 'N/A'}
+                                    </TableCell>
+                                    <TableCell className="text-right space-x-2">
+                                        {submission.audioUrl && (
+                                            <Button variant="outline" size="sm" asChild>
+                                                <a href={submission.audioUrl} target="_blank" rel="noopener noreferrer">
+                                                    <FileAudio className="mr-2 h-4 w-4" /> Audio
+                                                </a>
+                                            </Button>
+                                        )}
+                                        {submission.imageUrl && (
+                                            <Button variant="outline" size="sm" asChild>
+                                                <a href={submission.imageUrl} target="_blank" rel="noopener noreferrer">
+                                                    <FileImage className="mr-2 h-4 w-4" /> Art
+                                                </a>
+                                            </Button>
+                                        )}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                )}
             </CardContent>
         </Card>
     )
@@ -234,14 +225,7 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
     const productType = form.watch('type');
 
     const onSubmit = async (values: ProductFormValues) => {
-        if (!firestore) {
-             toast({
-                variant: 'destructive',
-                title: 'Error',
-                description: 'Firestore not available.',
-            });
-            return;
-        }
+        if (!firestore) return;
         setIsSubmitting(true);
         try {
             const productsCollection = collection(firestore, 'products');
@@ -266,7 +250,7 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
             toast({
                 variant: 'destructive',
                 title: 'Error',
-                description: 'Failed to add product. Please check console for details.',
+                description: 'Failed to add product.',
             });
         } finally {
             setIsSubmitting(false);
@@ -413,7 +397,7 @@ const ProductManagement = () => {
         <Card>
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
-                    <CardTitle>Product Management</CardTitle>
+                    <CardTitle className="font-headline text-2xl uppercase italic">Product Management</CardTitle>
                     <CardDescription>Add, edit, or remove store products.</CardDescription>
                 </div>
                 <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -432,7 +416,7 @@ const ProductManagement = () => {
             <CardContent>
                 {isLoading && <p>Loading products...</p>}
                 {error && <p className="text-destructive">Error loading products.</p>}
-                {products && (
+                {products && products.length > 0 && (
                      <Table>
                         <TableHeader>
                             <TableRow>
@@ -467,7 +451,7 @@ const SalesDashboard = () => {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Sales Dashboard</CardTitle>
+                <CardTitle className="font-headline text-2xl uppercase italic">Sales Dashboard</CardTitle>
                 <CardDescription>Analytics for merchandise and record sales.</CardDescription>
             </CardHeader>
             <CardContent>
@@ -475,7 +459,7 @@ const SalesDashboard = () => {
                     <BarChart className="h-12 w-12 text-muted-foreground mb-4" />
                     <h3 className="text-xl font-semibold">Sales Data Coming Soon</h3>
                     <p className="text-muted-foreground mt-2">
-                        E-commerce functionality is not yet implemented. Once sales data is available, you will see it here.
+                        E-commerce functionality is currently restricted. Once transactions are active, data will populate here.
                     </p>
                 </div>
             </CardContent>
@@ -496,7 +480,7 @@ export default function AdminPage() {
     if (isUserLoading || user?.email !== adminEmail) {
         return (
             <div className="container py-12 md:py-24 text-center">
-                <p>Loading...</p>
+                <p>Checking administrative credentials...</p>
             </div>
         )
     }
@@ -504,8 +488,8 @@ export default function AdminPage() {
     return (
         <div className="container py-12 md:py-24">
             <div className="mb-8">
-                <h1 className="font-headline text-4xl md:text-5xl font-bold">Admin Dashboard</h1>
-                <p className="text-muted-foreground mt-2">Welcome, {user.displayName}.</p>
+                <h1 className="font-headline text-4xl md:text-5xl font-bold uppercase tracking-tighter italic">Admin <span className="text-chart-1">Control</span></h1>
+                <p className="text-muted-foreground mt-2">Authenticated as: <span className="font-bold text-foreground">{user.displayName}</span></p>
             </div>
 
             <div className="grid gap-8">
