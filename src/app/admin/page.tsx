@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { BarChart, Terminal, FileAudio, FileImage, PlusCircle, Mail, Users } from 'lucide-react';
 import { format } from 'date-fns';
@@ -55,7 +55,7 @@ const NewsletterSubscribers = () => {
         return (
             <Alert variant="destructive">
                 <Terminal className="h-4 w-4" />
-                <AlertTitle>Access Restricted</AlertTitle>
+                <AlertTitle>Access Denied</AlertTitle>
                 <AlertDescription>
                     {error.message || "You do not have permission to view the subscriber list. Please ensure you are logged in as verse3records@gmail.com."}
                 </AlertDescription>

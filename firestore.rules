@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Core admin check logic - strictly using the UID and email provided in the logs
+    // Simple and direct admin check
     function isAdmin() {
       return request.auth != null && (
         request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2' || 
@@ -13,7 +13,7 @@ service cloud.firestore {
     // Newsletter subscriptions rules
     match /newsletterSubscriptions/{subId} {
       allow create: if true;
-      allow read, list, delete: if isAdmin();
+      allow read, list, write: if isAdmin();
     }
 
     // User profile and purchase history rules
@@ -41,7 +41,7 @@ service cloud.firestore {
     // Order rules
     match /orders/{orderId} {
         allow create: if true;
-        allow read, update, delete, list: if isAdmin();
+        allow read, list, update, delete: if isAdmin();
     }
   }
 }
