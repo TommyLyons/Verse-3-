@@ -7,11 +7,8 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
     // Admin check: verified by email or specific administrative UID
+    // User UID from error logs: I47i5ZR5aAPOMVgQnTYQm2UB3Ym2
     function isAdmin() {
       return isSignedIn() && (
         request.auth.token.email == 'verse3records@gmail.com' ||
@@ -27,18 +24,18 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read, write: if isOwner(userId);
+      allow read, write: if isSignedIn() && (request.auth.uid == userId || isAdmin());
 
       match /purchasedProducts/{purchaseId} {
-        allow read: if isOwner(userId);
-        allow write: if isOwner(userId);
+        allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+        allow write: if isAdmin();
       }
     }
 
     match /demoSubmissions/{submissionId} {
       allow create: if true;
       allow read, list: if isAdmin();
-      allow update, delete: if false;
+      allow update, delete: if isAdmin();
     }
 
     match /products/{productId} {
@@ -61,6 +58,7 @@ service firebase.storage {
     }
     match /{allPaths=**} {
         allow read: if true;
+        allow write: if false; // Only allow writes through console for now
     }
   }
 }
