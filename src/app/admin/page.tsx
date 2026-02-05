@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BarChart, Terminal, FileAudio, FileImage, PlusCircle } from 'lucide-react';
+import { BarChart, Terminal, FileAudio, FileImage, PlusCircle, Mail } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   Dialog,
@@ -39,6 +39,67 @@ import { useToast } from '@/hooks/use-toast';
 
 
 const adminEmail = 'verse3records@gmail.com';
+
+const NewsletterSubscribers = () => {
+    const firestore = useFirestore();
+    const subscribersQuery = useMemo(() => {
+        if (!firestore) return null;
+        return collection(firestore, 'newsletterSubscriptions');
+    }, [firestore]);
+    const { data: subscribers, isLoading, error } = useCollection(subscribersQuery);
+
+    if (isLoading) {
+        return <Skeleton className="h-40 w-full" />
+    }
+
+    if (error) {
+        return (
+            <Alert variant="destructive">
+                <Terminal className="h-4 w-4" />
+                <AlertTitle>Error Loading Subscribers</AlertTitle>
+                <AlertDescription>
+                    Could not fetch newsletter subscribers. Ensure you are signed in as admin.
+                </AlertDescription>
+            </Alert>
+        )
+    }
+
+    if (!subscribers || subscribers.length === 0) {
+        return <p className="text-muted-foreground p-4 border rounded-lg">No newsletter subscribers yet.</p>
+    }
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <Mail className="h-5 w-5" />
+                    Newsletter Subscribers
+                </CardTitle>
+                <CardDescription>Emails from users who joined the V3 Family via the newsletter signup.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Email Address</TableHead>
+                            <TableHead>Joined On</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {subscribers.map((sub: any) => (
+                            <TableRow key={sub.id}>
+                                <TableCell className="font-medium">{sub.email}</TableCell>
+                                <TableCell>
+                                    {sub.subscribedAt ? format(sub.subscribedAt.toDate(), 'PPP p') : 'N/A'}
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+    )
+}
 
 const MusicSubmissions = () => {
     const firestore = useFirestore();
@@ -448,6 +509,7 @@ export default function AdminPage() {
             </div>
 
             <div className="grid gap-8">
+                <NewsletterSubscribers />
                 <ProductManagement />
                 <MusicSubmissions />
                 <SalesDashboard />
