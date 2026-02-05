@@ -9,7 +9,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Verse3 Records',
-  description: 'The home of forward-thinking electronic music, exclusive merchandise, and emerging talent.',
+  description: 'Electronic music label, Streetwear merch & Live events',
   icons: {
     icon: 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/favicon.ico?alt=media&token=23b7208f-24e8-4f3b-aab8-8bfd2ed9ca74',
   },
