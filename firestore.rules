@@ -2,33 +2,27 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions for common checks
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    // Admin check: verified by specific administrative UID or email
-    // UID from logs: I47i5ZR5aAPOMVgQnTYQm2UB3Ym2
-    // Email: verse3records@gmail.com
+    // Global admin check based on UID or Email
     function isAdmin() {
-      return isSignedIn() && (
+      return request.auth != null && (
         request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2' || 
         request.auth.token.email == 'verse3records@gmail.com'
       );
     }
     
     // Newsletter subscriptions rules
+    // Method 'list' on collection requires permissions on the collection path
     match /newsletterSubscriptions/{subId} {
       allow create: if true;
-      allow read, list: if isAdmin();
+      allow read, list, delete: if isAdmin();
     }
 
     // User profile and purchase history rules
     match /users/{userId} {
-      allow read, write: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
 
       match /purchasedProducts/{purchaseId} {
-        allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+        allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
         allow write: if isAdmin();
       }
     }
@@ -36,8 +30,7 @@ service cloud.firestore {
     // Demo submissions rules
     match /demoSubmissions/{submissionId} {
       allow create: if true;
-      allow read, list: if isAdmin();
-      allow update, delete: if isAdmin();
+      allow read, list, update, delete: if isAdmin();
     }
 
     // Store product rules
