@@ -149,6 +149,16 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Our Vision */}
+      <section className="py-16 md:py-24 bg-white border-y">
+          <div className="container max-w-4xl mx-auto px-4 text-center">
+              <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl uppercase tracking-wider">Our Vision</h2>
+              <p className="mt-6 text-muted-foreground md:text-lg leading-relaxed">
+                  Our mission is to champion emerging talent and deliver emotionally powerful records that resonate. We believe that music is most powerful when crafted from real stories, and we are committed to fostering a community where artists can be vulnerable and authentic.
+              </p>
+          </div>
+      </section>
+
       {/* Choose Your Vibe - FULL WIDTH */}
       <section className="w-full py-12 bg-black text-white">
           <div className="container max-w-7xl mx-auto px-4">
@@ -175,16 +185,6 @@ export default function Home() {
             </div>
           </div>
        </section>
-
-      {/* Our Vision */}
-      <section className="py-16 md:py-24 bg-white border-y">
-          <div className="container max-w-4xl mx-auto px-4 text-center">
-              <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl uppercase tracking-wider">Our Vision</h2>
-              <p className="mt-6 text-muted-foreground md:text-lg leading-relaxed">
-                  Our mission is to champion emerging talent and deliver emotionally powerful records that resonate. We believe that music is most powerful when crafted from real stories, and we are committed to fostering a community where artists can be vulnerable and authentic.
-              </p>
-          </div>
-      </section>
 
        {/* Featured Merch Carousel */}
        <section className="py-16 md:py-24 bg-white">
