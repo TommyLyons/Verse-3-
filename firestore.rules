@@ -8,10 +8,13 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Admin check: verified by specific administrative UID
+    // Admin check: verified by specific administrative UID or email
     // User UID from logs: I47i5ZR5aAPOMVgQnTYQm2UB3Ym2
     function isAdmin() {
-      return isSignedIn() && request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2';
+      return isSignedIn() && (
+        request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2' || 
+        request.auth.token.email == 'verse3records@gmail.com'
+      );
     }
     
     // Newsletter subscriptions rules
