@@ -10,6 +10,7 @@ service cloud.firestore {
 
     // Admin check: verified by specific administrative UID or email
     // User UID from logs: I47i5ZR5aAPOMVgQnTYQm2UB3Ym2
+    // We check UID first as it is more reliable than email when email_verified is false
     function isAdmin() {
       return isSignedIn() && (
         request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2' ||
