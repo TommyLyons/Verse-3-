@@ -160,6 +160,33 @@ export default function Home() {
           </div>
       </section>
 
+      {/* Shop By Brand Entry Section (Choose Your Vibe) */}
+      <section className="py-12 bg-black text-white">
+          <div className="container max-w-4xl mx-auto px-4">
+            <div className="text-center mb-8">
+              <h2 className="font-headline text-3xl font-bold uppercase tracking-[0.1em] italic text-chart-1">Choose Your Vibe</h2>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                onClick={() => handleBrandClick('Verse 3')}
+                size="lg"
+                className="flex-1 h-20 bg-white text-black hover:bg-chart-1 font-headline text-2xl uppercase italic border-none rounded-none transition-all duration-300 transform hover:scale-105"
+              >
+                <ShoppingBag className="mr-3 h-6 w-6" />
+                V3 Merch
+              </Button>
+              <Button 
+                onClick={() => handleBrandClick('Crude City')}
+                size="lg"
+                className="flex-1 h-20 bg-chart-1 text-black hover:bg-white font-headline text-2xl uppercase italic border-none rounded-none transition-all duration-300 transform hover:scale-105"
+              >
+                <ShoppingBag className="mr-3 h-6 w-6" />
+                Crude City
+              </Button>
+            </div>
+          </div>
+       </section>
+
        {/* Featured Merch Carousel */}
        <section className="py-16 md:py-24 bg-white">
             <div className="container overflow-hidden">
@@ -228,33 +255,6 @@ export default function Home() {
                     </div>
                 )}
             </div>
-       </section>
-
-       {/* Shop By Brand Entry Section */}
-       <section className="py-12 bg-black text-white">
-          <div className="container max-w-4xl mx-auto px-4">
-            <div className="text-center mb-8">
-              <h2 className="font-headline text-3xl font-bold uppercase tracking-[0.1em] italic text-chart-1">Choose Your Vibe</h2>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                onClick={() => handleBrandClick('Verse 3')}
-                size="lg"
-                className="flex-1 h-20 bg-white text-black hover:bg-chart-1 font-headline text-2xl uppercase italic border-none rounded-none transition-all duration-300 transform hover:scale-105"
-              >
-                <ShoppingBag className="mr-3 h-6 w-6" />
-                V3 Merch
-              </Button>
-              <Button 
-                onClick={() => handleBrandClick('Crude City')}
-                size="lg"
-                className="flex-1 h-20 bg-chart-1 text-black hover:bg-white font-headline text-2xl uppercase italic border-none rounded-none transition-all duration-300 transform hover:scale-105"
-              >
-                <ShoppingBag className="mr-3 h-6 w-6" />
-                Crude City
-              </Button>
-            </div>
-          </div>
        </section>
 
        {/* Latest Music Carousel */}
