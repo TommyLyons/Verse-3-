@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
@@ -38,6 +37,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 
 const adminEmail = 'verse3records@gmail.com';
+const adminUid = 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2';
 
 const NewsletterSubscribers = () => {
     const firestore = useFirestore();
@@ -472,13 +472,15 @@ export default function AdminPage() {
     const { user, isUserLoading } = useUser();
     const router = useRouter();
 
+    const isAdmin = user?.email === adminEmail || user?.uid === adminUid;
+
     useEffect(() => {
-        if (!isUserLoading && user?.email !== adminEmail) {
+        if (!isUserLoading && !isAdmin) {
             router.push('/');
         }
-    }, [user, isUserLoading, router]);
+    }, [isAdmin, isUserLoading, router]);
 
-    if (isUserLoading || user?.email !== adminEmail) {
+    if (isUserLoading || !isAdmin) {
         return (
             <div className="container py-12 md:py-24 text-center">
                 <p>Checking administrative credentials...</p>
@@ -490,7 +492,7 @@ export default function AdminPage() {
         <div className="container py-12 md:py-24">
             <div className="mb-8">
                 <h1 className="font-headline text-4xl md:text-5xl font-bold uppercase tracking-tighter italic">Admin <span className="text-chart-1">Control</span></h1>
-                <p className="text-muted-foreground mt-2">Authenticated as: <span className="font-bold text-foreground">{user.displayName}</span></p>
+                <p className="text-muted-foreground mt-2">Authenticated as: <span className="font-bold text-foreground">{user?.displayName || adminEmail}</span></p>
             </div>
 
             <div className="grid gap-8">

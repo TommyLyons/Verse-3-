@@ -1,4 +1,3 @@
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -9,7 +8,8 @@ service cloud.firestore {
     }
 
     // Admin check: verified by specific administrative UID or email
-    // User UID from logs: I47i5ZR5aAPOMVgQnTYQm2UB3Ym2
+    // UID from logs: I47i5ZR5aAPOMVgQnTYQm2UB3Ym2
+    // Email: verse3records@gmail.com
     function isAdmin() {
       return isSignedIn() && (
         request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2' || 
