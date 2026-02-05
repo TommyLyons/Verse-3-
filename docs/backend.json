@@ -357,6 +357,22 @@
         "userId": { "type": "string" }
       },
       "required": ["customerDetails", "items", "total", "submittedAt", "status"]
+    },
+    "NewsletterSubscription": {
+      "title": "Newsletter Subscription",
+      "type": "object",
+      "description": "Represents a newsletter signup email address.",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "subscribedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["email", "subscribedAt"]
     }
   },
   "auth": {
@@ -395,6 +411,12 @@
             "$ref": "#/backend/entities/Order"
         },
         "description": "Stores customer orders. Writable by anyone to allow guest checkout, but only readable by admins."
+    },
+    "/newsletterSubscriptions/{subId}": {
+      "schema": {
+        "$ref": "#/backend/entities/NewsletterSubscription"
+      },
+      "description": "Stores email addresses for newsletter signups. Writable by anyone, readable only by admins."
     }
   }
 }

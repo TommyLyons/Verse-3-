@@ -49,6 +49,13 @@ service cloud.firestore {
         // Only allow admins to read, update, or delete orders
         allow read, update, delete, list: if isAdmin();
     }
+
+    match /newsletterSubscriptions/{subId} {
+      // Allow anyone to sign up for the newsletter
+      allow create: if true;
+      // Only allow admins to see the subscriber list
+      allow read, list: if isAdmin();
+    }
   }
 }
 
@@ -67,5 +74,3 @@ service firebase.storage {
     }
   }
 }
-
-    

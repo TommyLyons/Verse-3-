@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -11,6 +12,8 @@ import { getAllProducts, type Product } from '@/lib/products';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { useFirestore, addDocumentNonBlocking } from '@/firebase';
+import { collection, serverTimestamp } from 'firebase/firestore';
 import {
   Carousel,
   CarouselContent,
@@ -27,6 +30,7 @@ export default function Home() {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const firestore = useFirestore();
 
   useEffect(() => {
     async function fetchProducts() {
@@ -41,18 +45,38 @@ export default function Home() {
   const merchProducts = allProducts.filter(p => p.type === 'merch').slice(0, 8);
   const musicProducts = allProducts.filter(p => p.type === 'music' && !p.digital).slice(0, 8);
 
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email) return;
+
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
+    
+    try {
+      if (firestore) {
+        const subscriptionsCol = collection(firestore, 'newsletterSubscriptions');
+        await addDocumentNonBlocking(subscriptionsCol, {
+          email: email,
+          subscribedAt: serverTimestamp(),
+        });
+
+        toast({
+          title: "Welcome to the V3 Family!",
+          description: "You've been added to our exclusive list.",
+        });
+        setEmail('');
+      } else {
+        throw new Error("Firestore not initialized");
+      }
+    } catch (err) {
+      console.error("Newsletter error:", err);
       toast({
-        title: "Welcome to the V3 Family!",
-        description: "You've been added to our exclusive list.",
+        variant: "destructive",
+        title: "Submission failed",
+        description: "There was a problem joining the V3 family. Please try again.",
       });
-      setEmail('');
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   return (
