@@ -3,26 +3,28 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Helper functions for common checks
     function isSignedIn() {
       return request.auth != null;
     }
 
-    // Admin check: verified by email or specific administrative UID
-    // User UID from error logs: I47i5ZR5aAPOMVgQnTYQm2UB3Ym2
+    // Admin check: verified by specific administrative UID or email
+    // User UID from logs: I47i5ZR5aAPOMVgQnTYQm2UB3Ym2
     function isAdmin() {
       return isSignedIn() && (
-        request.auth.token.email == 'verse3records@gmail.com' ||
-        request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2'
+        request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2' ||
+        request.auth.token.email == 'verse3records@gmail.com'
       );
     }
     
     // Newsletter subscriptions rules
-    // Anyone can subscribe (create), but only admins can view the list (read/list)
+    // Anyone can subscribe (create), but only admins can view (read/list)
     match /newsletterSubscriptions/{subId} {
       allow create: if true;
       allow read, list: if isAdmin();
     }
 
+    // User profile and purchase history rules
     match /users/{userId} {
       allow read, write: if isSignedIn() && (request.auth.uid == userId || isAdmin());
 
@@ -32,18 +34,21 @@ service cloud.firestore {
       }
     }
 
+    // Demo submissions rules
     match /demoSubmissions/{submissionId} {
       allow create: if true;
       allow read, list: if isAdmin();
       allow update, delete: if isAdmin();
     }
 
+    // Store product rules
     match /products/{productId} {
       allow read, list: if true;
       allow write: if isAdmin();
     }
 
-     match /orders/{orderId} {
+    // Order rules
+    match /orders/{orderId} {
         allow create: if true;
         allow read, update, delete, list: if isAdmin();
     }
@@ -58,7 +63,7 @@ service firebase.storage {
     }
     match /{allPaths=**} {
         allow read: if true;
-        allow write: if false; // Only allow writes through console for now
+        allow write: if false; // Only allow writes through console
     }
   }
 }
