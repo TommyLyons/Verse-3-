@@ -249,13 +249,11 @@ export default function Home() {
 
        {/* Instagram Section */}
        <section className="relative py-10 md:py-16 bg-black overflow-hidden group">
-          {/* Kinetic background elements */}
           <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] border-[40px] border-chart-1/10 rounded-full animate-spin" style={{ animationDuration: '60s' }} />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] border-[20px] border-chart-1/5 rounded-full animate-spin" style={{ animationDuration: '45s', animationDirection: 'reverse' }} />
           </div>
 
-          {/* Decorative text */}
           <div className="absolute -bottom-6 -right-6 md:-bottom-12 md:-right-12 select-none opacity-10">
             <h3 className="font-headline text-[6rem] md:text-[10rem] text-chart-1 leading-none">V3</h3>
           </div>

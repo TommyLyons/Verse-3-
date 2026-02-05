@@ -20,40 +20,30 @@ service cloud.firestore {
 
       match /purchasedProducts/{purchaseId} {
         allow read: if isOwner(userId);
-        // In a real app, writes should be handled by a trusted backend server
-        // after successful payment verification. For this demo, we allow
-        // the user to write to their own record to simulate a purchase.
         allow write: if isOwner(userId);
       }
     }
 
     match /demoSubmissions/{submissionId} {
-      // Allow anyone to submit a demo.
       allow create: if true;
-      // Allow admins to read submissions.
       allow read, list: if isAdmin();
-      // Disallow public update and delete.
       allow update, delete: if false;
     }
 
     match /products/{productId} {
-      // Allow public read for all products
       allow read, list: if true;
-      // Allow admins to create, update, and delete products
       allow write: if isAdmin();
     }
 
      match /orders/{orderId} {
-        // Allow anyone to create an order (guest checkout)
         allow create: if true;
-        // Only allow admins to read, update, or delete orders
         allow read, update, delete, list: if isAdmin();
     }
 
     match /newsletterSubscriptions/{subId} {
-      // Allow anyone to sign up for the newsletter
+      // Explicitly allow anyone to sign up
       allow create: if true;
-      // Only allow admins to see the subscriber list
+      // Only allow admins to read the list of subscribers
       allow read, list: if isAdmin();
     }
   }
@@ -61,14 +51,10 @@ service cloud.firestore {
 
 service firebase.storage {
   match /b/{bucket}/o {
-    
-    // Allow public read for demo submission images and audio
     match /demoSubmissions/{allPaths=**} {
       allow read: if true;
-      allow write: if true; // Allow uploads
+      allow write: if true;
     }
-    
-    // Allow public read for general app images (e.g. logos, hero images)
     match /{allPaths=**} {
         allow read: if true;
     }
