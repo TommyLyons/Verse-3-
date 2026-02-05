@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -6,12 +7,14 @@ import Link from 'next/link';
 import { type Product } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { ShoppingCart, Eye, CheckCircle, CreditCard, Ruler } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { AgeGate } from '@/components/age-gate';
+import { useRouter } from 'next/navigation';
 
 const getRelatedProducts = (currentProduct: Product, allProducts: Product[]) => {
     const oppositeType = currentProduct.type === 'merch' ? 'music' : 'merch';
@@ -19,6 +22,7 @@ const getRelatedProducts = (currentProduct: Product, allProducts: Product[]) => 
 };
 
 export function ProductClientPage({ product, allProducts }: { product: Product, allProducts: Product[] }) {
+  const router = useRouter();
   const { toast } = useToast();
   const { addToCart } = useCart();
   
@@ -26,12 +30,33 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
 
-  // Initialize selected size when product loads
+  const [isAgeGateOpen, setIsAgeGateOpen] = useState(false);
+  const [isAgeVerified, setIsAgeVerified] = useState(false);
+
+  // Initialize selected size and age verification state
   useEffect(() => {
+    const verified = sessionStorage.getItem('v3_age_verified') === 'true';
+    setIsAgeVerified(verified);
+
+    if (product.brand === 'Crude City' && !verified) {
+      setIsAgeGateOpen(true);
+    }
+
     if (product.sizes && product.sizes.length > 0) {
       setSelectedSize(product.sizes[0]);
     }
-  }, [product.sizes]);
+  }, [product.sizes, product.brand]);
+
+  const onAgeConfirm = () => {
+    sessionStorage.setItem('v3_age_verified', 'true');
+    setIsAgeVerified(true);
+    setIsAgeGateOpen(false);
+  };
+
+  const onAgeCancel = () => {
+    setIsAgeGateOpen(false);
+    router.push('/store');
+  };
 
   const handleAddToCart = () => {
     if (product.sizes && product.sizes.length > 0 && !selectedSize) {
@@ -74,15 +99,15 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
             priority
           />
           {product.brand && (
-            <Badge className="absolute top-4 right-4 bg-black text-chart-1 font-bold">
+            <Badge className="absolute top-4 right-4 bg-black text-chart-1 font-bold uppercase italic">
               {product.brand}
             </Badge>
           )}
         </div>
         <div className="flex flex-col h-full">
           <div className="space-y-2">
-            <h1 className="font-headline text-4xl md:text-5xl font-bold text-foreground leading-none">{product.name}</h1>
-            <p className="text-3xl font-bold text-primary">{product.price}</p>
+            <h1 className="font-headline text-4xl md:text-5xl font-bold text-foreground leading-none uppercase italic">{product.name}</h1>
+            <p className="text-3xl font-bold text-primary italic">{product.price}</p>
           </div>
           
           <div className="mt-6 border-t pt-6">
@@ -159,15 +184,15 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
 
           <div className="mt-8 flex items-center gap-6 text-[10px] font-bold uppercase text-muted-foreground tracking-widest">
             <div className="flex items-center gap-2">
-                <div className="h-1 w-1 rounded-full bg-chart-1" />
+                <div className="h-1.5 w-1.5 rounded-full bg-chart-1" />
                 Premium Quality
             </div>
             <div className="flex items-center gap-2">
-                <div className="h-1 w-1 rounded-full bg-chart-1" />
+                <div className="h-1.5 w-1.5 rounded-full bg-chart-1" />
                 V3 Exclusive
             </div>
             <div className="flex items-center gap-2">
-                <div className="h-1 w-1 rounded-full bg-chart-1" />
+                <div className="h-1.5 w-1.5 rounded-full bg-chart-1" />
                 Fast Shipping
             </div>
           </div>
@@ -207,6 +232,12 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
           </div>
         </div>
       )}
+
+      <AgeGate 
+        isOpen={isAgeGateOpen} 
+        onConfirm={onAgeConfirm} 
+        onCancel={onAgeCancel} 
+      />
     </div>
   );
 }

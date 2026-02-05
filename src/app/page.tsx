@@ -14,6 +14,8 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, addDocumentNonBlocking } from '@/firebase';
 import { collection, serverTimestamp } from 'firebase/firestore';
+import { AgeGate } from '@/components/age-gate';
+import { useRouter } from 'next/navigation';
 import {
   Carousel,
   CarouselContent,
@@ -25,6 +27,7 @@ import {
 const INSTAGRAM_URL = "https://www.instagram.com/verse3records?igsh=NXhzcW84N2NwZ3Iw";
 
 export default function Home() {
+  const router = useRouter();
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [email, setEmail] = useState('');
@@ -32,7 +35,14 @@ export default function Home() {
   const { toast } = useToast();
   const firestore = useFirestore();
 
+  const [isAgeGateOpen, setIsAgeGateOpen] = useState(false);
+  const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
+  const [isAgeVerified, setIsAgeVerified] = useState(false);
+
   useEffect(() => {
+    const verified = sessionStorage.getItem('v3_age_verified') === 'true';
+    setIsAgeVerified(verified);
+
     async function fetchProducts() {
         setIsLoading(true);
         const products = await getAllProducts();
@@ -44,6 +54,30 @@ export default function Home() {
   
   const merchProducts = allProducts.filter(p => p.type === 'merch').slice(0, 8);
   const musicProducts = allProducts.filter(p => p.type === 'music' && !p.digital).slice(0, 8);
+
+  const handleProductClick = (product: Product) => {
+    if (product.brand === 'Crude City' && !isAgeVerified) {
+      setPendingProduct(product);
+      setIsAgeGateOpen(true);
+      return;
+    }
+    router.push(`/store/${product.type}/${product.slug}`);
+  };
+
+  const onAgeConfirm = () => {
+    sessionStorage.setItem('v3_age_verified', 'true');
+    setIsAgeVerified(true);
+    setIsAgeGateOpen(false);
+    if (pendingProduct) {
+      router.push(`/store/${pendingProduct.type}/${pendingProduct.slug}`);
+      setPendingProduct(null);
+    }
+  };
+
+  const onAgeCancel = () => {
+    setIsAgeGateOpen(false);
+    setPendingProduct(null);
+  };
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,7 +170,10 @@ export default function Home() {
                                 {merchProducts.map((item) => (
                                     <CarouselItem key={item.id} className="pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/4">
                                         <Card className="overflow-hidden group flex flex-col border-none shadow-none bg-transparent">
-                                            <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative bg-secondary rounded-lg overflow-hidden">
+                                            <div 
+                                              onClick={() => handleProductClick(item)} 
+                                              className="cursor-pointer block aspect-square relative bg-secondary rounded-lg overflow-hidden"
+                                            >
                                                 <Image
                                                     src={item.imageUrl || ''}
                                                     alt={item.name}
@@ -144,14 +181,19 @@ export default function Home() {
                                                     className="object-contain transition-transform duration-500 group-hover:scale-105"
                                                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                                                 />
-                                            </Link>
+                                            </div>
                                             <div className="mt-4 flex justify-between items-center px-1">
                                                 <div>
                                                     <p className="font-bold text-black uppercase">{item.name}</p>
                                                     <p className="text-sm font-medium">{item.price}</p>
                                                 </div>
-                                                <Button size="sm" asChild variant="secondary" className="bg-black text-chart-1 hover:bg-black/90">
-                                                    <Link href={`/store/${item.type}/${item.slug}`}><Eye className="h-4 w-4"/></Link>
+                                                <Button 
+                                                  size="sm" 
+                                                  variant="secondary" 
+                                                  onClick={() => handleProductClick(item)}
+                                                  className="bg-black text-chart-1 hover:bg-black/90"
+                                                >
+                                                    <Eye className="h-4 w-4"/>
                                                 </Button>
                                             </div>
                                         </Card>
@@ -204,7 +246,10 @@ export default function Home() {
                                 {musicProducts.map((item) => (
                                     <CarouselItem key={item.id} className="pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/4">
                                         <Card className="overflow-hidden group flex flex-col border-none shadow-none bg-transparent">
-                                            <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative rounded-lg overflow-hidden bg-white shadow-sm">
+                                            <div 
+                                              onClick={() => handleProductClick(item)}
+                                              className="cursor-pointer block aspect-square relative rounded-lg overflow-hidden bg-white shadow-sm"
+                                            >
                                                 <Image
                                                     src={item.imageUrl || ''}
                                                     alt={item.name}
@@ -212,14 +257,19 @@ export default function Home() {
                                                     className="object-contain transition-transform duration-500 group-hover:scale-105"
                                                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                                                 />
-                                            </Link>
+                                            </div>
                                             <div className="mt-4 flex justify-between items-center px-1">
                                                 <div>
                                                     <p className="font-bold text-black uppercase">{item.name}</p>
                                                     <p className="text-sm font-medium">{item.price}</p>
                                                 </div>
-                                                <Button size="sm" asChild variant="secondary" className="bg-black text-chart-1 hover:bg-black/90">
-                                                    <Link href={`/store/${item.type}/${item.slug}`}><Eye className="h-4 w-4"/></Link>
+                                                <Button 
+                                                  size="sm" 
+                                                  variant="secondary" 
+                                                  onClick={() => handleProductClick(item)}
+                                                  className="bg-black text-chart-1 hover:bg-black/90"
+                                                >
+                                                    <Eye className="h-4 w-4"/>
                                                 </Button>
                                             </div>
                                         </Card>
@@ -334,6 +384,12 @@ export default function Home() {
             </div>
           </div>
        </section>
+
+       <AgeGate 
+         isOpen={isAgeGateOpen} 
+         onConfirm={onAgeConfirm} 
+         onCancel={onAgeCancel} 
+       />
     </div>
   );
 }

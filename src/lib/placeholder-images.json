@@ -101,6 +101,12 @@
       "description": "The Verse3 Records logo.",
       "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/IMG-20260204-WA0001~2.jpg?alt=media&token=45b80a78-89ad-40ca-a55a-e185c9447432",
       "imageHint": "company logo"
+    },
+    {
+      "id": "explicit-gate",
+      "description": "Explicit content warning image.",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/Explicit.png?alt=media&token=a096f9dc-8a6e-4b67-9d39-43ee599536b9",
+      "imageHint": "explicit warning"
     }
   ]
 }
