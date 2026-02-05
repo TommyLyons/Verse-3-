@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -34,6 +35,8 @@ const navLinks = [
   { href: '/submit-music', label: 'Submit Music' },
 ];
 
+const adminEmail = 'verse3records@gmail.com';
+
 export function Header() {
   const pathname = usePathname();
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
@@ -41,7 +44,7 @@ export function Header() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const { cart } = useCart();
-  const isAdmin = user?.email === 'verse3records@gmail.com';
+  const isAdmin = user?.email === adminEmail;
 
   const cartItemCount = cart.reduce((count, item) => count + item.quantity, 0);
 
