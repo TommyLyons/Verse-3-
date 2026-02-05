@@ -57,7 +57,7 @@ const NewsletterSubscribers = () => {
                 <Terminal className="h-4 w-4" />
                 <AlertTitle>Access Restricted</AlertTitle>
                 <AlertDescription>
-                    {error.message || "You do not have permission to view the subscriber list."}
+                    {error.message || "You do not have permission to view the subscriber list. Please ensure you are logged in as verse3records@gmail.com."}
                 </AlertDescription>
             </Alert>
         )
