@@ -223,38 +223,6 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Newsletter Section */}
-       <section className="py-16 md:py-20 bg-chart-1 border-y border-black/10">
-          <div className="container max-w-4xl mx-auto px-4">
-            <div className="flex flex-col items-center text-center">
-                <h2 className="font-headline text-4xl md:text-6xl font-bold text-black uppercase tracking-tighter italic leading-none mb-2">
-                    Join The V3 Family
-                </h2>
-                <p className="text-black/80 font-bold uppercase tracking-[0.2em] text-[10px] md:text-xs mb-8">
-                    Join For Pre Releases, Discounts, News & More
-                </p>
-                <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2 w-full max-w-md">
-                    <Input 
-                        type="email" 
-                        placeholder="EMAIL ADDRESS" 
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="h-12 bg-white/30 border-black/20 text-black placeholder:text-black/40 font-bold rounded-none focus-visible:ring-black/20"
-                    />
-                    <Button 
-                        type="submit" 
-                        disabled={isSubmitting}
-                        className="h-12 bg-black text-chart-1 hover:bg-black/90 font-bold px-10 rounded-none uppercase italic transition-transform active:scale-95"
-                    >
-                        {isSubmitting ? 'Joining...' : 'Subscribe'}
-                        <Send className="ml-2 h-4 w-4" />
-                    </Button>
-                </form>
-            </div>
-          </div>
-       </section>
-
        {/* Instagram Section */}
        <section className="relative py-10 md:py-16 bg-black overflow-hidden group">
           {/* Kinetic background elements */}
@@ -309,6 +277,38 @@ export default function Home() {
                          </div>
                     </div>
                 </div>
+            </div>
+          </div>
+       </section>
+
+       {/* Newsletter Section */}
+       <section className="py-16 md:py-20 bg-chart-1 border-y border-black/10">
+          <div className="container max-w-4xl mx-auto px-4">
+            <div className="flex flex-col items-center text-center">
+                <h2 className="font-headline text-4xl md:text-6xl font-bold text-black uppercase tracking-tighter italic leading-none mb-2">
+                    Join The V3 Family
+                </h2>
+                <p className="text-black/80 font-bold uppercase tracking-[0.2em] text-[10px] md:text-xs mb-8">
+                    Join For Pre Releases, Discounts, News & More
+                </p>
+                <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2 w-full max-w-md">
+                    <Input 
+                        type="email" 
+                        placeholder="EMAIL ADDRESS" 
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        className="h-12 bg-white/30 border-black/20 text-black placeholder:text-black/40 font-bold rounded-none focus-visible:ring-black/20"
+                    />
+                    <Button 
+                        type="submit" 
+                        disabled={isSubmitting}
+                        className="h-12 bg-black text-chart-1 hover:bg-black/90 font-bold px-10 rounded-none uppercase italic transition-transform active:scale-95"
+                    >
+                        {isSubmitting ? 'Joining...' : 'Subscribe'}
+                        <Send className="ml-2 h-4 w-4" />
+                    </Button>
+                </form>
             </div>
           </div>
        </section>
