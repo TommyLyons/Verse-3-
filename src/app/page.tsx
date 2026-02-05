@@ -93,38 +93,28 @@ export default function Home() {
     setPendingBrand(null);
   };
 
-  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email || !firestore) return;
 
     setIsSubmitting(true);
     
-    try {
-      if (firestore) {
-        const subscriptionsCol = collection(firestore, 'newsletterSubscriptions');
-        await addDocumentNonBlocking(subscriptionsCol, {
-          email: email,
-          subscribedAt: serverTimestamp(),
-        });
+    const subscriptionsCol = collection(firestore, 'newsletterSubscriptions');
+    
+    // Non-blocking write: we don't await this.
+    addDocumentNonBlocking(subscriptionsCol, {
+      email: email,
+      subscribedAt: serverTimestamp(),
+    });
 
-        toast({
-          title: "Welcome to the V3 Family!",
-          description: "You've been added to our exclusive list.",
-        });
-        setEmail('');
-      } else {
-        throw new Error("Firestore not initialized");
-      }
-    } catch (err) {
-      console.error("Newsletter error:", err);
-      toast({
-        variant: "destructive",
-        title: "Submission failed",
-        description: "There was a problem joining the V3 family. Please try again.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Optimistic success UI
+    toast({
+      title: "Welcome to the V3 Family!",
+      description: "You've been added to our exclusive list.",
+    });
+    
+    setEmail('');
+    setIsSubmitting(false);
   };
 
   return (

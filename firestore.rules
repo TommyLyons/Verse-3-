@@ -15,6 +15,12 @@ service cloud.firestore {
       return isSignedIn() && request.auth.token.email == 'verse3records@gmail.com';
     }
     
+    // Explicitly allow anyone to sign up for newsletter
+    match /newsletterSubscriptions/{subId} {
+      allow create: if true;
+      allow read, list: if isAdmin();
+    }
+
     match /users/{userId} {
       allow read, write: if isOwner(userId);
 
@@ -38,13 +44,6 @@ service cloud.firestore {
      match /orders/{orderId} {
         allow create: if true;
         allow read, update, delete, list: if isAdmin();
-    }
-
-    match /newsletterSubscriptions/{subId} {
-      // Explicitly allow anyone to sign up
-      allow create: if true;
-      // Only allow admins to read the list of subscribers
-      allow read, list: if isAdmin();
     }
   }
 }
