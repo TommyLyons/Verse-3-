@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -150,23 +149,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Our Vision */}
-      <section className="py-16 md:py-24 bg-white border-y">
-          <div className="container max-w-4xl text-center">
-              <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl uppercase tracking-wider">Our Vision</h2>
-              <p className="mt-6 text-muted-foreground md:text-lg leading-relaxed">
-                  Our mission is to champion emerging talent and deliver emotionally powerful records that resonate. We believe that music is most powerful when crafted from real stories, and we are committed to fostering a community where artists can be vulnerable and authentic.
-              </p>
-          </div>
-      </section>
-
-      {/* Shop By Brand Entry Section (Choose Your Vibe) */}
-      <section className="py-12 bg-black text-white">
-          <div className="container max-w-4xl mx-auto px-4">
+      {/* Choose Your Vibe - FULL WIDTH */}
+      <section className="w-full py-12 bg-black text-white">
+          <div className="container max-w-7xl mx-auto px-4">
             <div className="text-center mb-8">
               <h2 className="font-headline text-3xl font-bold uppercase tracking-[0.1em] italic text-chart-1">Choose Your Vibe</h2>
             </div>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-4xl mx-auto">
               <Button 
                 onClick={() => handleBrandClick('Verse 3')}
                 size="lg"
@@ -187,9 +176,19 @@ export default function Home() {
           </div>
        </section>
 
+      {/* Our Vision */}
+      <section className="py-16 md:py-24 bg-white border-y">
+          <div className="container max-w-4xl mx-auto px-4 text-center">
+              <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl uppercase tracking-wider">Our Vision</h2>
+              <p className="mt-6 text-muted-foreground md:text-lg leading-relaxed">
+                  Our mission is to champion emerging talent and deliver emotionally powerful records that resonate. We believe that music is most powerful when crafted from real stories, and we are committed to fostering a community where artists can be vulnerable and authentic.
+              </p>
+          </div>
+      </section>
+
        {/* Featured Merch Carousel */}
        <section className="py-16 md:py-24 bg-white">
-            <div className="container overflow-hidden">
+            <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
                     <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl uppercase tracking-wider">Featured Merch</h2>
                     <p className="mt-2 text-muted-foreground">Rep the label with our latest gear.</p>
@@ -259,7 +258,7 @@ export default function Home() {
 
        {/* Latest Music Carousel */}
        <section className="py-16 md:py-24 bg-secondary">
-            <div className="container overflow-hidden">
+            <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
                     <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl uppercase tracking-wider">Latest Music</h2>
                     <p className="mt-2 text-muted-foreground">Vinyl, posters, and more from our artists.</p>
@@ -344,7 +343,7 @@ export default function Home() {
             <h3 className="font-headline text-[6rem] md:text-[10rem] text-chart-1 leading-none">V3</h3>
           </div>
           
-          <div className="container relative z-10">
+          <div className="container relative z-10 max-w-7xl mx-auto px-4">
             <div className="max-w-5xl mx-auto flex flex-col items-center">
                 <div className="mb-6 relative">
                     <div className="absolute inset-0 bg-chart-1 blur-[60px] opacity-20 rounded-full animate-pulse"></div>
@@ -391,8 +390,8 @@ export default function Home() {
 
        {/* Newsletter Section */}
        <section className="py-16 md:py-20 bg-chart-1 border-y border-black/10">
-          <div className="container max-w-4xl mx-auto px-4">
-            <div className="flex flex-col items-center text-center">
+          <div className="container max-w-7xl mx-auto px-4">
+            <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
                 <h2 className="font-headline text-4xl md:text-6xl font-bold text-black uppercase tracking-tighter italic leading-none mb-2">
                     Join The V3 Family
                 </h2>

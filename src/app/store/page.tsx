@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -235,7 +234,7 @@ function StoreContent() {
 
 export default function StorePage() {
   return (
-    <div className="container py-12 md:py-24 bg-white">
+    <div className="container max-w-7xl mx-auto px-4 py-12 md:py-24 bg-white">
       <BackButton />
       <Suspense fallback={<div className="text-center py-20">Loading Store...</div>}>
         <StoreContent />

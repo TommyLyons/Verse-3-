@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -38,7 +37,7 @@ export default function MusicPage() {
     };
 
     return (
-        <div className="container py-12 md:py-24">
+        <div className="container max-w-7xl mx-auto px-4 py-12 md:py-24">
             <BackButton />
             <div className="text-center mb-12">
                 <h1 className="font-headline text-4xl md:text-5xl font-bold text-chart-4">Music</h1>
@@ -87,7 +86,7 @@ export default function MusicPage() {
 
             {/* Hot Links Section */}
             <section className="py-16 md:py-24">
-                <div className="container max-w-5xl">
+                <div className="max-w-5xl mx-auto">
                     <div className="text-center mb-12">
                         <h2 className="font-headline text-3xl font-bold tracking-tight text-primary sm:text-4xl">Hot Links</h2>
                         <p className="mt-4 text-muted-foreground md:text-lg max-w-2xl mx-auto">Find our music on your favorite platforms.</p>
