@@ -10,6 +10,9 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Verse3 Records',
   description: 'Recording Studio, Music, and Merchandise.',
+  icons: {
+    icon: 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/favicon.ico?alt=media&token=23b7208f-24e8-4f3b-aab8-8bfd2ed9ca74',
+  },
 };
 
 export default function RootLayout({
