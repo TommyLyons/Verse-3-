@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Global admin check based on UID or Email
+    // Helper for Admin Check
     function isAdmin() {
       return request.auth != null && (
         request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2' || 
@@ -11,7 +11,6 @@ service cloud.firestore {
     }
     
     // Newsletter subscriptions rules
-    // Method 'list' on collection requires permissions on the collection path
     match /newsletterSubscriptions/{subId} {
       allow create: if true;
       allow read, list, delete: if isAdmin();
