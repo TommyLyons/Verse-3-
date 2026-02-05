@@ -2,9 +2,13 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // helper to determine if the user is the specific admin
+    // Helper to determine if the user is the specific admin
+    // Checked against UID and Email for maximum reliability
     function isAdmin() {
-      return request.auth != null && request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2';
+      return request.auth != null && (
+        request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2' || 
+        request.auth.token.email == 'verse3records@gmail.com'
+      );
     }
     
     // Newsletter subscriptions rules
