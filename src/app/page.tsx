@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Eye, ChevronRight, Instagram, Send } from 'lucide-react';
+import { Eye, ChevronRight, Instagram, Send, ShoppingBag } from 'lucide-react';
 import { getAllProducts, type Product } from '@/lib/products';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
@@ -37,6 +37,7 @@ export default function Home() {
 
   const [isAgeGateOpen, setIsAgeGateOpen] = useState(false);
   const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
+  const [pendingBrand, setPendingBrand] = useState<string | null>(null);
   const [isAgeVerified, setIsAgeVerified] = useState(false);
 
   useEffect(() => {
@@ -64,19 +65,33 @@ export default function Home() {
     router.push(`/store/${product.type}/${product.slug}`);
   };
 
+  const handleBrandClick = (brand: 'Verse 3' | 'Crude City') => {
+    if (brand === 'Crude City' && !isAgeVerified) {
+      setPendingBrand(brand);
+      setIsAgeGateOpen(true);
+      return;
+    }
+    router.push(`/store?brand=${brand === 'Verse 3' ? 'v3' : 'crude'}`);
+  };
+
   const onAgeConfirm = () => {
     sessionStorage.setItem('v3_age_verified', 'true');
     setIsAgeVerified(true);
     setIsAgeGateOpen(false);
+    
     if (pendingProduct) {
       router.push(`/store/${pendingProduct.type}/${pendingProduct.slug}`);
       setPendingProduct(null);
+    } else if (pendingBrand) {
+      router.push(`/store?brand=${pendingBrand === 'Verse 3' ? 'v3' : 'crude'}`);
+      setPendingBrand(null);
     }
   };
 
   const onAgeCancel = () => {
     setIsAgeGateOpen(false);
     setPendingProduct(null);
+    setPendingBrand(null);
   };
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
@@ -212,13 +227,34 @@ export default function Home() {
                         </div>
                     </div>
                 )}
-
-                <div className="text-center mt-12">
-                    <Button asChild size="lg" className="bg-black text-chart-1 font-bold">
-                        <Link href="/store">View All Merch</Link>
-                    </Button>
-                </div>
             </div>
+       </section>
+
+       {/* Shop By Brand Entry Section */}
+       <section className="py-12 bg-black text-white">
+          <div className="container max-w-4xl mx-auto px-4">
+            <div className="text-center mb-8">
+              <h2 className="font-headline text-3xl font-bold uppercase tracking-[0.1em] italic text-chart-1">Choose Your Vibe</h2>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                onClick={() => handleBrandClick('Verse 3')}
+                size="lg"
+                className="flex-1 h-20 bg-white text-black hover:bg-chart-1 font-headline text-2xl uppercase italic border-none rounded-none transition-all duration-300 transform hover:scale-105"
+              >
+                <ShoppingBag className="mr-3 h-6 w-6" />
+                V3 Merch
+              </Button>
+              <Button 
+                onClick={() => handleBrandClick('Crude City')}
+                size="lg"
+                className="flex-1 h-20 bg-chart-1 text-black hover:bg-white font-headline text-2xl uppercase italic border-none rounded-none transition-all duration-300 transform hover:scale-105"
+              >
+                <ShoppingBag className="mr-3 h-6 w-6" />
+                Crude City
+              </Button>
+            </div>
+          </div>
        </section>
 
        {/* Latest Music Carousel */}

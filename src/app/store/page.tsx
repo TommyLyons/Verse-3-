@@ -7,7 +7,7 @@ import { Product, getAllProducts } from '@/lib/products';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
-import { Eye, DownloadCloud, Globe, Lock } from 'lucide-react';
+import { Eye, DownloadCloud, Globe } from 'lucide-react';
 import { useRegion } from '@/context/region-context';
 import { AgeGate } from '@/components/age-gate';
 import {
@@ -17,9 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const ProductGrid = ({ products, isLoading, type, onProductClick }: { products: any[], isLoading?: boolean, type: 'merch' | 'music', onProductClick?: (item: any) => void }) => {
     if (isLoading) {
@@ -79,8 +79,9 @@ const ProductGrid = ({ products, isLoading, type, onProductClick }: { products: 
     );
 };
 
-export default function StorePage() {
+function StoreContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { region, setRegion } = useRegion();
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -94,6 +95,14 @@ export default function StorePage() {
     const verified = sessionStorage.getItem('v3_age_verified') === 'true';
     setIsAgeVerified(verified);
 
+    // Initial brand from query params
+    const initialBrand = searchParams.get('brand');
+    if (initialBrand === 'crude' && verified) {
+      setActiveBrand('Crude City');
+    } else if (initialBrand === 'crude' && !verified) {
+      setIsAgeGateOpen(true);
+    }
+
     async function fetchProducts() {
         setIsLoading(true);
         try {
@@ -106,7 +115,7 @@ export default function StorePage() {
         }
     }
     fetchProducts();
-  }, []);
+  }, [searchParams]);
 
   const handleBrandSwitch = (brand: 'Verse 3' | 'Crude City') => {
     if (brand === 'Crude City' && !isAgeVerified) {
@@ -140,6 +149,7 @@ export default function StorePage() {
   const onAgeCancel = () => {
     setIsAgeGateOpen(false);
     setPendingProduct(null);
+    if (activeBrand === 'Crude City') setActiveBrand('Verse 3');
   };
 
   const verse3Merch = allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch');
@@ -148,9 +158,8 @@ export default function StorePage() {
   const crudeCityMerch = allProducts.filter(p => p.brand === 'Crude City' && p.type === 'merch' && (!p.availableRegions || p.availableRegions.includes(region)));
 
   return (
-    <div className="container py-12 md:py-24 bg-white">
-      <BackButton />
-       <div className="text-center mb-12">
+    <>
+      <div className="text-center mb-12">
         <h1 className="font-headline text-4xl md:text-5xl font-bold text-black uppercase tracking-wider italic">Store</h1>
         <p className="text-muted-foreground mt-2">Merchandise, vinyls, and more.</p>
        </div>
@@ -220,6 +229,17 @@ export default function StorePage() {
          onConfirm={onAgeConfirm} 
          onCancel={onAgeCancel} 
        />
+    </>
+  );
+}
+
+export default function StorePage() {
+  return (
+    <div className="container py-12 md:py-24 bg-white">
+      <BackButton />
+      <Suspense fallback={<div className="text-center py-20">Loading Store...</div>}>
+        <StoreContent />
+      </Suspense>
     </div>
   );
 }
