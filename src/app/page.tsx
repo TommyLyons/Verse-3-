@@ -5,16 +5,9 @@ import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Disc, Eye, ChevronRight, Instagram } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Eye, ChevronRight, Instagram } from 'lucide-react';
 import { getAllProducts, type Product } from '@/lib/products';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Carousel,
@@ -24,27 +17,11 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 
-const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
-
-const hotDrop = { id: 5, title: 'Midnight Drive', artist: 'DJ Lofty', videoSrc: 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.19.29.mp4?alt=media&token=fdad85e4-48e2-4911-b762-ce1a44bcd192' };
-
 const INSTAGRAM_URL = "https://www.instagram.com/verse3records?igsh=NXhzcW84N2NwZ3Iw";
 
 export default function Home() {
-  const [isHotDropOpen, setIsHotDropOpen] = useState(false);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const hasSeenHotDrop = localStorage.getItem('hotDropShown');
-    if (!hasSeenHotDrop) {
-      const timer = setTimeout(() => {
-        setIsHotDropOpen(true);
-        localStorage.setItem('hotDropShown', 'true');
-      }, 15000);
-      return () => clearTimeout(timer);
-    }
-  }, []);
 
   useEffect(() => {
     async function fetchProducts() {
@@ -61,29 +38,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      <Dialog open={isHotDropOpen} onOpenChange={setIsHotDropOpen}>
-        <DialogContent className="max-w-xs bg-card border-primary/50">
-          <DialogHeader>
-            <DialogTitle className='font-headline text-3xl font-bold tracking-tight text-primary'>Hot Drop</DialogTitle>
-            <DialogDescription>Check out the latest exclusive track.</DialogDescription>
-          </DialogHeader>
-          <div className="w-full">
-            <Card className="overflow-hidden border-none shadow-none">
-                <CardContent className="p-0">
-                    <video src={hotDrop.videoSrc} controls className="w-full h-full object-cover" />
-                </CardContent>
-                <CardFooter className="p-4 flex justify-between items-center">
-                    <div>
-                        <p className="font-semibold">{hotDrop.title}</p>
-                        <p className="text-sm text-muted-foreground">{hotDrop.artist}</p>
-                    </div>
-                    <Disc className="h-6 w-6 text-primary" />
-                </CardFooter>
-            </Card>
-          </div>
-        </DialogContent>
-      </Dialog>
-
       {/* Hero Section */}
       <section className="relative w-full h-[80vh] md:h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-white">
         <div className="absolute inset-0 z-0 flex items-center justify-center">
@@ -250,7 +204,7 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Funky Instagram Section - Compacted */}
+       {/* Instagram Section */}
        <section className="relative py-10 md:py-16 bg-black overflow-hidden group">
           {/* Kinetic background elements */}
           <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
@@ -258,14 +212,13 @@ export default function Home() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] border-[20px] border-chart-1/5 rounded-full animate-spin" style={{ animationDuration: '45s', animationDirection: 'reverse' }} />
           </div>
 
-          {/* Decorative text - Scaled down */}
+          {/* Decorative text */}
           <div className="absolute -bottom-6 -right-6 md:-bottom-12 md:-right-12 select-none opacity-10">
             <h3 className="font-headline text-[6rem] md:text-[10rem] text-chart-1 leading-none">V3</h3>
           </div>
           
           <div className="container relative z-10">
             <div className="max-w-5xl mx-auto flex flex-col items-center">
-                {/* Visual anchor - Scaled down */}
                 <div className="mb-6 relative">
                     <div className="absolute inset-0 bg-chart-1 blur-[60px] opacity-20 rounded-full animate-pulse"></div>
                     <div className="relative h-16 w-16 md:h-20 md:w-20 bg-chart-1 flex items-center justify-center rounded-xl rotate-12 group-hover:rotate-0 transition-all duration-700 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
