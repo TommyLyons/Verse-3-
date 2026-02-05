@@ -191,8 +191,20 @@ export function Header() {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild><UserIcon className="mr-2 h-4 w-4" /><Link href="/profile">Profile</Link></DropdownMenuItem>
-                    {isAdmin && <DropdownMenuItem asChild><Shield className="mr-2 h-4 w-4" /><Link href="/admin">Admin</Link></DropdownMenuItem>}
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile" className="flex w-full items-center">
+                        <UserIcon className="mr-2 h-4 w-4" />
+                        <span>Profile</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    {isAdmin && (
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin" className="flex w-full items-center">
+                          <Shield className="mr-2 h-4 w-4" />
+                          <span>Admin</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut}>Sign Out</DropdownMenuItem>
                   </DropdownMenuContent>
