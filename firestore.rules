@@ -8,18 +8,13 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Admin check: verified by specific administrative UID or email
+    // Admin check: verified by specific administrative UID
     // User UID from logs: I47i5ZR5aAPOMVgQnTYQm2UB3Ym2
-    // We check UID first as it is more reliable than email when email_verified is false
     function isAdmin() {
-      return isSignedIn() && (
-        request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2' ||
-        request.auth.token.email == 'verse3records@gmail.com'
-      );
+      return isSignedIn() && request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2';
     }
     
     // Newsletter subscriptions rules
-    // Anyone can subscribe (create), but only admins can view (read/list)
     match /newsletterSubscriptions/{subId} {
       allow create: if true;
       allow read, list: if isAdmin();
@@ -64,7 +59,7 @@ service firebase.storage {
     }
     match /{allPaths=**} {
         allow read: if true;
-        allow write: if false; // Only allow writes through console
+        allow write: if false; 
     }
   }
 }
