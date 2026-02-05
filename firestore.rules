@@ -11,11 +11,16 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    // Admin check: verified by email or specific administrative UID
     function isAdmin() {
-      return isSignedIn() && request.auth.token.email == 'verse3records@gmail.com';
+      return isSignedIn() && (
+        request.auth.token.email == 'verse3records@gmail.com' ||
+        request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2'
+      );
     }
     
-    // Explicitly allow anyone to sign up for newsletter
+    // Newsletter subscriptions rules
+    // Anyone can subscribe (create), but only admins can view the list (read/list)
     match /newsletterSubscriptions/{subId} {
       allow create: if true;
       allow read, list: if isAdmin();
