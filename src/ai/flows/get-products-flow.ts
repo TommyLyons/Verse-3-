@@ -59,30 +59,50 @@ const getProductsFlow = ai.defineFlow(
         if (!crudeCityStore) return [];
         const storeId = crudeCityStore.id;
 
-        const response = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
+        const response = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=24`, { headers });
         if (!response.ok) return [];
 
         const data = await response.json();
-        return data.result.map((item: any): Product | null => {
-            if (!item.name || !item.thumbnail_url) return null;
-            
-            const slug = item.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
-            const sizes = item.sync_variants ? [...new Set(item.sync_variants.map((v: any) => v.size).filter(Boolean))] as string[] : [];
-            
-            return {
-                id: String(item.id),
-                name: item.name,
-                slug: slug,
-                price: '€35.00',
-                description: `A high-quality product: ${item.name}.`,
-                imageUrl: item.thumbnail_url,
-                revolutLink: 'https://revolut.me/test-business-studio',
-                type: 'merch',
-                brand: 'Crude City',
-                availableRegions: ['UK', 'EU'],
-                sizes: sizes.length > 0 ? sizes : undefined,
-            };
-        }).filter((p): p is Product => p !== null);
+        const products = data.result;
+
+        // Fetch details for each product to get variant information (sizes)
+        const detailedProducts = await Promise.all(products.map(async (item: any) => {
+            try {
+                const detailResponse = await fetch(`https://api.printful.com/sync/products/${item.id}?store_id=${storeId}`, { headers });
+                if (!detailResponse.ok) return null;
+                
+                const detailData = await detailResponse.json();
+                const syncProduct = detailData.result.sync_product;
+                const syncVariants = detailData.result.sync_variants;
+
+                if (!syncProduct || !syncProduct.name || !syncProduct.thumbnail_url) return null;
+
+                const sizes = syncVariants 
+                    ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
+                    : [];
+                
+                const slug = syncProduct.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+
+                return {
+                    id: String(syncProduct.id),
+                    name: syncProduct.name,
+                    slug: slug,
+                    price: '€35.00', // Enforced pricing for Crude City merch
+                    description: `A high-quality product: ${syncProduct.name}.`,
+                    imageUrl: syncProduct.thumbnail_url,
+                    revolutLink: 'https://revolut.me/test-business-studio',
+                    type: 'merch',
+                    brand: 'Crude City',
+                    availableRegions: ['UK', 'EU'],
+                    sizes: sizes.length > 0 ? sizes : undefined,
+                };
+            } catch (err) {
+                console.error(`Failed to fetch details for product ${item.id}`, err);
+                return null;
+            }
+        }));
+
+        return detailedProducts.filter((p): p is Product => p !== null);
       } catch (err) {
         console.error("Printful fetch failed", err);
         return [];
