@@ -1,5 +1,7 @@
 import { MetadataRoute } from 'next';
 
+const ICON_URL = 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/IMG-20260205-WA0003.jpg?alt=media&token=98291edc-2261-4cf8-9892-a10f7b00f8b0';
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Verse3 Records',
@@ -11,13 +13,13 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: '#000000',
     icons: [
       {
-        src: 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/favicon.ico?alt=media&token=23b7208f-24e8-4f3b-aab8-8bfd2ed9ca74',
-        sizes: 'any',
-        type: 'image/x-icon',
+        src: ICON_URL,
+        sizes: '192x192',
+        type: 'image/jpeg',
         purpose: 'any',
       },
       {
-        src: 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/IMG-20260204-WA0001~2.jpg?alt=media&token=45b80a78-89ad-40ca-a55a-e185c9447432',
+        src: ICON_URL,
         sizes: '512x512',
         type: 'image/jpeg',
         purpose: 'maskable',

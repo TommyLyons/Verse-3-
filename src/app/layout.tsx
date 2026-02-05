@@ -13,17 +13,18 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
+const ICON_URL = 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/IMG-20260205-WA0003.jpg?alt=media&token=98291edc-2261-4cf8-9892-a10f7b00f8b0';
+
 export const metadata: Metadata = {
   title: 'Verse3 Records',
   description: 'Electronic music label, Streetwear merch & Live events',
   icons: {
     icon: [
-      { url: 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/favicon.ico?alt=media&token=23b7208f-24e8-4f3b-aab8-8bfd2ed9ca74' },
-      { url: 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/IMG-20260204-WA0001~2.jpg?alt=media&token=45b80a78-89ad-40ca-a55a-e185c9447432', sizes: '192x192', type: 'image/jpeg' },
+      { url: ICON_URL, type: 'image/jpeg' },
     ],
-    shortcut: 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/favicon.ico?alt=media&token=23b7208f-24e8-4f3b-aab8-8bfd2ed9ca74',
+    shortcut: ICON_URL,
     apple: [
-      { url: 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/IMG-20260204-WA0001~2.jpg?alt=media&token=45b80a78-89ad-40ca-a55a-e185c9447432', sizes: '180x180', type: 'image/jpeg' },
+      { url: ICON_URL, sizes: '180x180', type: 'image/jpeg' },
     ],
   },
   manifest: '/manifest.webmanifest',
