@@ -2,9 +2,12 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper to check if the user is the specific admin account by UID
+    // Helper to check if the user is the specific admin account
     function isV3Admin() {
-      return request.auth != null && request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2';
+      return request.auth != null && (
+        request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2' || 
+        request.auth.token.email == 'verse3records@gmail.com'
+      );
     }
     
     // Newsletter subscriptions: Createable by anyone, Manageable by admin
