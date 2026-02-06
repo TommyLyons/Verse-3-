@@ -2,46 +2,44 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper to check if the user is the specific admin account
-    function isAdmin() {
-      return request.auth != null && (
-        request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2' || 
-        request.auth.token.email == 'verse3records@gmail.com'
-      );
+    // Helper to check if the user is the specific admin account by UID
+    // Using the UID directly for maximum reliability
+    function isV3Admin() {
+      return request.auth != null && request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2';
     }
     
     // newsletter subscriptions: Readable/Writeable by admin, createable by anyone
     match /newsletterSubscriptions/{subId} {
       allow create: if true;
-      allow read, write, list: if isAdmin();
+      allow read, write: if isV3Admin();
     }
 
     // User profile and purchase history rules
     match /users/{userId} {
-      allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      allow read, write: if request.auth != null && (request.auth.uid == userId || isV3Admin());
 
       match /purchasedProducts/{purchaseId} {
-        allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
-        allow write: if isAdmin();
+        allow read: if request.auth != null && (request.auth.uid == userId || isV3Admin());
+        allow write: if isV3Admin();
       }
     }
 
     // Demo submissions rules
     match /demoSubmissions/{submissionId} {
       allow create: if true;
-      allow read, write, list: if isAdmin();
+      allow read, write: if isV3Admin();
     }
 
     // Store product rules
     match /products/{productId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if isV3Admin();
     }
 
     // Order rules
     match /orders/{orderId} {
         allow create: if true;
-        allow read, write, list: if isAdmin();
+        allow read, write: if isV3Admin();
     }
   }
 }
