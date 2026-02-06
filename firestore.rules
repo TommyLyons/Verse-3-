@@ -3,6 +3,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // Helper to check for admin status
+    // Explicitly uses the UID and Email provided for verse3records@gmail.com
     function isAdmin() {
       return request.auth != null && (
         request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2' || 
@@ -10,10 +11,11 @@ service cloud.firestore {
       );
     }
     
-    // Explicit rule for newsletter subscriptions list/read
+    // Explicit rule for newsletter subscriptions
+    // Allowing read and list specifically for the admin account
     match /newsletterSubscriptions/{subId} {
       allow create: if true;
-      allow read, list, write: if isAdmin();
+      allow read, list, update, delete: if isAdmin();
     }
 
     // User profile and purchase history rules
