@@ -3,18 +3,17 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // Helper to check if the user is the specific admin account by UID
-    // Using the UID directly for maximum reliability
     function isV3Admin() {
       return request.auth != null && request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2';
     }
     
-    // newsletter subscriptions: Readable/Writeable by admin, createable by anyone
+    // Newsletter subscriptions: Createable by anyone, Manageable by admin
     match /newsletterSubscriptions/{subId} {
       allow create: if true;
       allow read, write: if isV3Admin();
     }
 
-    // User profile and purchase history rules
+    // User profiles and purchase history
     match /users/{userId} {
       allow read, write: if request.auth != null && (request.auth.uid == userId || isV3Admin());
 
@@ -24,22 +23,22 @@ service cloud.firestore {
       }
     }
 
-    // Demo submissions rules
+    // Demo submissions
     match /demoSubmissions/{submissionId} {
       allow create: if true;
       allow read, write: if isV3Admin();
     }
 
-    // Store product rules
+    // Products
     match /products/{productId} {
       allow read: if true;
       allow write: if isV3Admin();
     }
 
-    // Order rules
+    // Orders
     match /orders/{orderId} {
-        allow create: if true;
-        allow read, write: if isV3Admin();
+      allow create: if true;
+      allow read, write: if isV3Admin();
     }
   }
 }
@@ -47,12 +46,11 @@ service cloud.firestore {
 service firebase.storage {
   match /b/{bucket}/o {
     match /demoSubmissions/{allPaths=**} {
-      allow read: if true;
-      allow write: if true;
+      allow read, write: if true;
     }
     match /{allPaths=**} {
-        allow read: if true;
-        allow write: if false; 
+      allow read: if true;
+      allow write: if false; 
     }
   }
 }
