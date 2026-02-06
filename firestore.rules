@@ -13,7 +13,7 @@ service cloud.firestore {
     // newsletter subscriptions: Readable by admin, writeable by anyone
     match /newsletterSubscriptions/{subId} {
       allow create: if true;
-      allow read, list, update, delete: if isAdmin();
+      allow read, list, get, update, delete: if isAdmin();
     }
 
     // User profile and purchase history rules
@@ -29,19 +29,19 @@ service cloud.firestore {
     // Demo submissions rules
     match /demoSubmissions/{submissionId} {
       allow create: if true;
-      allow read, list, update, delete: if isAdmin();
+      allow read, list, get, update, delete: if isAdmin();
     }
 
     // Store product rules
     match /products/{productId} {
-      allow read, list: if true;
+      allow read, list, get: if true;
       allow write: if isAdmin();
     }
 
     // Order rules
     match /orders/{orderId} {
         allow create: if true;
-        allow read, list, update, delete: if isAdmin();
+        allow read, list, get, update, delete: if isAdmin();
     }
   }
 }
