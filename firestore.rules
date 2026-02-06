@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Root-level admin check
+    // Helper to check if the user is the specific admin account
     function isAdmin() {
       return request.auth != null && (
         request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2' || 
@@ -10,10 +10,10 @@ service cloud.firestore {
       );
     }
     
-    // newsletter subscriptions: Readable by admin, writeable by anyone
+    // newsletter subscriptions: Readable/Writeable by admin, createable by anyone
     match /newsletterSubscriptions/{subId} {
       allow create: if true;
-      allow read, write: if isAdmin();
+      allow read, write, list: if isAdmin();
     }
 
     // User profile and purchase history rules
@@ -29,7 +29,7 @@ service cloud.firestore {
     // Demo submissions rules
     match /demoSubmissions/{submissionId} {
       allow create: if true;
-      allow read, write: if isAdmin();
+      allow read, write, list: if isAdmin();
     }
 
     // Store product rules
@@ -41,7 +41,7 @@ service cloud.firestore {
     // Order rules
     match /orders/{orderId} {
         allow create: if true;
-        allow read, write: if isAdmin();
+        allow read, write, list: if isAdmin();
     }
   }
 }
