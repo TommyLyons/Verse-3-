@@ -188,7 +188,7 @@ const MusicSubmissions = () => {
 const productFormSchema = z.object({
   name: z.string().min(3, "Product name must be at least 3 characters."),
   description: z.string().min(10, "Description must be at least 10 characters."),
-  price: z.string().regex(/^\$\d+(\.\d{2})?$/, "Price must be in the format $XX.XX."),
+  price: z.string().regex(/^[\$\€]\d+(\.\d{2})?$/, "Price must be in the format $XX.XX or €XX.XX."),
   revolutLink: z.string().url("Please enter a valid Revolut purchase link."),
   type: z.enum(['merch', 'music']),
   brand: z.enum(['Verse 3 Merch', 'Crude City']),
@@ -211,7 +211,7 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
         defaultValues: {
             name: '',
             description: '',
-            price: '$',
+            price: '€',
             revolutLink: 'https://revolut.me/',
             type: 'merch',
             brand: 'Verse 3 Merch',
@@ -301,7 +301,7 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Price</FormLabel>
-                                <FormControl><Input placeholder="$29.99" {...field} /></FormControl>
+                                <FormControl><Input placeholder="€35.00" {...field} /></FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}
@@ -502,4 +502,5 @@ export default function AdminPage() {
                 <SalesDashboard />
             </div>
         </div>
+    );
 }
