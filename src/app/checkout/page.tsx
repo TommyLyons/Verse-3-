@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -21,10 +21,10 @@ import {
 } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { BackButton } from '@/components/ui/back-button';
-import { CreditCard, CheckCircle, ShieldCheck, ShoppingBag } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { CreditCard, CheckCircle, ShieldCheck, ShoppingBag, RefreshCcw } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
-import { loadStripe } from '@stripe/stripe-js';
+import { createCheckoutSession } from '@/app/actions/checkout';
 
 const STRIPE_PUBLISHABLE_KEY = "pk_live_51T6sTyB9Rp46v45XkIzRrWnjQQMZXFzErkzoeTK2h8VOGT7uP0PmfTBrVnRFPwQ5vFaQqrdLXJcuXpKhO29Zl8Iq004hGYRp53";
 
@@ -41,14 +41,20 @@ export default function CheckoutPage() {
   const { toast } = useToast();
   const firestore = useFirestore();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useUser();
   const { cart, clearCart } = useCart();
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
 
-  const physicalItems = cart.filter(item => !item.digital);
-  const digitalItems = cart.filter(item => item.digital);
+  useEffect(() => {
+    if (searchParams.get('success')) {
+      setOrderComplete(true);
+      clearCart();
+    }
+  }, [searchParams, clearCart]);
+
   const total = cart.reduce((acc, item) => acc + parseFloat(item.price.replace(/[^0-9.]/g, '')) * item.quantity, 0);
   const currencySymbol = cart.length > 0 ? cart[0].price.replace(/[0-9.,]/g, '') : '£';
 
@@ -71,6 +77,7 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
+      // 1. Record the pending order in Firestore
       if (firestore) {
         const ordersCollection = collection(firestore, 'orders');
         const orderData = {
@@ -90,27 +97,26 @@ export default function CheckoutPage() {
         addDocumentNonBlocking(ordersCollection, orderData);
       }
       
-      const stripe = await loadStripe(STRIPE_PUBLISHABLE_KEY);
-      
+      // 2. Initiate Stripe Checkout
       toast({
         title: 'Connecting to Stripe...',
-        description: "Opening secure payment gateway.",
+        description: "Redirecting to secure payment gateway.",
       });
 
-      // Simulation of Stripe Hosted Checkout opening
-      // In a real production setup, we would call a server action here to create a session
-      // For this prototype, we simulate the success redirect
-      setTimeout(() => {
-        setOrderComplete(true);
-        clearCart();
-      }, 2500);
+      const result = await createCheckoutSession({ cart, customerDetails: values });
+      
+      if (result.url) {
+        window.location.assign(result.url);
+      } else {
+        throw new Error("Failed to initialize Stripe session.");
+      }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Order submission error:', error);
       toast({
         variant: 'destructive',
         title: 'Checkout Error',
-        description: 'Failed to process checkout. Please try again.',
+        description: error.message || 'Failed to process checkout. Please try again.',
       });
     } finally {
       setIsSubmitting(false);
@@ -204,8 +210,17 @@ export default function CheckoutPage() {
                         />
 
                     <Button type="submit" disabled={isSubmitting || cart.length === 0} className="w-full h-16 text-xl font-headline uppercase italic tracking-wider bg-black text-chart-1 rounded-none hover:bg-black/90">
-                        {isSubmitting ? 'Processing...' : `Pay ${currencySymbol}${total.toFixed(2)} with Stripe`}
-                        <CreditCard className="ml-3 h-6 w-6" />
+                        {isSubmitting ? (
+                          <div className="flex items-center gap-2">
+                            <RefreshCcw className="h-5 w-5 animate-spin" />
+                            Processing...
+                          </div>
+                        ) : (
+                          <>
+                            Pay {currencySymbol}{total.toFixed(2)} with Stripe
+                            <CreditCard className="ml-3 h-6 w-6" />
+                          </>
+                        )}
                     </Button>
                     </form>
                 </Form>
