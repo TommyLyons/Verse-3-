@@ -48,6 +48,10 @@ export async function fetchClientSecret(cart: any[]) {
       ui_mode: 'embedded',
       line_items,
       mode: 'payment',
+      // Explicitly enable automatic payment methods to support Apple Pay, Google Pay, etc.
+      automatic_payment_methods: {
+        enabled: true,
+      },
       return_url: `${origin}/return?session_id={CHECKOUT_SESSION_ID}`,
     });
 
