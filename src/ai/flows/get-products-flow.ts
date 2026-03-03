@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview A flow for fetching product information from multiple Printful stores with accurate retail pricing.
+ * @fileOverview A flow for fetching product information from multiple Printful stores with accurate retail pricing and regional currency enforcement.
  */
 
 import {ai} from '@/ai/genkit';
@@ -31,11 +31,6 @@ async function getPrintfulApiKey(): Promise<string | null> {
     }
 }
 
-const brandStoreMap: Record<string, string[]> = {
-  'Verse 3 Merch': ['V3 UK', 'V3 Europe'],
-  'Crude City': ['Crude City Europe', 'Crude City UK']
-};
-
 const getProductsFlow = ai.defineFlow(
   {
     name: 'getProductsFlow',
@@ -47,16 +42,23 @@ const getProductsFlow = ai.defineFlow(
     if (!apiKey) return [];
 
     const headers = { 'Authorization': `Bearer ${apiKey}` };
-    const targetStores = (brandStoreMap[brand] || []).map(s => s.toLowerCase().trim());
 
     try {
         const storesResponse = await fetch('https://api.printful.com/stores', { headers });
         if (!storesResponse.ok) return [];
         
         const storesData = await storesResponse.json();
-        const matchingStores = storesData.result.filter((store: any) => 
-            targetStores.includes(store.name.toLowerCase().trim())
-        );
+        const allStores = storesData.result || [];
+
+        // Fuzzy matching for stores to ensure Europe and UK are both caught
+        const matchingStores = allStores.filter((store: any) => {
+            const name = store.name.toLowerCase();
+            if (brand === 'Verse 3 Merch') {
+                return (name.includes('v3') || name.includes('verse')) && (name.includes('uk') || name.includes('europe') || name.includes('eu'));
+            } else {
+                return name.includes('crude city');
+            }
+        });
 
         if (matchingStores.length === 0) return [];
 
@@ -70,7 +72,7 @@ const getProductsFlow = ai.defineFlow(
             if (!productsResponse.ok) continue;
 
             const data = await productsResponse.json();
-            const products = data.result;
+            const products = data.result || [];
 
             const detailedProducts = await Promise.all(products.map(async (item: any) => {
                 try {
@@ -88,26 +90,18 @@ const getProductsFlow = ai.defineFlow(
                         : [];
                     
                     // ACCURATE RETAIL PRICE EXTRACTION
+                    // We prioritize the retail price set in Printful.
                     let retailPrice = 0;
-                    let currencyCode = region === 'UK' ? 'GBP' : 'EUR';
-
                     if (syncVariants && syncVariants.length > 0) {
-                        const prices = syncVariants.map((v: any) => {
-                            const p = parseFloat(v.retail_price);
-                            return !isNaN(p) ? p : 0;
-                        }).filter((p: number) => p > 0);
-
+                        const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter(p => !isNaN(p) && p > 0);
                         if (prices.length > 0) {
-                            // Use max variant price for consistent premium branding (e.g. Backpack at €75)
+                            // Use the maximum price to capture the intended value for premium items (e.g. Backpacks at €75)
                             retailPrice = Math.max(...prices);
-                        }
-                        
-                        if (syncVariants[0].currency) {
-                            currencyCode = syncVariants[0].currency;
                         }
                     }
 
-                    const currencySymbol = currencyCode === 'GBP' ? '£' : (currencyCode === 'EUR' ? '€' : '$');
+                    // Enforce currency based on region
+                    const currencySymbol = region === 'UK' ? '£' : '€';
                     const formattedPrice = retailPrice === 0 ? 'N/A' : `${currencySymbol}${retailPrice.toFixed(2)}`;
                     const slug = syncProduct.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 
