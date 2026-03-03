@@ -1,4 +1,3 @@
-
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -8,16 +7,16 @@ const getImage = (id: string) => PlaceHolderImages.find((img) => img.id === id);
 
 const artists = [
     {
-        name: "Steve Liddle (Lofty)",
-        role: "Director/Founder & Producer",
-        description: "An accomplished producer whose sonic craft forms the backbone of the label’s output. Steve’s studio expertise and emotive production style define the musical direction of Verse Three Records.",
-        image: getImage('artist-lofty')
-    },
-    {
         name: "Keith Doyle",
         role: "Director/Founder & Head of A&R",
         description: "A seasoned music professional with roots in artist management and promotions, notably working with UK rapper Jevon. Keith brings strategic insight, a finely tuned ear for talent, and a strong understanding of what makes a record connect.",
         image: getImage('artist-keith')
+    },
+    {
+        name: "Steve Liddle (Lofty)",
+        role: "Director/Founder & Producer",
+        description: "An accomplished producer whose sonic craft forms the backbone of the label’s output. Steve’s studio expertise and emotive production style define the musical direction of Verse Three Records.",
+        image: getImage('artist-lofty')
     },
     {
         name: "Alvin Koumetio",
@@ -45,7 +44,7 @@ export default function ArtistsPage() {
                     src={artist.image.imageUrl}
                     alt={`Portrait of ${artist.name}`}
                     fill
-                    className="object-contain"
+                    className="object-cover"
                     data-ai-hint={artist.image.imageHint}
                      sizes="(max-width: 640px) 128px, 160px"
                   />
