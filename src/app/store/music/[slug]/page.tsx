@@ -13,7 +13,7 @@ export async function generateStaticParams() {
         slug: p.slug,
       }));
     
-    // Fallback params to ensure build succeeds even if no products are found
+    // Fallback params to ensure build succeeds even if no products are found in flow
     if (params.length === 0) {
       return [{ slug: 'quiet-steps' }];
     }

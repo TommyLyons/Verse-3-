@@ -193,6 +193,7 @@ const productFormSchema = z.object({
   downloadUrl: z.string().optional(),
   sizes: z.string().optional(),
 });
+
 type ProductFormValues = z.infer<typeof productFormSchema>;
 
 const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {

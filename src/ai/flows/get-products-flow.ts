@@ -89,7 +89,7 @@ const getProductsFlow = ai.defineFlow(
                         ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
                         : [];
                     
-                    // Accurate retail price logic: Find the min price across all variants
+                    // Precise retail price logic: Extract the actual retail price from Printful variants
                     let minPrice = Infinity;
                     let currencySymbol = region === 'UK' ? '£' : '€';
 
@@ -103,7 +103,8 @@ const getProductsFlow = ai.defineFlow(
                         });
                     }
 
-                    const formattedPrice = minPrice === Infinity ? '€35.00' : `${currencySymbol}${minPrice.toFixed(2)}`;
+                    // Fallback to a zero-placeholder only if no variants found, otherwise use calculated min price
+                    const formattedPrice = minPrice === Infinity ? 'N/A' : `${currencySymbol}${minPrice.toFixed(2)}`;
                     const slug = syncProduct.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 
                     return {

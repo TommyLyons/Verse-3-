@@ -40,19 +40,32 @@ export const getAllProducts = async (): Promise<Product[]> => {
 
     const combined = [...dbProducts, ...flowProducts];
 
-    // Final fallback for static build safety
+    // Final fallback for static build safety if no products could be retrieved
     if (combined.length === 0) {
         return [
             {
-                id: 'fallback-1',
+                id: 'v3-hoodie-fallback',
                 name: 'V3 Hoodie',
                 slug: 'v3-hoodie',
                 price: '£35.00',
-                description: 'Classic Verse 3 Hoodie.',
-                imageUrl: 'https://picsum.photos/seed/hoodie/600/600',
+                description: 'Classic Verse 3 Hoodie. High quality streetwear.',
+                imageUrl: 'https://images.unsplash.com/photo-1610582144787-eda2e6f293b4?auto=format&fit=crop&q=80&w=1080',
                 revolutLink: 'https://revolut.me/',
                 type: 'merch',
                 brand: 'Verse 3 Merch'
+            },
+            {
+                id: 'quiet-steps-fallback',
+                name: 'Quiet Steps',
+                slug: 'quiet-steps',
+                price: '£1.49',
+                description: 'Debut single from Verse 3 Records.',
+                imageUrl: 'https://images.unsplash.com/photo-1511447333015-45b65e60f6d5?auto=format&fit=crop&q=80&w=1080',
+                revolutLink: 'https://revolut.me/',
+                type: 'music',
+                brand: 'Verse 3 Merch',
+                digital: true,
+                downloadUrl: 'https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-1.mp3'
             }
         ];
     }
