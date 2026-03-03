@@ -56,7 +56,7 @@ const NewsletterSubscribers = () => {
         return (
             <Alert variant="destructive">
                 <Terminal className="h-4 w-4" />
-                <AlertTitle>Access Denied</AlertTitle>
+                <AlertTitle>Access Error</AlertTitle>
                 <AlertDescription>
                     {error.message || "You do not have permission to view the subscriber list."}
                 </AlertDescription>

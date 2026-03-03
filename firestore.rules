@@ -3,7 +3,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Simplified Admin Check: Direct UID and Email matching
+    // Helper: Checks if the user is the specific Verse3 Admin
     function isV3Admin() {
       return request.auth != null && (
         request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2' || 
@@ -11,7 +11,7 @@ service cloud.firestore {
       );
     }
     
-    // Global admin override: Admin has unrestricted access to ALL collections and documents
+    // Global admin override: Admin has unrestricted access to ALL data
     match /{document=**} {
       allow read, write: if isV3Admin();
     }
@@ -19,7 +19,6 @@ service cloud.firestore {
     // Public permissions for non-admins
     match /newsletterSubscriptions/{subId} {
       allow create: if true;
-      // Read/List is handled by the global admin override above
     }
 
     match /users/{userId} {
