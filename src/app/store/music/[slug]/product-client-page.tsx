@@ -78,7 +78,6 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
   };
 
   const handleBuyNow = () => {
-    // Instant checkout for this item
     clearCart();
     addToCart(product);
     router.push('/checkout');
@@ -91,7 +90,7 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
 
   return (
     <div className="container py-12 md:py-24 bg-background">
-      <開BackButton />
+      <BackButton />
       <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-start">
         <div className="relative aspect-square">
           <Image
