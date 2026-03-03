@@ -479,7 +479,14 @@ export default function AdminPage() {
     }, [isAdmin, isUserLoading, router]);
 
     if (isUserLoading || !isAdmin) {
-        return <div className="container py-24 text-center"><p>Authorizing...</p></div>;
+        return (
+          <div className="container py-24 text-center">
+            <div className="flex flex-col items-center gap-4">
+              <RefreshCcw className="h-8 w-8 animate-spin text-chart-1" />
+              <p className="font-headline text-2xl uppercase italic tracking-widest">Authorizing Admin Access...</p>
+            </div>
+          </div>
+        );
     }
 
     return (

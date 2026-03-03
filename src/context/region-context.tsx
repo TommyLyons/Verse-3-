@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -17,16 +16,22 @@ export function RegionProvider({ children }: { children: ReactNode }) {
   const [region, setRegionState] = useState<Region>('UK');
 
   useEffect(() => {
-    // Load region from local storage on initial render
-    const storedRegion = localStorage.getItem('verse3-region') as Region | null;
-    if (storedRegion && ['UK', 'EU'].includes(storedRegion)) {
-      setRegionState(storedRegion);
+    // Load region from local storage on initial render (client side only)
+    try {
+      const storedRegion = localStorage.getItem('verse3-region') as Region | null;
+      if (storedRegion && ['UK', 'EU'].includes(storedRegion)) {
+        setRegionState(storedRegion);
+      }
+    } catch (e) {
+      console.error("Failed to load region from localStorage", e);
     }
   }, []);
 
   const setRegion = (newRegion: Region) => {
     // Save region to local storage and update state
-    localStorage.setItem('verse3-region', newRegion);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('verse3-region', newRegion);
+    }
     setRegionState(newRegion);
   };
 

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
@@ -26,22 +25,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Load cart from local storage on initial render
-    const storedCart = localStorage.getItem('verse3-cart');
-    if (storedCart) {
-      setCart(JSON.parse(storedCart));
+    // Load cart from local storage on initial render (client side only)
+    try {
+      const storedCart = localStorage.getItem('verse3-cart');
+      if (storedCart) {
+        setCart(JSON.parse(storedCart));
+      }
+    } catch (e) {
+      console.error("Failed to load cart from localStorage", e);
     }
   }, []);
 
   useEffect(() => {
-    // Save cart to local storage whenever it changes
-    localStorage.setItem('verse3-cart', JSON.stringify(cart));
+    // Save cart to local storage whenever it changes (client side only)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('verse3-cart', JSON.stringify(cart));
+    }
   }, [cart]);
 
   const addToCart = (product: Product, quantity: number = 1, size?: string) => {
     setCart((prevCart) => {
       // For merch with sizes, treat each size as a unique item.
-      // For products without sizes, group them by ID.
       const hasSize = product.sizes && product.sizes.length > 0;
       const existingItem = prevCart.find((item) => 
         item.id === product.id && (!hasSize || item.size === size)

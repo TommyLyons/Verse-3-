@@ -87,17 +87,28 @@ const getProductsFlow = ai.defineFlow(
                         ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
                         : [];
                     
-                    // Prioritize getting the actual retail price set on Printful.
+                    // CRITICAL: Extract the actual retail price set on Printful.
+                    // We prioritize the highest retail price among variants (e.g., if different sizes have different prices).
                     let retailPrice = 0;
                     let currencyCode = region === 'UK' ? 'GBP' : 'EUR';
 
                     if (syncVariants && syncVariants.length > 0) {
-                        // Use the highest retail price among variants to ensure the correct primary price is shown.
-                        const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter((p: number) => !isNaN(p));
+                        // Extract retail prices from all variants and pick the intended one.
+                        const prices = syncVariants.map((v: any) => {
+                            // Printful retail_price is usually a string.
+                            const p = parseFloat(v.retail_price);
+                            return !isNaN(p) ? p : 0;
+                        }).filter((p: number) => p > 0);
+
                         if (prices.length > 0) {
+                            // Using the maximum retail price ensures premium items like backpacks (75.00) show correctly.
                             retailPrice = Math.max(...prices);
                         }
-                        currencyCode = syncVariants[0].currency || currencyCode;
+                        
+                        // Use the currency specified in the variants if available.
+                        if (syncVariants[0].currency) {
+                            currencyCode = syncVariants[0].currency;
+                        }
                     }
 
                     const currencySymbol = currencyCode === 'GBP' ? '£' : (currencyCode === 'EUR' ? '€' : '$');
@@ -118,6 +129,7 @@ const getProductsFlow = ai.defineFlow(
                         sizes: sizes.length > 0 ? sizes : undefined,
                     };
                 } catch (err) {
+                    console.error(`Error processing Printful product ${item.id}:`, err);
                     return null;
                 }
             }));
@@ -127,6 +139,7 @@ const getProductsFlow = ai.defineFlow(
 
         return allDetailedProducts;
     } catch (err) {
+        console.error("Printful Sync Error:", err);
         return [];
     }
   }
