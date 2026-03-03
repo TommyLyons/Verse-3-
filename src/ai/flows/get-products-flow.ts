@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A flow for fetching product information from multiple Printful stores with accurate retail pricing.
@@ -88,14 +87,16 @@ const getProductsFlow = ai.defineFlow(
                         ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
                         : [];
                     
-                    // We extract the maximum retail price from variants to avoid "sample" or accessory prices.
-                    // For single-item products like backpacks, this should reflect the set retail price accurately.
+                    // Prioritize getting the actual retail price.
+                    // Instead of Math.min (which might pick up accessories), we look for the dominant retail price.
                     let retailPrice = 0;
                     let currencyCode = region === 'UK' ? 'GBP' : 'EUR';
 
                     if (syncVariants && syncVariants.length > 0) {
                         const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter((p: number) => !isNaN(p));
                         if (prices.length > 0) {
+                            // Use the maximum price found to ensure items like backpacks show their proper €75 price
+                            // rather than a lower price from a potential accessory or sample variant.
                             retailPrice = Math.max(...prices);
                         }
                         currencyCode = syncVariants[0].currency || currencyCode;
