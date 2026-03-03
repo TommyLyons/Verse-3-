@@ -9,15 +9,15 @@ import { getSdks } from '@/firebase/init';
  * Ensures Firebase is initialized safely and prevents hydration mismatches.
  */
 export function FirebaseClientProvider({ children }: { children: ReactNode }) {
-  const [sdks, setSdks] = useState<{ firebaseApp: any, auth: any, firestore: any } | null>(null);
-
+  const [mounted, setMounted] = useState(false);
+  
   useEffect(() => {
-    // Only initialize SDKs on the client after mount to prevent hydration errors
-    const initializedSdks = getSdks();
-    setSdks(initializedSdks);
+    setMounted(true);
   }, []);
 
-  // Return standard context with fallback state until SDKs are ready
+  // Simple, safe initialization for client SDKs
+  const sdks = mounted ? getSdks() : null;
+
   return (
     <FirebaseProvider
       firebaseApp={sdks?.firebaseApp || null}

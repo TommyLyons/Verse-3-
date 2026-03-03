@@ -86,80 +86,6 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
     router.push('/checkout');
   };
 
-  const triggerDownload = (url: string, filename: string) => {
-    const link = document.createElement('a');
-    link.href = url;
-    link.target = '_blank'; 
-    link.rel = 'noopener noreferrer';
-    link.download = filename; 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
-  const handlePurchase = async () => {
-    if (!user) {
-      toast({
-        variant: 'destructive',
-        title: 'Authentication Required',
-        description: 'Please sign in to purchase digital products.',
-      });
-      return;
-    }
-    if (!firestore || !product.downloadUrl) return;
-
-    setIsProcessingPurchase(true);
-
-    try {
-        const purchasesCollection = collection(firestore, 'users', user.uid, 'purchasedProducts');
-        
-        const q = query(purchasesCollection, where('productId', '==', String(product.id)));
-        const querySnapshot = await getDocs(q);
-
-        if (!querySnapshot.empty) {
-            toast({
-                title: 'Already Purchased',
-                description: 'You already own this item. Triggering download now...',
-            });
-            if(product.downloadUrl) {
-                triggerDownload(product.downloadUrl, `${product.name}.mp3`);
-            }
-            setIsProcessingPurchase(false);
-            return;
-        }
-
-        const purchaseData = {
-            productId: String(product.id),
-            productName: product.name,
-            downloadUrl: product.downloadUrl,
-            purchasedAt: serverTimestamp(),
-        };
-
-        addDocumentNonBlocking(purchasesCollection, purchaseData);
-        
-        window.open(product.revolutLink, '_blank');
-
-        toast({
-            title: 'Purchase Processing!',
-            description: 'Your download will begin automatically. Please complete the payment.',
-        });
-
-        if(product.downloadUrl) {
-            triggerDownload(product.downloadUrl, `${product.name}.mp3`);
-        }
-
-    } catch (error) {
-        console.error("Purchase error:", error);
-        toast({
-            variant: 'destructive',
-            title: 'Purchase Failed',
-            description: 'There was an error processing your purchase. Please try again.',
-        });
-    } finally {
-        setIsProcessingPurchase(false);
-    }
-  };
-
   const imageUrl = product.imageUrl || '';
   const imageDescription = product.description || '';
 
@@ -186,9 +112,9 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
           {product.digital && product.downloadUrl && (
             <div className="mt-6 flex-grow">
                  <audio ref={audioRef} src={product.downloadUrl} className="hidden" preload="none" />
-                 <Card className="bg-card/50 p-4 border-border">
+                 <Card className="bg-card/50 p-4 border-border rounded-none">
                     <div className="flex items-center gap-4">
-                        <Button onClick={togglePlayPause} size="icon" variant="outline" className="flex-shrink-0 border-primary text-primary hover:bg-primary/10">
+                        <Button onClick={togglePlayPause} size="icon" variant="outline" className="flex-shrink-0 border-primary text-primary hover:bg-primary/10 rounded-none">
                             {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
                         </Button>
                         <div className="flex-grow">
@@ -203,31 +129,25 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
           )}
 
           <div className="mt-8 w-full space-y-4">
-            {product.digital ? (
-                <Button size="lg" onClick={handlePurchase} className="w-full h-14 text-lg font-bold bg-chart-1 text-black hover:bg-chart-1/80 rounded-none uppercase italic" disabled={isProcessingPurchase || isUserLoading}>
-                  <DownloadCloud className="mr-2 h-6 w-6" />
-                  {isProcessingPurchase ? 'Processing...' : 'Buy Now'}
-                </Button>
-            ) : (
-              <>
-                <Button size="lg" onClick={handleAddToCart} className="w-full h-14 text-lg font-bold bg-black text-chart-1 hover:bg-black/90 rounded-none uppercase italic" disabled={addedToCart}>
-                  <ShoppingCart className="mr-2 h-6 w-6" />
-                  {addedToCart ? 'Added to Family!' : 'Add to Cart'}
-                </Button>
-                
-                <Button size="lg" onClick={handleBuyNow} className="w-full h-14 text-lg font-bold bg-chart-1 text-black hover:bg-chart-1/80 rounded-none uppercase italic">
-                    Buy Now
-                </Button>
+            <Button size="lg" onClick={handleBuyNow} className="w-full h-14 text-lg font-bold bg-chart-1 text-black hover:bg-chart-1/80 rounded-none uppercase italic">
+                <CreditCard className="mr-2 h-6 w-6" />
+                Buy Now
+            </Button>
+            
+            {!product.digital && (
+              <Button size="lg" onClick={handleAddToCart} className="w-full h-14 text-lg font-bold bg-black text-chart-1 hover:bg-black/90 rounded-none uppercase italic" disabled={addedToCart}>
+                <ShoppingCart className="mr-2 h-6 w-6" />
+                {addedToCart ? 'Added to Family!' : 'Add to Cart'}
+              </Button>
+            )}
 
-                {addedToCart && (
-                  <Button size="lg" variant="ghost" className="w-full h-14 font-bold bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-none uppercase italic" asChild>
-                    <Link href="/cart">
-                      <CheckCircle className="mr-2 h-5 w-5" />
-                      View Cart & Checkout
-                    </Link>
-                  </Button>
-                )}
-              </>
+            {addedToCart && (
+              <Button size="lg" variant="ghost" className="w-full h-14 font-bold bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-none uppercase italic" asChild>
+                <Link href="/cart">
+                  <CheckCircle className="mr-2 h-5 w-5" />
+                  View Cart & Checkout
+                </Link>
+              </Button>
             )}
           </div>
         </div>
@@ -235,12 +155,12 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
       
       {relatedProducts.length > 0 && (
         <div className="mt-24">
-          <h2 className="font-headline text-3xl font-bold text-center mb-8 text-foreground">You Might Also Like</h2>
+          <h2 className="font-headline text-3xl font-bold text-center mb-8 text-foreground uppercase italic tracking-tighter">You Might Also Like</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-2xl mx-auto">
             {relatedProducts.map((item: Product) => (
-               <Card key={item.id} className="overflow-hidden group relative flex flex-col border-border bg-card">
+               <Card key={item.id} className="overflow-hidden group relative flex flex-col border-border bg-card rounded-none">
                     <CardContent className="p-0 flex-grow">
-                        <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative">
+                        <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative bg-secondary">
                         <Image
                             src={item.imageUrl || ''}
                             alt={item.name}
@@ -252,13 +172,12 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
                     </CardContent>
                     <CardFooter className="p-4 flex justify-between items-center bg-card">
                     <div>
-                        <p className="font-semibold text-foreground">{item.name}</p>
-                        <p className="text-sm text-muted-foreground">{item.price}</p>
+                        <p className="font-bold text-foreground uppercase text-sm">{item.name}</p>
+                        <p className="text-sm font-medium text-primary">{item.price}</p>
                     </div>
-                    <Button size="sm" variant="default" className="bg-primary text-primary-foreground" asChild>
+                    <Button size="sm" variant="default" className="bg-black text-chart-1" asChild>
                         <Link href={`/store/${item.type}/${item.slug}`}>
-                            <Eye className="mr-2 h-4 w-4"/>
-                            View
+                            <Eye className="h-4 w-4"/>
                         </Link>
                     </Button>
                     </CardFooter>

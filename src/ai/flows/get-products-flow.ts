@@ -104,7 +104,6 @@ const getProductsFlow = ai.defineFlow(
                     
                     let retailPrice = 0;
                     if (syncVariants && syncVariants.length > 0) {
-                        // Priority: use the retail price of the first variant as the baseline to avoid XXL upcharges being the default
                         const firstVariantPrice = parseFloat(syncVariants[0].retail_price);
                         if (!isNaN(firstVariantPrice) && firstVariantPrice > 0) {
                             retailPrice = firstVariantPrice;
@@ -116,7 +115,7 @@ const getProductsFlow = ai.defineFlow(
                         }
                     }
 
-                    // Apply strict rounding logic for GBP as requested
+                    // Strict rounding logic for GBP
                     if (isUKStore && retailPrice > 0) {
                         retailPrice = Math.ceil(retailPrice);
                     }
@@ -145,7 +144,6 @@ const getProductsFlow = ai.defineFlow(
             allDetailedProducts.push(...detailedProducts.filter((p): p is Product => p !== null));
         }
 
-        // Enforce consistent alphabetical sorting across all regional stores
         return allDetailedProducts.sort((a, b) => a.name.localeCompare(b.name));
     } catch (err) {
         return [];

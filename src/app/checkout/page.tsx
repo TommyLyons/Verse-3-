@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { BackButton } from '@/components/ui/back-button';
-import { CreditCard, CheckCircle, ShieldCheck } from 'lucide-react';
+import { CreditCard, CheckCircle, ShieldCheck, ShoppingBag } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { loadStripe } from '@stripe/stripe-js';
@@ -48,8 +48,9 @@ export default function CheckoutPage() {
   const [orderComplete, setOrderComplete] = useState(false);
 
   const physicalItems = cart.filter(item => !item.digital);
-  const total = physicalItems.reduce((acc, item) => acc + parseFloat(item.price.replace(/[^0-9.]/g, '')) * item.quantity, 0);
-  const currencySymbol = physicalItems.length > 0 ? physicalItems[0].price.replace(/[0-9.,]/g, '') : '€';
+  const digitalItems = cart.filter(item => item.digital);
+  const total = cart.reduce((acc, item) => acc + parseFloat(item.price.replace(/[^0-9.]/g, '')) * item.quantity, 0);
+  const currencySymbol = cart.length > 0 ? cart[0].price.replace(/[0-9.,]/g, '') : '£';
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutFormSchema),
@@ -62,53 +63,54 @@ export default function CheckoutPage() {
   });
 
   const onSubmit = async (values: CheckoutFormValues) => {
-    if (physicalItems.length === 0) {
-        toast({ variant: 'destructive', title: 'Your cart has no physical items.'});
+    if (cart.length === 0) {
+        toast({ variant: 'destructive', title: 'Your cart is empty.'});
         return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const ordersCollection = collection(firestore!, 'orders');
-
-      const orderData = {
-        customerDetails: values,
-        items: physicalItems.map(item => ({ 
-            id: item.id, 
-            name: item.name, 
-            quantity: item.quantity, 
-            price: item.price,
-            size: item.size || null 
-        })),
-        total: `${currencySymbol}${total.toFixed(2)}`,
-        submittedAt: serverTimestamp(),
-        status: 'pending_payment',
-        userId: user?.uid || 'guest'
-      };
-
-      await addDocumentNonBlocking(ordersCollection, orderData);
+      if (firestore) {
+        const ordersCollection = collection(firestore, 'orders');
+        const orderData = {
+          customerDetails: values,
+          items: cart.map(item => ({ 
+              id: item.id, 
+              name: item.name, 
+              quantity: item.quantity, 
+              price: item.price,
+              size: item.size || null 
+          })),
+          total: `${currencySymbol}${total.toFixed(2)}`,
+          submittedAt: serverTimestamp(),
+          status: 'pending_payment',
+          userId: user?.uid || 'guest'
+        };
+        addDocumentNonBlocking(ordersCollection, orderData);
+      }
       
       const stripe = await loadStripe(STRIPE_PUBLISHABLE_KEY);
       
       toast({
         title: 'Connecting to Stripe...',
-        description: "Redirecting you to our secure payment gateway.",
+        description: "Opening secure payment gateway.",
       });
 
-      // In a real live environment, you would call your backend to create a Checkout Session here.
-      // For this prototype, we simulate the redirect to the confirmation screen.
+      // Simulation of Stripe Hosted Checkout opening
+      // In a real production setup, we would call a server action here to create a session
+      // For this prototype, we simulate the success redirect
       setTimeout(() => {
         setOrderComplete(true);
         clearCart();
-      }, 2000);
+      }, 2500);
 
     } catch (error) {
       console.error('Order submission error:', error);
       toast({
         variant: 'destructive',
         title: 'Checkout Error',
-        description: 'Failed to process checkout. Please check your connection.',
+        description: 'Failed to process checkout. Please try again.',
       });
     } finally {
       setIsSubmitting(false);
@@ -118,10 +120,10 @@ export default function CheckoutPage() {
   if (orderComplete) {
     return (
         <div className="container py-12 md:py-24 text-center">
-            <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-            <h1 className="font-headline text-3xl md:text-4xl font-bold text-primary mb-2">Order Confirmed!</h1>
-            <p className="text-muted-foreground max-w-md mx-auto mb-6">Thank you for your purchase. A confirmation email will be sent shortly with your tracking details.</p>
-            <Button onClick={() => router.push('/store')}>Continue Shopping</Button>
+            <CheckCircle className="h-16 w-16 text-chart-1 mx-auto mb-4" />
+            <h1 className="font-headline text-3xl md:text-4xl font-bold text-primary mb-2 italic">Order Confirmed!</h1>
+            <p className="text-muted-foreground max-w-md mx-auto mb-6">Thank you for your purchase. A confirmation email will be sent shortly with your details.</p>
+            <Button onClick={() => router.push('/store')} className="bg-black text-chart-1 font-bold">Continue Shopping</Button>
         </div>
     )
   }
@@ -129,53 +131,55 @@ export default function CheckoutPage() {
   return (
     <div className="container py-12 md:py-24">
       <BackButton />
-      <div className="grid md:grid-cols-2 gap-12">
+      <div className="grid lg:grid-cols-[1fr_400px] gap-12 items-start">
         <div>
-            <Card className="max-w-xl mx-auto border-2">
-                <CardHeader>
-                <CardTitle className="text-3xl font-headline text-primary">Secure Checkout</CardTitle>
-                <CardDescription className="flex items-center gap-2">
-                    <ShieldCheck className="h-4 w-4 text-green-500" />
-                    Payments processed securely via Stripe.
-                </CardDescription>
+            <Card className="border-none shadow-none bg-transparent">
+                <CardHeader className="px-0">
+                    <CardTitle className="text-4xl md:text-5xl font-headline text-primary uppercase italic tracking-tighter">Secure <span className="text-chart-1">Checkout</span></CardTitle>
+                    <CardDescription className="flex items-center gap-2 font-medium">
+                        <ShieldCheck className="h-4 w-4 text-chart-1" />
+                        Payments processed securely via Stripe.
+                    </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-0 pt-6">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                    <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Full Name</FormLabel>
-                            <FormControl>
-                                <Input placeholder="John Doe" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                        />
-                    <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Email Address</FormLabel>
-                            <FormControl>
-                                <Input placeholder="john@example.com" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                        />
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel className="uppercase tracking-widest text-xs font-bold">Full Name</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="John Doe" className="h-12 border-2 rounded-none" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+                        <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel className="uppercase tracking-widest text-xs font-bold">Email Address</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="john@example.com" className="h-12 border-2 rounded-none" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+                    </div>
                     <FormField
                         control={form.control}
                         name="phone"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Phone Number</FormLabel>
+                            <FormLabel className="uppercase tracking-widest text-xs font-bold">Phone Number</FormLabel>
                             <FormControl>
-                                <Input placeholder="+44..." {...field} />
+                                <Input placeholder="+44..." className="h-12 border-2 rounded-none" {...field} />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
@@ -186,11 +190,11 @@ export default function CheckoutPage() {
                         name="address"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Shipping Address</FormLabel>
+                            <FormLabel className="uppercase tracking-widest text-xs font-bold">Shipping Address</FormLabel>
                             <FormControl>
                                 <Textarea
                                 placeholder="Full address including postal code"
-                                className="min-h-[100px]"
+                                className="min-h-[120px] border-2 rounded-none resize-none"
                                 {...field}
                                 />
                             </FormControl>
@@ -199,42 +203,60 @@ export default function CheckoutPage() {
                         )}
                         />
 
-                    <Button type="submit" disabled={isSubmitting || physicalItems.length === 0} className="w-full h-14 text-lg font-bold bg-black text-chart-1 rounded-none hover:bg-black/90">
+                    <Button type="submit" disabled={isSubmitting || cart.length === 0} className="w-full h-16 text-xl font-headline uppercase italic tracking-wider bg-black text-chart-1 rounded-none hover:bg-black/90">
                         {isSubmitting ? 'Processing...' : `Pay ${currencySymbol}${total.toFixed(2)} with Stripe`}
-                        <CreditCard className="ml-2 h-5 w-5" />
+                        <CreditCard className="ml-3 h-6 w-6" />
                     </Button>
                     </form>
                 </Form>
                 </CardContent>
             </Card>
         </div>
-        <div>
-            <h2 className="text-2xl font-headline mb-4 uppercase italic tracking-wider">Your Order</h2>
+        
+        <div className="space-y-6">
+            <h2 className="text-2xl font-headline uppercase italic tracking-wider border-b-2 border-black pb-2">Your Order</h2>
             <div className="space-y-4">
-                {physicalItems.map(item => (
-                    <Card key={item.cartId} className="flex items-center p-3 border-none bg-secondary/50">
-                        <div className="relative w-16 h-16 mr-4">
+                {cart.map(item => (
+                    <div key={item.cartId} className="flex items-center gap-4 py-2">
+                        <div className="relative w-20 h-20 bg-secondary rounded-lg overflow-hidden flex-shrink-0">
                              <Image
                                 src={('image' in item && item.image ? item.image.imageUrl : item.imageUrl) || ''}
                                 alt={item.name}
                                 fill
-                                className="object-cover rounded-md"
-                                sizes="64px"
+                                className="object-contain p-2"
+                                sizes="80px"
                              />
                         </div>
-                        <div className="flex-grow">
-                            <p className="font-bold uppercase text-sm">{item.name}</p>
-                            {item.size && <p className="text-xs text-muted-foreground uppercase">Size: {item.size}</p>}
-                            <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                        <div className="flex-grow min-w-0">
+                            <p className="font-bold uppercase text-xs truncate leading-tight">{item.name}</p>
+                            {item.size && <p className="text-[10px] text-muted-foreground uppercase font-bold">Size: {item.size}</p>}
+                            <p className="text-[10px] text-muted-foreground font-bold">Qty: {item.quantity}</p>
+                            <p className="font-bold text-sm mt-1">{currencySymbol}{(parseFloat(item.price.replace(/[^0-9.]/g, '')) * item.quantity).toFixed(2)}</p>
                         </div>
-                        <p className="font-bold">{currencySymbol}{(parseFloat(item.price.replace(/[^0-9.]/g, '')) * item.quantity).toFixed(2)}</p>
-                    </Card>
+                    </div>
                 ))}
             </div>
-             <div className="mt-4 pt-4 border-t-2 border-black">
-                <div className="flex justify-between font-bold text-xl italic uppercase">
-                    <span>Total</span>
+             <div className="mt-8 pt-6 border-t-2 border-black space-y-4">
+                <div className="flex justify-between text-muted-foreground font-bold uppercase text-xs">
+                    <span>Subtotal</span>
                     <span>{currencySymbol}{total.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-muted-foreground font-bold uppercase text-xs">
+                    <span>Shipping</span>
+                    <span>Calculated Next</span>
+                </div>
+                <div className="flex justify-between font-headline text-3xl italic uppercase pt-2">
+                    <span>Total</span>
+                    <span className="text-chart-1 bg-black px-2">{currencySymbol}{total.toFixed(2)}</span>
+                </div>
+            </div>
+            <div className="pt-8">
+                <div className="bg-secondary/50 p-4 border-l-4 border-chart-1 flex items-start gap-3">
+                    <ShoppingBag className="h-5 w-5 text-black mt-1" />
+                    <div>
+                        <p className="text-[10px] font-bold uppercase text-black">V3 Family Guarantee</p>
+                        <p className="text-[10px] text-muted-foreground leading-tight mt-1">Premium quality gear, processed and shipped with care by Verse3 Records.</p>
+                    </div>
                 </div>
             </div>
         </div>

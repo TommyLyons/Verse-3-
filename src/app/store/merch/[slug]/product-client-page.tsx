@@ -123,7 +123,7 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
                             value={String(quantity)} 
                             onValueChange={(value) => setQuantity(parseInt(value, 10))}
                         >
-                            <SelectTrigger id="quantity-select" className="h-12 border-2 focus:ring-black">
+                            <SelectTrigger id="quantity-select" className="h-12 border-2 focus:ring-black rounded-none">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -145,7 +145,7 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
                                 </span>
                             </div>
                             <Select value={selectedSize} onValueChange={setSelectedSize}>
-                                <SelectTrigger id="size-select" className="h-12 border-2 focus:ring-black">
+                                <SelectTrigger id="size-select" className="h-12 border-2 focus:ring-black rounded-none">
                                     <SelectValue placeholder="Size" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -166,7 +166,8 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
             </Button>
             
             <Button size="lg" onClick={handleBuyNow} className="w-full h-14 text-lg font-bold bg-chart-1 text-black hover:bg-chart-1/80 rounded-none uppercase italic">
-                Buy Now
+              <CreditCard className="mr-2 h-6 w-6" />
+              Buy Now
             </Button>
 
             {addedToCart && (
