@@ -24,7 +24,7 @@ const getRelatedProducts = (currentProduct: Product, allProducts: Product[]) => 
 export function ProductClientPage({ product, allProducts }: { product: Product, allProducts: Product[] }) {
   const router = useRouter();
   const { toast } = useToast();
-  const { addToCart } = useCart();
+  const { addToCart, clearCart } = useCart();
   
   const [addedToCart, setAddedToCart] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string>('');
@@ -78,6 +78,8 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
         });
         return;
     }
+    // "Buy Now" provides an instant checkout experience for this item only
+    clearCart();
     addToCart(product, quantity, selectedSize);
     router.push('/checkout');
   };
@@ -161,14 +163,14 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
            </div>
 
           <div className="mt-10 w-full space-y-4">
-            <Button size="lg" onClick={handleAddToCart} className="w-full h-14 text-lg font-bold bg-black text-chart-1 hover:bg-black/90 rounded-none uppercase italic" disabled={addedToCart}>
-              <ShoppingCart className="mr-2 h-6 w-6" />
-              {addedToCart ? 'Added to Family!' : 'Add to Cart'}
-            </Button>
-            
             <Button size="lg" onClick={handleBuyNow} className="w-full h-14 text-lg font-bold bg-chart-1 text-black hover:bg-chart-1/80 rounded-none uppercase italic">
               <CreditCard className="mr-2 h-6 w-6" />
-              Buy Now
+              Buy Now Instantly
+            </Button>
+            
+            <Button size="lg" variant="outline" onClick={handleAddToCart} className="w-full h-14 text-lg font-bold border-2 border-black rounded-none uppercase italic" disabled={addedToCart}>
+              <ShoppingCart className="mr-2 h-6 w-6" />
+              {addedToCart ? 'Added to Family!' : 'Add to Cart'}
             </Button>
 
             {addedToCart && (
@@ -192,7 +194,7 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
             </div>
             <div className="flex items-center gap-2">
                 <div className="h-1.5 w-1.5 rounded-full bg-chart-1" />
-                Fast Shipping
+                Secure Payments
             </div>
           </div>
         </div>

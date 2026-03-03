@@ -7,11 +7,10 @@ import Link from 'next/link';
 import { type Product } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { ShoppingCart, Eye, CheckCircle, Play, Pause, CreditCard } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
 import { useState, useRef, useEffect } from 'react';
-import { useUser, useFirestore } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 
 const getRelatedProducts = (currentProduct: Product, allProducts: Product[]) => {
@@ -22,10 +21,8 @@ const getRelatedProducts = (currentProduct: Product, allProducts: Product[]) => 
 export function ProductClientPage({ product, allProducts }: { product: Product, allProducts: Product[] }) {
   const router = useRouter();
   const { toast } = useToast();
-  const { user } = useUser();
-  const firestore = useFirestore();
 
-  const { addToCart } = useCart();
+  const { addToCart, clearCart } = useCart();
   const [addedToCart, setAddedToCart] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -81,6 +78,8 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
   };
 
   const handleBuyNow = () => {
+    // Instant checkout for this item
+    clearCart();
     addToCart(product);
     router.push('/checkout');
   };
@@ -92,7 +91,7 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
 
   return (
     <div className="container py-12 md:py-24 bg-background">
-      <BackButton />
+      <開BackButton />
       <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-start">
         <div className="relative aspect-square">
           <Image
@@ -130,11 +129,11 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
           <div className="mt-8 w-full space-y-4">
             <Button size="lg" onClick={handleBuyNow} className="w-full h-14 text-lg font-bold bg-chart-1 text-black hover:bg-chart-1/80 rounded-none uppercase italic">
                 <CreditCard className="mr-2 h-6 w-6" />
-                Buy Now
+                Buy Now Instantly
             </Button>
             
             {!product.digital && (
-              <Button size="lg" onClick={handleAddToCart} className="w-full h-14 text-lg font-bold bg-black text-chart-1 hover:bg-black/90 rounded-none uppercase italic" disabled={addedToCart}>
+              <Button size="lg" variant="outline" onClick={handleAddToCart} className="w-full h-14 text-lg font-bold border-2 border-black rounded-none uppercase italic" disabled={addedToCart}>
                 <ShoppingCart className="mr-2 h-6 w-6" />
                 {addedToCart ? 'Added to Family!' : 'Add to Cart'}
               </Button>
