@@ -5,7 +5,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { useCart } from '@/context/cart-context';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { BackButton } from '@/components/ui/back-button';
-import { ShieldCheck, Lock, AlertTriangle } from 'lucide-react';
+import { ShieldCheck, Lock, AlertTriangle, CreditCard } from 'lucide-react';
 import Image from 'next/image';
 import { fetchClientSecret } from '@/app/actions/checkout';
 import { loadStripe } from '@stripe/stripe-js';
@@ -78,7 +78,10 @@ export default function CheckoutPage() {
                     <CardHeader className="bg-black text-white p-6">
                         <div className="flex justify-between items-center">
                             <CardTitle className="font-headline text-2xl italic uppercase tracking-wider text-chart-1">Payment & Shipping</CardTitle>
-                            <Lock className="h-5 w-5 text-chart-1/50" />
+                            <div className="flex items-center gap-2">
+                                <CreditCard className="h-5 w-5 text-chart-1/50" />
+                                <Lock className="h-5 w-5 text-chart-1/50" />
+                            </div>
                         </div>
                         <CardDescription className="text-white/60 font-bold uppercase tracking-widest text-[9px]">All information is encrypted and secure</CardDescription>
                     </CardHeader>
@@ -103,7 +106,7 @@ export default function CheckoutPage() {
                     <div key={item.cartId} className="flex items-center gap-4 py-3 border-b border-black/5 last:border-0">
                         <div className="relative w-16 h-16 bg-white rounded flex-shrink-0 shadow-sm">
                              <Image
-                                src={('image' in item && item.image ? item.image.imageUrl : item.imageUrl) || ''}
+                                src={item.imageUrl || ''}
                                 alt={item.name}
                                 fill
                                 className="object-contain p-2"

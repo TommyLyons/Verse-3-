@@ -46,12 +46,16 @@ export async function fetchClientSecret(cart: any[]) {
       };
     });
 
+    // Create the session with explicit automatic payment methods
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
       line_items,
       mode: 'payment',
-      // We remove automatic_payment_methods from here as it's enabled by default in the Stripe Dashboard
-      // and can cause errors with certain API versions or account configurations.
+      // Explicitly enable automatic payment methods (includes Apple/Google Pay)
+      // Note: Domain verification in Stripe Dashboard is required for Apple Pay
+      automatic_payment_methods: {
+        enabled: true,
+      },
       shipping_address_collection: {
         allowed_countries: ['GB', 'IE', 'US', 'CA', 'FR', 'DE', 'ES', 'IT', 'AU', 'NZ'],
       },
