@@ -14,7 +14,8 @@ import {
 } from '@stripe/react-stripe-js';
 import { Button } from '@/components/ui/button';
 
-const STRIPE_PUBLISHABLE_KEY = "pk_live_51T6sTyB9Rp46v45XkIzRrWnjQQMZXFzErkzoeTK2h8VOGT7uP0PmfTBrVnRFPwQ5vFaQqrdLXJcuXpKhO29Zl8Iq004hGYRp53";
+// Using environment variable for the publishable key
+const STRIPE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
 const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
 
 export default function CheckoutPage() {
@@ -40,6 +41,20 @@ export default function CheckoutPage() {
       return "";
     }
   }, [cart]);
+
+  if (!STRIPE_PUBLISHABLE_KEY) {
+    return (
+        <div className="container py-24 text-center">
+            <Card className="border-destructive bg-destructive/5 max-w-md mx-auto">
+                <CardContent className="p-12 text-center space-y-4">
+                    <AlertTriangle className="h-12 w-12 text-destructive mx-auto" />
+                    <h2 className="text-2xl font-headline uppercase italic">Configuration Error</h2>
+                    <p className="text-muted-foreground">The Stripe Publishable Key is missing from the environment configuration.</p>
+                </CardContent>
+            </Card>
+        </div>
+    );
+  }
 
   if (cart.length === 0) {
       return (
