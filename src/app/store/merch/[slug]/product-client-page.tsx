@@ -163,22 +163,21 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
               {addedToCart ? 'Added to Family!' : 'Add to Cart'}
             </Button>
             
-            <div className="grid grid-cols-2 gap-4">
-                <Button size="lg" variant="outline" className="h-14 font-bold border-2 border-black rounded-none uppercase italic" asChild>
-                    <a href={product.revolutLink} target="_blank" rel="noopener noreferrer">
-                        <CreditCard className="mr-2 h-5 w-5" />
-                        Buy with Stripe
-                    </a>
+            <Button size="lg" className="w-full h-14 text-lg font-bold bg-chart-1 text-black hover:bg-chart-1/80 rounded-none uppercase italic" asChild>
+                <a href={product.revolutLink} target="_blank" rel="noopener noreferrer">
+                    <CreditCard className="mr-2 h-6 w-6" />
+                    Buy Now
+                </a>
+            </Button>
+
+            {addedToCart && (
+                <Button size="lg" variant="ghost" className="w-full h-14 font-bold bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-none uppercase italic" asChild>
+                    <Link href="/cart">
+                        <CheckCircle className="mr-2 h-5 w-5" />
+                        View Cart & Checkout
+                    </Link>
                 </Button>
-                {addedToCart && (
-                    <Button size="lg" variant="ghost" className="h-14 font-bold bg-chart-1 text-black hover:bg-chart-1/80 rounded-none uppercase italic" asChild>
-                        <Link href="/cart">
-                            <CheckCircle className="mr-2 h-5 w-5" />
-                            Checkout
-                        </Link>
-                    </Button>
-                )}
-            </div>
+            )}
           </div>
 
           <div className="mt-8 flex items-center gap-6 text-[10px] font-bold uppercase text-muted-foreground tracking-widest">

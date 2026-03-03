@@ -7,7 +7,7 @@ import { type Product } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { ShoppingCart, Eye, CheckCircle, DownloadCloud, Play, Pause } from 'lucide-react';
+import { ShoppingCart, Eye, CheckCircle, DownloadCloud, Play, Pause, CreditCard } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
 import { useState, useRef, useEffect } from 'react';
 import { useUser, useFirestore, addDocumentNonBlocking } from '@/firebase';
@@ -199,21 +199,29 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
 
           <div className="mt-8 w-full space-y-4">
             {product.digital ? (
-                <Button size="lg" onClick={handlePurchase} className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={isProcessingPurchase || isUserLoading}>
-                  <DownloadCloud className="mr-2 h-5 w-5" />
-                  {isProcessingPurchase ? 'Processing...' : 'Buy & Download'}
+                <Button size="lg" onClick={handlePurchase} className="w-full h-14 text-lg font-bold bg-chart-1 text-black hover:bg-chart-1/80 rounded-none uppercase italic" disabled={isProcessingPurchase || isUserLoading}>
+                  <DownloadCloud className="mr-2 h-6 w-6" />
+                  {isProcessingPurchase ? 'Processing...' : 'Buy Now'}
                 </Button>
             ) : (
               <>
-                <Button size="lg" onClick={handleAddToCart} className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={addedToCart}>
-                  <ShoppingCart className="mr-2 h-5 w-5" />
-                  {addedToCart ? 'Added!' : 'Add to Cart'}
+                <Button size="lg" onClick={handleAddToCart} className="w-full h-14 text-lg font-bold bg-black text-chart-1 hover:bg-black/90 rounded-none uppercase italic" disabled={addedToCart}>
+                  <ShoppingCart className="mr-2 h-6 w-6" />
+                  {addedToCart ? 'Added to Family!' : 'Add to Cart'}
                 </Button>
+                
+                <Button size="lg" className="w-full h-14 text-lg font-bold bg-chart-1 text-black hover:bg-chart-1/80 rounded-none uppercase italic" asChild>
+                    <a href={product.revolutLink} target="_blank" rel="noopener noreferrer">
+                        <CreditCard className="mr-2 h-6 w-6" />
+                        Buy Now
+                    </a>
+                </Button>
+
                 {addedToCart && (
-                  <Button size="lg" variant="outline" className="w-full border-primary text-primary hover:bg-primary/10" asChild>
+                  <Button size="lg" variant="ghost" className="w-full h-14 font-bold bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-none uppercase italic" asChild>
                     <Link href="/cart">
                       <CheckCircle className="mr-2 h-5 w-5" />
-                      View Cart
+                      View Cart & Checkout
                     </Link>
                   </Button>
                 )}
