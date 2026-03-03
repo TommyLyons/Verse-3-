@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview A flow for fetching product information from multiple Printful stores.
+ * @fileOverview A flow for fetching product information from multiple Printful stores with accurate retail pricing.
  *
  * - getProducts - A function that fetches products from specific regional Printful stores.
  */
@@ -89,22 +89,28 @@ const getProductsFlow = ai.defineFlow(
                         ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
                         : [];
                     
-                    // Get the price from the first variant and format it
-                    let price = '€35.00'; // Default fallback
+                    // Accurate retail price logic: Find the min price across all variants
+                    let minPrice = Infinity;
+                    let currencySymbol = region === 'UK' ? '£' : '€';
+
                     if (syncVariants && syncVariants.length > 0) {
-                        const variant = syncVariants[0];
-                        const amount = variant.retail_price || '35.00';
-                        const currency = variant.currency === 'GBP' ? '£' : '€';
-                        price = `${currency}${amount}`;
+                        syncVariants.forEach((v: any) => {
+                            const p = parseFloat(v.retail_price);
+                            if (!isNaN(p) && p < minPrice) {
+                                minPrice = p;
+                                currencySymbol = v.currency === 'GBP' ? '£' : '€';
+                            }
+                        });
                     }
 
+                    const formattedPrice = minPrice === Infinity ? '€35.00' : `${currencySymbol}${minPrice.toFixed(2)}`;
                     const slug = syncProduct.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 
                     return {
                         id: String(syncProduct.id),
                         name: syncProduct.name,
                         slug: slug,
-                        price: price,
+                        price: formattedPrice,
                         description: `A high-quality product from ${brand}.`,
                         imageUrl: syncProduct.thumbnail_url,
                         revolutLink: 'https://revolut.me/test-business-studio',

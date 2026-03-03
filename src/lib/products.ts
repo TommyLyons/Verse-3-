@@ -25,7 +25,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
             return { ...data, id: doc.id };
         });
     } catch (error) {
-        console.warn("Warning: Could not fetch products from Firestore.", error);
+        console.warn("Warning: Could not fetch products from Firestore during build.");
     }
 
     try {
@@ -35,11 +35,27 @@ export const getAllProducts = async (): Promise<Product[]> => {
         ]);
         flowProducts = [...crudeProducts, ...v3Products];
     } catch (error) {
-        console.warn("Warning: Could not fetch products from Printful Flow.", error);
+        console.warn("Warning: Could not fetch products from Printful Flow during build.");
     }
 
-    // Combine products. Printful prices are already formatted in the flow.
     const combined = [...dbProducts, ...flowProducts];
+
+    // Final fallback for static build safety
+    if (combined.length === 0) {
+        return [
+            {
+                id: 'fallback-1',
+                name: 'V3 Hoodie',
+                slug: 'v3-hoodie',
+                price: '£35.00',
+                description: 'Classic Verse 3 Hoodie.',
+                imageUrl: 'https://picsum.photos/seed/hoodie/600/600',
+                revolutLink: 'https://revolut.me/',
+                type: 'merch',
+                brand: 'Verse 3 Merch'
+            }
+        ];
+    }
 
     return combined;
 };

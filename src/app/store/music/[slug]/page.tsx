@@ -15,13 +15,13 @@ export async function generateStaticParams() {
     
     // Fallback params to ensure build succeeds even if no products are found
     if (params.length === 0) {
-      return [{ slug: 'fallback-music' }];
+      return [{ slug: 'quiet-steps' }];
     }
     
     return params;
   } catch (error) {
     console.error("Error generating static params for music:", error);
-    return [{ slug: 'fallback-music' }];
+    return [{ slug: 'quiet-steps' }];
   }
 }
 
