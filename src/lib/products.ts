@@ -40,17 +40,20 @@ export const getAllProducts = async (): Promise<Product[]> => {
 
     const combined = [...dbProducts, ...flowProducts];
 
+    // Enforce consistent alphabetical sorting across all stores
+    const sorted = combined.sort((a, b) => a.name.localeCompare(b.name));
+
     // Final fallback for static build safety if no products could be retrieved
-    if (combined.length === 0) {
+    if (sorted.length === 0) {
         return [
             {
                 id: 'v3-hoodie-fallback',
                 name: 'V3 Hoodie',
                 slug: 'v3-hoodie',
-                price: '£35.00',
+                price: '£35',
                 description: 'Classic Verse 3 Hoodie. High quality streetwear.',
                 imageUrl: 'https://images.unsplash.com/photo-1610582144787-eda2e6f293b4?auto=format&fit=crop&q=80&w=1080',
-                revolutLink: 'https://revolut.me/',
+                revolutLink: 'https://checkout.stripe.com/',
                 type: 'merch',
                 brand: 'Verse 3 Merch'
             },
@@ -58,10 +61,10 @@ export const getAllProducts = async (): Promise<Product[]> => {
                 id: 'quiet-steps-fallback',
                 name: 'Quiet Steps',
                 slug: 'quiet-steps',
-                price: '£1.49',
+                price: '£2',
                 description: 'Debut single from Verse 3 Records.',
                 imageUrl: 'https://images.unsplash.com/photo-1511447333015-45b65e60f6d5?auto=format&fit=crop&q=80&w=1080',
-                revolutLink: 'https://revolut.me/',
+                revolutLink: 'https://checkout.stripe.com/',
                 type: 'music',
                 brand: 'Verse 3 Merch',
                 digital: true,
@@ -70,7 +73,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
         ];
     }
 
-    return combined;
+    return sorted;
 };
 
 export const getProductBySlug = async (slug: string): Promise<Product | undefined> => {

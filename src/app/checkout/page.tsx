@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState } from 'react';
@@ -25,6 +24,9 @@ import { BackButton } from '@/components/ui/back-button';
 import { CreditCard, CheckCircle, ShieldCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { loadStripe } from '@stripe/stripe-js';
+
+const STRIPE_PUBLISHABLE_KEY = "pk_live_51T6sTyB9Rp46v45XkIzRrWnjQQMZXFzErkzoeTK2h8VOGT7uP0PmfTBrVnRFPwQ5vFaQqrdLXJcuXpKhO29Zl8Iq004hGYRp53";
 
 const checkoutFormSchema = z.object({
   name: z.string().min(2, { message: 'Full name is required.' }),
@@ -81,18 +83,21 @@ export default function CheckoutPage() {
         })),
         total: `${currencySymbol}${total.toFixed(2)}`,
         submittedAt: serverTimestamp(),
-        status: 'pending_stripe_payment',
+        status: 'pending_payment',
         userId: user?.uid || 'guest'
       };
 
       await addDocumentNonBlocking(ordersCollection, orderData);
       
-      // Simulation of Stripe Redirect
+      const stripe = await loadStripe(STRIPE_PUBLISHABLE_KEY);
+      
       toast({
         title: 'Connecting to Stripe...',
         description: "Redirecting you to our secure payment gateway.",
       });
 
+      // In a real live environment, you would call your backend to create a Checkout Session here.
+      // For this prototype, we simulate the redirect to the confirmation screen.
       setTimeout(() => {
         setOrderComplete(true);
         clearCart();
