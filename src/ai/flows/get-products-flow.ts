@@ -1,6 +1,7 @@
 'use server';
 /**
  * @fileOverview A flow for fetching product information from Printful with accurate retail pricing, regional currency enforcement, and consistent alphabetical ordering.
+ * GBP prices are rounded up to the nearest whole number.
  */
 
 import {ai} from '@/ai/genkit';
@@ -66,7 +67,6 @@ const getProductsFlow = ai.defineFlow(
 
         for (const store of matchingStores) {
             const storeId = store.id;
-            // Enhanced UK detection to prevent currency mismatches
             const storeNameUpper = store.name.toUpperCase();
             const isUK = storeNameUpper.includes('UK') || 
                          storeNameUpper.includes('UNITED KINGDOM') ||
@@ -97,18 +97,20 @@ const getProductsFlow = ai.defineFlow(
                         ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
                         : [];
                     
-                    // Prioritize specific retail values from variants. 
-                    // This ensures premium items (like backpacks) show their intended retail price.
                     let retailPrice = 0;
                     if (syncVariants && syncVariants.length > 0) {
                         const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter((p: number) => !isNaN(p) && p > 0);
                         if (prices.length > 0) {
-                            // Using the maximum price ensures that even with small accessories, the main product price is represented.
                             retailPrice = Math.max(...prices);
                         }
                     }
 
-                    const formattedPrice = retailPrice === 0 ? 'N/A' : `${currencySymbol}${retailPrice.toFixed(2)}`;
+                    // Round up to nearest whole number for GBP prices as requested
+                    if (isUK && retailPrice > 0) {
+                        retailPrice = Math.ceil(retailPrice);
+                    }
+
+                    const formattedPrice = retailPrice === 0 ? 'N/A' : `${currencySymbol}${retailPrice % 1 === 0 ? retailPrice.toFixed(0) : retailPrice.toFixed(2)}`;
                     const slug = syncProduct.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 
                     return {
@@ -134,7 +136,7 @@ const getProductsFlow = ai.defineFlow(
             allDetailedProducts.push(...detailedProducts.filter((p): p is Product => p !== null));
         }
 
-        // Sort products alphabetically by name to ensure consistent ordering across all regional stores.
+        // Enforce consistent alphabetical ordering across all regional stores
         return allDetailedProducts.sort((a, b) => a.name.localeCompare(b.name));
     } catch (err) {
         return [];
