@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A flow for fetching product information from Printful with accurate retail pricing, regional currency enforcement, and consistent alphabetical ordering.
@@ -112,7 +111,7 @@ const getProductsFlow = ai.defineFlow(
                         }
                     }
 
-                    // Force rounding up for GBP prices
+                    // Force rounding up for GBP prices as requested
                     if (isUKStore && retailPrice > 0) {
                         retailPrice = Math.ceil(retailPrice);
                     }

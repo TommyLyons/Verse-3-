@@ -1,4 +1,3 @@
-
 'use server';
 
 import { headers } from 'next/headers';
@@ -48,8 +47,8 @@ export async function fetchClientSecret(cart: any[]) {
     });
 
     // Create the session. 
-    // We removed 'automatic_payment_methods' as it's handled by Stripe Dashboard defaults.
-    // Domain verification in Stripe Dashboard is required for Apple Pay to show up.
+    // We removed 'automatic_payment_methods' as a top-level parameter to avoid "unknown parameter" errors.
+    // It is now managed entirely via the Stripe Dashboard (Settings > Payment Methods).
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
       line_items,
