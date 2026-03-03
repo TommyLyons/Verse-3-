@@ -70,13 +70,14 @@ const getProductsFlow = ai.defineFlow(
             const storeId = store.id;
             const storeNameUpper = store.name.toUpperCase();
             
-            // Expanded Region Identification
+            // Expanded Region Identification for UK
             const isUKStore = storeNameUpper.includes('UK') || 
                             storeNameUpper.includes('UNITED KINGDOM') ||
                             storeNameUpper.includes('GBP') ||
                             storeNameUpper.includes('BRITAIN') ||
                             storeNameUpper.includes('LONDON') ||
                             storeNameUpper.includes('NORTHAMPTON') ||
+                            storeNameUpper.includes('ENGLAND') ||
                             storeNameUpper.includes('V3 UK');
 
             const region = isUKStore ? 'UK' : 'EU';
@@ -116,7 +117,7 @@ const getProductsFlow = ai.defineFlow(
                         }
                     }
 
-                    // Strict rounding logic for GBP
+                    // Force rounding up for GBP prices
                     if (isUKStore && retailPrice > 0) {
                         retailPrice = Math.ceil(retailPrice);
                     }

@@ -6,26 +6,19 @@ import { stripe } from '@/lib/stripe';
 
 /**
  * Creates a Stripe Checkout Session with Embedded UI mode.
- * This function is called by the client-side EmbeddedCheckoutProvider.
- * Shipping address collection is enabled so the checkout is "instant" and 
- * handles all logistics within the Stripe UI.
+ * This handles "Instant" checkout by collecting shipping info within Stripe.
  */
 export async function fetchClientSecret(cart: any[]) {
   const origin = (await headers()).get('origin');
 
-  // Ensure the Secret Key is available
-  if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY.includes('PASTE_YOUR_SECRET_KEY_HERE')) {
-    throw new Error("Stripe Secret Key is missing. Please check your .env file.");
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error("Stripe Secret Key is missing from environment variables.");
   }
 
   try {
-    // Dynamically create line items from the cart
     const line_items = cart.map((item: any) => {
-      // Extract numeric price from string like "£39" or "€75.00"
       const priceStr = item.price.replace(/[^0-9.]/g, '');
       const amount = Math.round(parseFloat(priceStr) * 100);
-      
-      // Determine currency based on the price symbol in the cart item
       const currency = item.price.includes('£') ? 'gbp' : 'eur';
 
       return {
@@ -50,11 +43,9 @@ export async function fetchClientSecret(cart: any[]) {
       ui_mode: 'embedded',
       line_items,
       mode: 'payment',
-      // Explicitly enable automatic payment methods (Apple Pay, Google Pay, etc.)
       automatic_payment_methods: {
         enabled: true,
       },
-      // Collect shipping address within Stripe to keep the app flow "instant"
       shipping_address_collection: {
         allowed_countries: ['GB', 'IE', 'US', 'CA', 'FR', 'DE', 'ES', 'IT', 'AU', 'NZ'],
       },

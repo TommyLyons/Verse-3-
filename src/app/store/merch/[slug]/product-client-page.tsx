@@ -8,7 +8,7 @@ import { type Product } from '@/lib/schemas';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ShoppingCart, Eye, CheckCircle, CreditCard, Ruler } from 'lucide-react';
+import { ShoppingCart, Eye, CheckCircle, CreditCard, Ruler, ShieldCheck } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
@@ -92,41 +92,44 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
   return (
     <div className="container py-12 md:py-24 bg-background">
       <BackButton />
-      <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-start">
-        <div className="relative aspect-square bg-secondary rounded-xl overflow-hidden">
+      <div className="grid md:grid-cols-2 gap-8 lg:gap-16 items-start">
+        <div className="relative aspect-square bg-secondary/30 rounded-none overflow-hidden border-2 border-black/5">
           <Image
             src={imageUrl}
             alt={imageDescription}
             fill
-            className="object-contain p-4 transition-transform duration-500 hover:scale-105"
+            className="object-contain p-8 transition-transform duration-700 hover:scale-110"
             sizes="(max-width: 768px) 100vw, 50vw"
             priority
           />
           {product.brand && (
-            <Badge className="absolute top-4 right-4 bg-black text-chart-1 font-bold uppercase italic">
+            <Badge className="absolute top-6 left-6 bg-black text-chart-1 font-bold uppercase italic rounded-none px-4 py-1 text-xs">
               {product.brand}
             </Badge>
           )}
         </div>
         <div className="flex flex-col h-full">
-          <div className="space-y-2">
-            <h1 className="font-headline text-4xl md:text-5xl font-bold text-foreground leading-none uppercase italic">{product.name}</h1>
-            <p className="text-3xl font-bold text-primary italic">{product.price}</p>
+          <div className="space-y-4">
+            <h1 className="font-headline text-5xl md:text-7xl font-bold text-foreground leading-none uppercase italic tracking-tighter">{product.name}</h1>
+            <div className="flex items-center gap-4">
+              <p className="text-4xl font-bold text-chart-1 bg-black px-4 py-1 italic">{product.price}</p>
+              <Badge variant="outline" className="border-black/20 text-muted-foreground font-bold uppercase italic">In Stock</Badge>
+            </div>
           </div>
           
-          <div className="mt-6 border-t pt-6">
-            <p className="text-muted-foreground text-lg leading-relaxed">{product.description}</p>
+          <div className="mt-10 border-t-2 border-black/10 pt-8">
+            <p className="text-muted-foreground text-lg leading-relaxed font-medium">{product.description}</p>
           </div>
           
-           <div className="mt-8 space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <label htmlFor="quantity-select" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Quantity</label>
+           <div className="mt-10 space-y-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                        <label htmlFor="quantity-select" className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Quantity</label>
                         <Select 
                             value={String(quantity)} 
                             onValueChange={(value) => setQuantity(parseInt(value, 10))}
                         >
-                            <SelectTrigger id="quantity-select" className="h-12 border-2 focus:ring-black rounded-none">
+                            <SelectTrigger id="quantity-select" className="h-14 border-2 border-black/10 focus:ring-black rounded-none font-bold">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -140,15 +143,15 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
                     </div>
 
                     {product.sizes && product.sizes.length > 0 && (
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                             <div className="flex items-center justify-between">
-                                <label htmlFor="size-select" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Select Size</label>
-                                <span className="flex items-center text-[10px] text-muted-foreground font-bold uppercase gap-1">
+                                <label htmlFor="size-select" className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Select Size</label>
+                                <span className="flex items-center text-[10px] text-muted-foreground font-bold uppercase gap-1 cursor-help hover:text-black transition-colors">
                                     <Ruler className="h-3 w-3" /> Size Guide
                                 </span>
                             </div>
                             <Select value={selectedSize} onValueChange={setSelectedSize}>
-                                <SelectTrigger id="size-select" className="h-12 border-2 focus:ring-black rounded-none">
+                                <SelectTrigger id="size-select" className="h-14 border-2 border-black/10 focus:ring-black rounded-none font-bold">
                                     <SelectValue placeholder="Size" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -162,19 +165,29 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
                 </div>
            </div>
 
-          <div className="mt-10 w-full space-y-4">
-            <Button size="lg" onClick={handleBuyNow} className="w-full h-14 text-lg font-bold bg-chart-1 text-black hover:bg-chart-1/80 rounded-none uppercase italic">
-              <CreditCard className="mr-2 h-6 w-6" />
+          <div className="mt-12 w-full space-y-4">
+            <Button 
+                size="lg" 
+                onClick={handleBuyNow} 
+                className="w-full h-16 text-xl font-bold bg-chart-1 text-black hover:bg-black hover:text-chart-1 rounded-none uppercase italic transition-all duration-300 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
+            >
+              <CreditCard className="mr-3 h-6 w-6" />
               Buy Now Instantly
             </Button>
             
-            <Button size="lg" variant="outline" onClick={handleAddToCart} className="w-full h-14 text-lg font-bold border-2 border-black rounded-none uppercase italic" disabled={addedToCart}>
-              <ShoppingCart className="mr-2 h-6 w-6" />
+            <Button 
+                size="lg" 
+                variant="outline" 
+                onClick={handleAddToCart} 
+                className="w-full h-16 text-xl font-bold border-2 border-black rounded-none uppercase italic transition-all hover:bg-black/5" 
+                disabled={addedToCart}
+            >
+              <ShoppingCart className="mr-3 h-6 w-6" />
               {addedToCart ? 'Added to Family!' : 'Add to Cart'}
             </Button>
 
             {addedToCart && (
-                <Button size="lg" variant="ghost" className="w-full h-14 font-bold bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-none uppercase italic" asChild>
+                <Button size="lg" variant="ghost" className="w-full h-14 font-bold bg-black text-chart-1 hover:bg-black/90 rounded-none uppercase italic" asChild>
                     <Link href="/cart">
                         <CheckCircle className="mr-2 h-5 w-5" />
                         View Cart & Checkout
@@ -183,48 +196,57 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
             )}
           </div>
 
-          <div className="mt-8 flex items-center gap-6 text-[10px] font-bold uppercase text-muted-foreground tracking-widest">
-            <div className="flex items-center gap-2">
-                <div className="h-1.5 w-1.5 rounded-full bg-chart-1" />
-                Premium Quality
-            </div>
-            <div className="flex items-center gap-2">
-                <div className="h-1.5 w-1.5 rounded-full bg-chart-1" />
-                V3 Exclusive
-            </div>
-            <div className="flex items-center gap-2">
-                <div className="h-1.5 w-1.5 rounded-full bg-chart-1" />
-                Secure Payments
-            </div>
+          <div className="mt-10 p-6 bg-black/5 border-2 border-black/5 space-y-4">
+             <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-widest text-black/60">
+                <ShieldCheck className="h-4 w-4 text-chart-1" />
+                Secure Payments via Stripe
+             </div>
+             <div className="flex flex-wrap gap-x-8 gap-y-2 text-[9px] font-bold uppercase text-muted-foreground tracking-widest">
+                <div className="flex items-center gap-2">
+                    <div className="h-1 w-1 bg-chart-1" />
+                    Premium V3 Quality
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="h-1 w-1 bg-chart-1" />
+                    Limited Edition
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="h-1 w-1 bg-chart-1" />
+                    Express Shipping
+                </div>
+             </div>
           </div>
         </div>
       </div>
       
       {relatedProducts.length > 0 && (
-        <div className="mt-24 border-t pt-16">
-          <h2 className="font-headline text-4xl font-bold text-center mb-12 text-foreground uppercase italic tracking-tighter">You Might Also Like</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-3xl mx-auto">
+        <div className="mt-24 border-t-2 border-black/10 pt-20">
+          <div className="text-center mb-16">
+            <h2 className="font-headline text-5xl font-bold text-foreground uppercase italic tracking-tighter">You Might <span className="text-chart-1">Also Like</span></h2>
+            <div className="h-1 w-24 bg-chart-1 mx-auto mt-4" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-12 max-w-4xl mx-auto">
             {relatedProducts.map((item: Product) => (
                <Card key={item.id} className="overflow-hidden group relative flex flex-col border-none bg-transparent">
                     <CardContent className="p-0 flex-grow">
-                        <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative bg-secondary rounded-xl overflow-hidden">
+                        <Link href={`/store/${item.type}/${item.slug}`} className="block aspect-square relative bg-secondary/30 rounded-none overflow-hidden border-2 border-black/5">
                           <Image
                               src={item.imageUrl || ''}
                               alt={item.name}
                               fill
-                              className="object-contain p-4 transition-transform duration-500 group-hover:scale-110"
+                              className="object-contain p-6 transition-transform duration-700 group-hover:scale-110"
                               sizes="(max-width: 640px) 100vw, 50vw"
                           />
                         </Link>
                     </CardContent>
-                    <div className="p-4 flex justify-between items-center">
+                    <div className="mt-6 flex justify-between items-end px-2">
                         <div>
-                            <p className="font-bold text-foreground uppercase">{item.name}</p>
-                            <p className="text-sm font-medium text-primary">{item.price}</p>
+                            <p className="font-bold text-foreground uppercase text-lg leading-none mb-2">{item.name}</p>
+                            <p className="text-xl font-bold text-chart-1 bg-black px-3 py-1 inline-block italic">{item.price}</p>
                         </div>
-                        <Button size="sm" variant="default" className="bg-black text-chart-1 font-bold" asChild>
+                        <Button size="icon" variant="default" className="bg-black text-chart-1 hover:bg-chart-1 hover:text-black transition-colors rounded-none h-12 w-12" asChild>
                             <Link href={`/store/${item.type}/${item.slug}`}>
-                                <Eye className="h-4 w-4"/>
+                                <Eye className="h-6 w-6"/>
                             </Link>
                         </Button>
                     </div>
