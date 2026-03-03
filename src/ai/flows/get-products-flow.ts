@@ -116,9 +116,9 @@ const getProductsFlow = ai.defineFlow(
                         retailPrice += shippingBuffer;
                     }
 
-                    // Force rounding up for ALL stores now that shipping is included
+                    // Round to the nearest 5 (e.g., 64 -> 65, 61 -> 60)
                     if (retailPrice > 0) {
-                        retailPrice = Math.ceil(retailPrice);
+                        retailPrice = Math.round(retailPrice / 5) * 5;
                     }
 
                     const formattedPrice = retailPrice === 0 ? 'N/A' : `${currencySymbol}${retailPrice % 1 === 0 ? retailPrice.toFixed(0) : retailPrice.toFixed(2)}`;
