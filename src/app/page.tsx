@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -53,10 +52,15 @@ export default function Home() {
     fetchProducts();
   }, []);
   
-  const merchProducts = allProducts.filter(p => p.type === 'merch').slice(0, 8);
+  // Featured Merch specifically for EU V3 Store
+  const merchProducts = allProducts.filter(p => 
+    p.type === 'merch' && 
+    p.brand === 'Verse 3 Merch' && 
+    p.availableRegions?.includes('EU')
+  ).slice(0, 8);
+
   const musicProducts = allProducts.filter(p => p.type === 'music' && !p.digital).slice(0, 8);
 
-  // Directly access the vibe hero from our data library
   const vibeHero = PlaceHolderImages.find(img => img.id === 'vibe-hero');
 
   const handleProductClick = (product: Product) => {
@@ -151,17 +155,19 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image Hero Section - Placed directly above Choose Your Vibe */}
+      {/* Impact Image Hero Section - Optimized fit to avoid cropping */}
       {vibeHero && (
-        <section className="w-full h-[60vh] md:h-[80vh] relative bg-black">
-          <Image
-            src={vibeHero.imageUrl}
-            alt={vibeHero.description}
-            fill
-            className="object-contain"
-            priority
-            data-ai-hint={vibeHero.imageHint}
-          />
+        <section className="w-full h-[60vh] md:h-[80vh] relative bg-black flex items-center justify-center overflow-hidden">
+          <div className="relative w-full h-full max-w-7xl">
+            <Image
+              src={vibeHero.imageUrl}
+              alt={vibeHero.description}
+              fill
+              className="object-contain"
+              priority
+              data-ai-hint={vibeHero.imageHint}
+            />
+          </div>
         </section>
       )}
 
@@ -192,17 +198,21 @@ export default function Home() {
           </div>
        </section>
 
-       {/* Featured Merch Carousel */}
+       {/* Featured Merch Carousel - Specifically EU V3 Store */}
        <section className="py-16 md:py-24 bg-white">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
-                    <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl uppercase tracking-wider">Featured Merch</h2>
-                    <p className="mt-2 text-muted-foreground">Rep the label with our latest gear.</p>
+                    <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl uppercase tracking-wider">Featured Merch (EU)</h2>
+                    <p className="mt-2 text-muted-foreground">Premium gear from the V3 EU Collection.</p>
                 </div>
                 
                 {isLoading ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                         {[...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full" />)}
+                    </div>
+                ) : merchProducts.length === 0 ? (
+                    <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                        <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">Syncing EU collection...</p>
                     </div>
                 ) : (
                     <div className="relative">
@@ -434,4 +444,3 @@ export default function Home() {
     </div>
   );
 }
-
