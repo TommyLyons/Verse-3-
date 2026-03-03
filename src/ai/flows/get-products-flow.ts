@@ -53,7 +53,8 @@ const getProductsFlow = ai.defineFlow(
 
         const matchingStores = allStores.filter((store: any) => {
             const name = store.name.toLowerCase();
-            const isV3 = name.includes('v3') || name.includes('verse') || name.includes('three');
+            // More permissive matching to ensure all regional variations are captured
+            const isV3 = name.includes('v3') || name.includes('verse') || name.includes('three') || name.includes('records');
             const isCrude = name.includes('crude');
             
             if (brand === 'Verse 3 Merch') return isV3 && !isCrude;
@@ -69,13 +70,14 @@ const getProductsFlow = ai.defineFlow(
             const storeId = store.id;
             const storeNameUpper = store.name.toUpperCase();
             
-            // Comprehensive region detection: check store name keywords
+            // Broad region detection: check store name keywords
             const isUKStore = storeNameUpper.includes('UK') || 
                             storeNameUpper.includes('UNITED KINGDOM') ||
                             storeNameUpper.includes('GBP') ||
                             storeNameUpper.includes('BRITAIN') ||
                             storeNameUpper.includes('LONDON') ||
-                            storeNameUpper.includes('V3 UK');
+                            storeNameUpper.includes('V3 UK') ||
+                            storeNameUpper.includes('RECORDS'); // Default V3 Records is likely UK
 
             const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
             if (!productsResponse.ok) continue;
@@ -95,9 +97,9 @@ const getProductsFlow = ai.defineFlow(
                     if (!syncProduct || !syncProduct.name || !syncProduct.thumbnail_url) return null;
 
                     // Detect region from variant currency or store identity
-                    const variantCurrency = syncVariants?.[0]?.currency;
-                    // Strict regionality: If it's a UK store, or reports GBP, it's UK. Otherwise EU.
-                    const currentIsUK = variantCurrency === 'GBP' || (isUKStore && variantCurrency !== 'EUR');
+                    // We check multiple variants to be sure of the currency
+                    const variantCurrencies = new Set(syncVariants?.map((v: any) => v.currency).filter(Boolean));
+                    const currentIsUK = variantCurrencies.has('GBP') || (isUKStore && !variantCurrencies.has('EUR'));
                     const currentRegion = currentIsUK ? 'UK' : 'EU';
                     const currentCurrencySymbol = currentIsUK ? '£' : '€';
 

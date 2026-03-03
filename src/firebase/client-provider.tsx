@@ -18,7 +18,7 @@ export function FirebaseClientProvider({ children }: { children: ReactNode }) {
     setSdks(initializedSdks);
   }, []);
 
-  // Use a consistent class structure during initialization to prevent hydration mismatches
+  // Use a consistent structure during initialization to prevent hydration mismatches
   if (!mounted) {
     return (
         <div className="relative flex min-h-dvh flex-col bg-background text-foreground">
