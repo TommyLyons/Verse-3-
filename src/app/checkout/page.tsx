@@ -30,7 +30,7 @@ import {
   EmbeddedCheckout
 } from '@stripe/react-stripe-js';
 
-// Your Stripe Publishable Key
+// Your Stripe Publishable Key (used for frontend initialization)
 const STRIPE_PUBLISHABLE_KEY = "pk_live_51T6sTyB9Rp46v45XkIzRrWnjQQMZXFzErkzoeTK2h8VOGT7uP0PmfTBrVnRFPwQ5vFaQqrdLXJcuXpKhO29Zl8Iq004hGYRp53";
 const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
 
@@ -74,7 +74,7 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
-      // 1. Record the order in Firestore
+      // 1. Record the order in Firestore for label processing
       if (firestore) {
         const ordersCollection = collection(firestore, 'orders');
         const orderData = {
@@ -94,7 +94,7 @@ export default function CheckoutPage() {
         addDocumentNonBlocking(ordersCollection, orderData);
       }
       
-      // 2. Show the Stripe Embedded UI
+      // 2. Transition to the Stripe Embedded Checkout
       setShowStripe(true);
       toast({
         title: 'Initializing Secure Payment',
@@ -112,8 +112,9 @@ export default function CheckoutPage() {
     }
   };
 
-  // Wrapped in useCallback for the EmbeddedCheckoutProvider
+  // Wrapped in useCallback to ensure the provider doesn't reset unnecessarily
   const getClientSecret = useCallback(() => {
+    // We pass the cart to the server action to generate dynamic line items
     return fetchClientSecret(cart);
   }, [cart]);
 

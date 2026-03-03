@@ -2,12 +2,10 @@ import Stripe from 'stripe';
 
 /**
  * Initializes the Stripe Node.js library using the secret key from environment variables.
- * This key is managed securely via Firebase App Hosting Secrets.
+ * It will look for STRIPE_SECRET_KEY in your .env file or Firebase App Hosting Secrets.
  */
-if (!process.env.STRIPE_SECRET_KEY) {
-  console.warn("STRIPE_SECRET_KEY is missing from environment variables. Checkout will fail until added to App Hosting Secrets.");
-}
+const secretKey = process.env.STRIPE_SECRET_KEY || '';
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+export const stripe = new Stripe(secretKey, {
   apiVersion: '2025-01-27.acacia',
 });
