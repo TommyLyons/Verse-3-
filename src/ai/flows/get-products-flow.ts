@@ -68,13 +68,12 @@ const getProductsFlow = ai.defineFlow(
         for (const store of matchingStores) {
             const storeId = store.id;
             const storeNameUpper = store.name.toUpperCase();
-            const isUK = storeNameUpper.includes('UK') || 
-                         storeNameUpper.includes('UNITED KINGDOM') ||
-                         storeNameUpper.includes('GBP') ||
-                         storeNameUpper.includes('BRITAIN');
             
-            const region = isUK ? 'UK' : 'EU';
-            const currencySymbol = isUK ? '£' : '€';
+            // Initial guess based on store name
+            let isUKStore = storeNameUpper.includes('UK') || 
+                            storeNameUpper.includes('UNITED KINGDOM') ||
+                            storeNameUpper.includes('GBP') ||
+                            storeNameUpper.includes('BRITAIN');
 
             const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
             if (!productsResponse.ok) continue;
@@ -93,6 +92,16 @@ const getProductsFlow = ai.defineFlow(
 
                     if (!syncProduct || !syncProduct.name || !syncProduct.thumbnail_url) return null;
 
+                    // More accurate currency detection from variants
+                    const variantCurrency = syncVariants?.[0]?.currency;
+                    const isGBP = variantCurrency === 'GBP';
+                    const isEUR = variantCurrency === 'EUR';
+                    
+                    // Final determination of region and currency
+                    const currentIsUK = isGBP || (isUKStore && !isEUR);
+                    const currentCurrencySymbol = currentIsUK ? '£' : '€';
+                    const currentRegion = currentIsUK ? 'UK' : 'EU';
+
                     const sizes = syncVariants 
                         ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
                         : [];
@@ -106,11 +115,11 @@ const getProductsFlow = ai.defineFlow(
                     }
 
                     // Round up to nearest whole number for GBP prices as requested
-                    if (isUK && retailPrice > 0) {
+                    if (currentIsUK && retailPrice > 0) {
                         retailPrice = Math.ceil(retailPrice);
                     }
 
-                    const formattedPrice = retailPrice === 0 ? 'N/A' : `${currencySymbol}${retailPrice % 1 === 0 ? retailPrice.toFixed(0) : retailPrice.toFixed(2)}`;
+                    const formattedPrice = retailPrice === 0 ? 'N/A' : `${currentCurrencySymbol}${retailPrice % 1 === 0 ? retailPrice.toFixed(0) : retailPrice.toFixed(2)}`;
                     const slug = syncProduct.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 
                     return {
@@ -125,7 +134,7 @@ const getProductsFlow = ai.defineFlow(
                         revolutLink: 'https://revolut.me/',
                         type: 'merch',
                         brand: brand as any,
-                        availableRegions: [region as any],
+                        availableRegions: [currentRegion as any],
                         sizes: sizes.length > 0 ? sizes : undefined,
                     };
                 } catch (err) {
