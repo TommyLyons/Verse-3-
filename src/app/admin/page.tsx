@@ -223,7 +223,7 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
         setIsSubmitting(true);
         try {
             const productsCollection = collection(firestore, 'products');
-            const productData: any = { ...values, revolutLink: 'https://revolut.me/' };
+            const productData: any = { ...values, revolutLink: 'https://checkout.stripe.com/' };
             if (productData.sizes && typeof productData.sizes === 'string') {
                 productData.sizes = productData.sizes.split(',').map((s: string) => s.trim().toUpperCase());
             } else {
@@ -374,7 +374,7 @@ const ProductManagement = () => {
         printfulProducts.forEach(p => {
             if (!slugs.has(p.slug)) combined.push(p);
         });
-        return combined;
+        return combined.sort((a, b) => a.name.localeCompare(b.name));
     }, [dbProducts, printfulProducts]);
 
     return (

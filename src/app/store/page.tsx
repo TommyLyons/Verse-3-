@@ -157,7 +157,7 @@ function StoreContent() {
     return allProducts.filter(p => 
       p.type === 'merch' && 
       p.brand === 'Verse 3 Merch' && 
-      (!p.availableRegions || p.availableRegions.includes(region))
+      (!p.availableRegions || p.availableRegions.length === 0 || p.availableRegions.includes(region))
     ).sort((a, b) => a.name.localeCompare(b.name));
   }, [allProducts, region]);
 
@@ -173,7 +173,7 @@ function StoreContent() {
     allProducts.filter(p => 
       p.brand === 'Crude City' && 
       p.type === 'merch' && 
-      (!p.availableRegions || p.availableRegions.includes(region))
+      (!p.availableRegions || p.availableRegions.length === 0 || p.availableRegions.includes(region))
     ).sort((a, b) => a.name.localeCompare(b.name)),
   [allProducts, region]);
 

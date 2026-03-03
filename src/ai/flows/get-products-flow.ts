@@ -53,7 +53,6 @@ const getProductsFlow = ai.defineFlow(
 
         const matchingStores = allStores.filter((store: any) => {
             const name = store.name.toLowerCase();
-            // More permissive matching to ensure all regional variations are captured
             const isV3 = name.includes('v3') || name.includes('verse') || name.includes('three') || name.includes('records');
             const isCrude = name.includes('crude');
             
@@ -70,14 +69,14 @@ const getProductsFlow = ai.defineFlow(
             const storeId = store.id;
             const storeNameUpper = store.name.toUpperCase();
             
-            // Broad region detection: check store name keywords
+            // Comprehensive Region Detection
             const isUKStore = storeNameUpper.includes('UK') || 
                             storeNameUpper.includes('UNITED KINGDOM') ||
                             storeNameUpper.includes('GBP') ||
                             storeNameUpper.includes('BRITAIN') ||
                             storeNameUpper.includes('LONDON') ||
                             storeNameUpper.includes('V3 UK') ||
-                            storeNameUpper.includes('RECORDS'); // Default V3 Records is likely UK
+                            storeNameUpper.includes('RECORDS'); 
 
             const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
             if (!productsResponse.ok) continue;
@@ -96,8 +95,7 @@ const getProductsFlow = ai.defineFlow(
 
                     if (!syncProduct || !syncProduct.name || !syncProduct.thumbnail_url) return null;
 
-                    // Detect region from variant currency or store identity
-                    // We check multiple variants to be sure of the currency
+                    // Prioritize variant currency for region tagging
                     const variantCurrencies = new Set(syncVariants?.map((v: any) => v.currency).filter(Boolean));
                     const currentIsUK = variantCurrencies.has('GBP') || (isUKStore && !variantCurrencies.has('EUR'));
                     const currentRegion = currentIsUK ? 'UK' : 'EU';
@@ -109,7 +107,7 @@ const getProductsFlow = ai.defineFlow(
                     
                     let retailPrice = 0;
                     if (syncVariants && syncVariants.length > 0) {
-                        // Get highest retail price for the primary variation
+                        // Extract specific retail prices to ensure accuracy (e.g. €75 for backpack)
                         const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter((p: number) => !isNaN(p) && p > 0);
                         if (prices.length > 0) {
                             retailPrice = Math.max(...prices);
@@ -147,7 +145,7 @@ const getProductsFlow = ai.defineFlow(
             allDetailedProducts.push(...detailedProducts.filter((p): p is Product => p !== null));
         }
 
-        // Sort alphabetically to ensure identical ordering across regional grids
+        // Enforce consistent alphabetical ordering across all regional grids
         return allDetailedProducts.sort((a, b) => a.name.localeCompare(b.name));
     } catch (err) {
         return [];

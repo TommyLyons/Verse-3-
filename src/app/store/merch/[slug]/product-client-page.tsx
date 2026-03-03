@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -168,7 +167,7 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
                 <Button size="lg" variant="outline" className="h-14 font-bold border-2 border-black rounded-none uppercase italic" asChild>
                     <a href={product.revolutLink} target="_blank" rel="noopener noreferrer">
                         <CreditCard className="mr-2 h-5 w-5" />
-                        Buy Now
+                        Buy with Stripe
                     </a>
                 </Button>
                 {addedToCart && (
