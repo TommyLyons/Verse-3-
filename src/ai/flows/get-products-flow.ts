@@ -1,6 +1,7 @@
+
 'use server';
 /**
- * @fileOverview A flow for fetching product information from multiple Printful stores with accurate retail pricing and regional currency enforcement.
+ * @fileOverview A flow for fetching product information from Printful with accurate retail pricing and regional currency enforcement.
  */
 
 import {ai} from '@/ai/genkit';
@@ -53,11 +54,12 @@ const getProductsFlow = ai.defineFlow(
         // Fuzzy matching for stores to ensure Europe and UK are both caught
         const matchingStores = allStores.filter((store: any) => {
             const name = store.name.toLowerCase();
-            if (brand === 'Verse 3 Merch') {
-                return (name.includes('v3') || name.includes('verse')) && (name.includes('uk') || name.includes('europe') || name.includes('eu'));
-            } else {
-                return name.includes('crude city');
-            }
+            const isV3 = name.includes('v3') || name.includes('verse') || name.includes('three');
+            const isCrude = name.includes('crude');
+            
+            if (brand === 'Verse 3 Merch') return isV3;
+            if (brand === 'Crude City') return isCrude;
+            return false;
         });
 
         if (matchingStores.length === 0) return [];
@@ -66,7 +68,7 @@ const getProductsFlow = ai.defineFlow(
 
         for (const store of matchingStores) {
             const storeId = store.id;
-            const region = store.name.toUpperCase().includes('UK') ? 'UK' : 'EU';
+            const region = (store.name.toUpperCase().includes('UK') || store.name.toUpperCase().includes('UNITED KINGDOM')) ? 'UK' : 'EU';
 
             const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
             if (!productsResponse.ok) continue;
@@ -90,12 +92,12 @@ const getProductsFlow = ai.defineFlow(
                         : [];
                     
                     // ACCURATE RETAIL PRICE EXTRACTION
-                    // We prioritize the retail price set in Printful.
+                    // We prioritize the primary retail price. We take the MAX variant price to ensure
+                    // premium items (like backpacks) reflect their true value.
                     let retailPrice = 0;
                     if (syncVariants && syncVariants.length > 0) {
                         const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter(p => !isNaN(p) && p > 0);
                         if (prices.length > 0) {
-                            // Use the maximum price to capture the intended value for premium items (e.g. Backpacks at €75)
                             retailPrice = Math.max(...prices);
                         }
                     }
@@ -114,7 +116,7 @@ const getProductsFlow = ai.defineFlow(
                             ? `Premium official ${brand} utility gear. Built for durability and style.`
                             : `Official ${brand} merchandise. Premium quality.`,
                         imageUrl: syncProduct.thumbnail_url,
-                        revolutLink: 'https://revolut.me/test-business-studio',
+                        revolutLink: 'https://revolut.me/', // Legacy fallback
                         type: 'merch',
                         brand: brand as any,
                         availableRegions: [region as any],

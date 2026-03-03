@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
@@ -183,8 +184,7 @@ const MusicSubmissions = () => {
 const productFormSchema = z.object({
   name: z.string().min(3, "Product name must be at least 3 characters."),
   description: z.string().min(10, "Description must be at least 10 characters."),
-  price: z.string().regex(/^[\$\€\£]\d+(\.\d{2})?$/, "Price must be in the format $XX.XX, €XX.XX or £XX.XX."),
-  revolutLink: z.string().url("Please enter a valid Revolut purchase link."),
+  price: z.string().regex(/^[\$\€\£]\d+(\.\d{2})?$/, "Price format must be €XX.XX or £XX.XX"),
   type: z.enum(['merch', 'music']),
   brand: z.enum(['Verse 3 Merch', 'Crude City']),
   slug: z.string().min(3, "Slug is required.").refine(s => !s.includes(' '), "Slug cannot contain spaces."),
@@ -207,7 +207,6 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
             name: '',
             description: '',
             price: '€',
-            revolutLink: 'https://revolut.me/',
             type: 'merch',
             brand: 'Verse 3 Merch',
             slug: '',
@@ -225,7 +224,7 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
         setIsSubmitting(true);
         try {
             const productsCollection = collection(firestore, 'products');
-            const productData: any = { ...values };
+            const productData: any = { ...values, revolutLink: 'https://revolut.me/' };
             if (productData.sizes && typeof productData.sizes === 'string') {
                 productData.sizes = productData.sizes.split(',').map((s: string) => s.trim().toUpperCase());
             } else {
@@ -331,15 +330,6 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                  <FormField control={form.control} name="imageUrl" render={({ field }) => (
                     <FormItem>
                         <FormLabel>Image URL</FormLabel>
-                        <FormControl>
-                            <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )} />
-                <FormField control={form.control} name="revolutLink" render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Revolut Link</FormLabel>
                         <FormControl>
                             <Input {...field} />
                         </FormControl>
@@ -460,7 +450,7 @@ const SalesDashboard = () => (
         <CardContent>
             <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg">
                 <BarChart className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-xl font-semibold">Sales Data Soon</h3>
+                <h3 className="text-xl font-semibold">Stripe Analytics Coming Soon</h3>
             </div>
         </CardContent>
     </Card>
