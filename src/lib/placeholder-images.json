@@ -107,6 +107,12 @@
       "description": "Explicit content warning image.",
       "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/Explicit.png?alt=media&token=a096f9dc-8a6e-4b67-9d39-43ee599536b9",
       "imageHint": "explicit warning"
+    },
+    {
+      "id": "vibe-hero",
+      "description": "High-impact streetwear and music brand hero image.",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/1000047979.jpg?alt=media&token=3ebeaf8c-b866-42d8-95b5-9c69cb8412b5",
+      "imageHint": "streetwear culture"
     }
   ]
 }

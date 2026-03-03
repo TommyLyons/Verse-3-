@@ -40,8 +40,6 @@ export default function Home() {
   const [pendingBrand, setPendingBrand] = useState<string | null>(null);
   const [isAgeVerified, setIsAgeVerified] = useState(false);
 
-  const vibeHero = PlaceHolderImages.find(img => img.id === 'vibe-hero');
-
   useEffect(() => {
     const verified = sessionStorage.getItem('v3_age_verified') === 'true';
     setIsAgeVerified(verified);
@@ -57,6 +55,9 @@ export default function Home() {
   
   const merchProducts = allProducts.filter(p => p.type === 'merch').slice(0, 8);
   const musicProducts = allProducts.filter(p => p.type === 'music' && !p.digital).slice(0, 8);
+
+  // Directly access the vibe hero from our data library
+  const vibeHero = PlaceHolderImages.find(img => img.id === 'vibe-hero');
 
   const handleProductClick = (product: Product) => {
     if (product.brand === 'Crude City' && !isAgeVerified) {
@@ -150,7 +151,7 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image Hero Section */}
+      {/* Impact Image Hero Section - Placed directly above Choose Your Vibe */}
       {vibeHero && (
         <section className="w-full h-[60vh] md:h-[80vh] relative">
           <Image
