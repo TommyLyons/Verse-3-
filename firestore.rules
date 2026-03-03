@@ -11,6 +11,7 @@ service cloud.firestore {
     }
     
     // Admin bypass: Admin has unrestricted access to ALL data
+    // This explicitly allows 'list' operations which were failing previously
     match /{document=**} {
       allow read, write: if isV3Admin();
     }
