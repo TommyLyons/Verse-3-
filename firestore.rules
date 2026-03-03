@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper to check if the user is the specific admin account
+    // God-mode for the Master Admin account
     function isV3Admin() {
       return request.auth != null && (
         request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2' || 
@@ -10,38 +10,36 @@ service cloud.firestore {
       );
     }
     
-    // Newsletter subscriptions: Createable by anyone, Manageable by admin
-    match /newsletterSubscriptions/{subId} {
-      allow create: if true;
+    // Global admin override: Admin can do anything
+    match /{document=**} {
       allow read, write: if isV3Admin();
     }
 
-    // User profiles and purchase history
+    // Public permissions for non-admins
+    
+    match /newsletterSubscriptions/{subId} {
+      allow create: if true;
+      // read/write handled by admin override
+    }
+
     match /users/{userId} {
-      allow read, write: if request.auth != null && (request.auth.uid == userId || isV3Admin());
+      allow read, write: if request.auth != null && request.auth.uid == userId;
 
       match /purchasedProducts/{purchaseId} {
-        allow read: if request.auth != null && (request.auth.uid == userId || isV3Admin());
-        allow write: if isV3Admin();
+        allow read: if request.auth != null && request.auth.uid == userId;
       }
     }
 
-    // Demo submissions
     match /demoSubmissions/{submissionId} {
       allow create: if true;
-      allow read, write: if isV3Admin();
     }
 
-    // Products
     match /products/{productId} {
       allow read: if true;
-      allow write: if isV3Admin();
     }
 
-    // Orders
     match /orders/{orderId} {
       allow create: if true;
-      allow read, write: if isV3Admin();
     }
   }
 }
