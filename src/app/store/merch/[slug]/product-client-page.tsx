@@ -32,7 +32,6 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
   const [isAgeGateOpen, setIsAgeGateOpen] = useState(false);
   const [isAgeVerified, setIsAgeVerified] = useState(false);
 
-  // Initialize selected size and age verification state
   useEffect(() => {
     const verified = sessionStorage.getItem('v3_age_verified') === 'true';
     setIsAgeVerified(verified);
@@ -65,21 +64,25 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
         });
         return;
     }
-    if (quantity < 1) {
-        toast({
-            variant: 'destructive',
-            title: 'Quantity must be at least 1',
-        });
-        return;
-    }
     addToCart(product, quantity, selectedSize);
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 3000);
   };
+
+  const handleBuyNow = () => {
+    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+        toast({
+            variant: 'destructive',
+            title: 'Please select a size',
+        });
+        return;
+    }
+    addToCart(product, quantity, selectedSize);
+    router.push('/checkout');
+  };
   
   const imageUrl = product.imageUrl || '';
   const imageDescription = product.description || '';
-  const imageHint = '';
 
   const relatedProducts = getRelatedProducts(product, allProducts);
 
@@ -94,7 +97,6 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
             fill
             className="object-contain p-4 transition-transform duration-500 hover:scale-105"
             sizes="(max-width: 768px) 100vw, 50vw"
-            data-ai-hint={imageHint}
             priority
           />
           {product.brand && (
@@ -163,11 +165,8 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
               {addedToCart ? 'Added to Family!' : 'Add to Cart'}
             </Button>
             
-            <Button size="lg" className="w-full h-14 text-lg font-bold bg-chart-1 text-black hover:bg-chart-1/80 rounded-none uppercase italic" asChild>
-                <a href={product.revolutLink} target="_blank" rel="noopener noreferrer">
-                    <CreditCard className="mr-2 h-6 w-6" />
-                    Buy Now
-                </a>
+            <Button size="lg" onClick={handleBuyNow} className="w-full h-14 text-lg font-bold bg-chart-1 text-black hover:bg-chart-1/80 rounded-none uppercase italic">
+                Buy Now
             </Button>
 
             {addedToCart && (

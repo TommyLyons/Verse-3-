@@ -81,6 +81,11 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
     setTimeout(() => setAddedToCart(false), 3000);
   };
 
+  const handleBuyNow = () => {
+    addToCart(product);
+    router.push('/checkout');
+  };
+
   const triggerDownload = (url: string, filename: string) => {
     const link = document.createElement('a');
     link.href = url;
@@ -210,11 +215,8 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
                   {addedToCart ? 'Added to Family!' : 'Add to Cart'}
                 </Button>
                 
-                <Button size="lg" className="w-full h-14 text-lg font-bold bg-chart-1 text-black hover:bg-chart-1/80 rounded-none uppercase italic" asChild>
-                    <a href={product.revolutLink} target="_blank" rel="noopener noreferrer">
-                        <CreditCard className="mr-2 h-6 w-6" />
-                        Buy Now
-                    </a>
+                <Button size="lg" onClick={handleBuyNow} className="w-full h-14 text-lg font-bold bg-chart-1 text-black hover:bg-chart-1/80 rounded-none uppercase italic">
+                    Buy Now
                 </Button>
 
                 {addedToCart && (
