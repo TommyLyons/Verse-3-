@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A flow for fetching product information from Printful with accurate retail pricing, shipping integration, and regional currency enforcement.
@@ -9,7 +10,7 @@ import {z} from 'genkit';
 import { ProductSchema, type Product } from '@/lib/schemas';
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 
-async function getPrintfulApiKey(): Promise<string | null> {
+export async function getPrintfulApiKey(): Promise<string | null> {
     if (process.env.PRINTFUL_API_KEY) {
         return process.env.PRINTFUL_API_KEY;
     }
@@ -76,7 +77,6 @@ const getProductsFlow = ai.defineFlow(
             const region = isUKStore ? 'UK' : 'EU';
             const currencySymbol = isUKStore ? '£' : '€';
             
-            // Shipping buffers to incorporate into price (estimated average shipping)
             const shippingBuffer = isUKStore ? 5.00 : 6.00;
 
             const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
@@ -111,12 +111,10 @@ const getProductsFlow = ai.defineFlow(
                         }
                     }
 
-                    // Incorporate shipping buffer into the price
                     if (retailPrice > 0) {
                         retailPrice += shippingBuffer;
                     }
 
-                    // Round to the nearest 5 (e.g., 64 -> 65, 61 -> 60)
                     if (retailPrice > 0) {
                         retailPrice = Math.round(retailPrice / 5) * 5;
                     }

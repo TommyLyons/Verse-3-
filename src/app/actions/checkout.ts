@@ -1,3 +1,4 @@
+
 'use server';
 
 import { headers } from 'next/headers';
@@ -5,16 +6,15 @@ import { stripe } from '@/lib/stripe';
 
 /**
  * Creates a Stripe Checkout Session with Embedded UI mode.
- * Shipping and customer details are handled within the secure Stripe window.
+ * Includes metadata for automated Printful fulfillment.
  */
 export async function fetchClientSecret(cart: any[]) {
   const origin = (await headers()).get('origin');
 
-  // Ensure the secret key is available from .env or environment
   const secretKey = process.env.STRIPE_SECRET_KEY;
 
   if (!secretKey || secretKey === 'sk_live_PASTE_YOUR_SECRET_KEY_HERE') {
-    console.error("STRIPE_SECRET_KEY is missing or invalid in environment variables.");
+    console.error("STRIPE_SECRET_KEY is missing or invalid.");
     throw new Error("Payment system is currently being configured. Please try again in a few minutes.");
   }
 
@@ -24,11 +24,8 @@ export async function fetchClientSecret(cart: any[]) {
 
   try {
     const line_items = cart.map((item: any) => {
-      // Clean price string and convert to cents/pence
       const priceStr = item.price.replace(/[^0-9.]/g, '');
       const amount = Math.round(parseFloat(priceStr) * 100);
-      
-      // Determine currency based on price symbol or regional defaults
       const currency = item.price.includes('£') ? 'gbp' : 'eur';
 
       if (isNaN(amount) || amount <= 0) {
@@ -42,6 +39,12 @@ export async function fetchClientSecret(cart: any[]) {
             name: item.name + (item.size ? ` (${item.size})` : ''),
             images: item.imageUrl ? [item.imageUrl] : [],
             description: item.description?.substring(0, 250),
+            // Metadata at the line item level for the webhook to read
+            metadata: {
+              printful_id: item.id, // This is the sync_product_id
+              size: item.size || '',
+              type: item.type
+            }
           },
           unit_amount: amount,
         },
@@ -49,14 +52,16 @@ export async function fetchClientSecret(cart: any[]) {
       };
     });
 
-    // We rely on Stripe Dashboard settings for payment methods (Apple Pay, Google Pay, etc.)
-    // to avoid API version mismatch errors with automatic_payment_methods.
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
       line_items,
       mode: 'payment',
       shipping_address_collection: {
         allowed_countries: ['GB', 'IE', 'US', 'CA', 'FR', 'DE', 'ES', 'IT', 'AU', 'NZ'],
+      },
+      // Pass general metadata to the session
+      metadata: {
+        order_source: 'verse3_web_store'
       },
       return_url: `${origin}/return?session_id={CHECKOUT_SESSION_ID}`,
     });
