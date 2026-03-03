@@ -1,8 +1,8 @@
 'use server';
 /**
- * @fileOverview A flow for fetching product information from Printful.
+ * @fileOverview A flow for fetching product information from multiple Printful stores.
  *
- * - getProducts - A function that fetches a list of products from a specific Printful store.
+ * - getProducts - A function that fetches products from specific regional Printful stores.
  */
 
 import {ai} from '@/ai/genkit';
@@ -12,7 +12,6 @@ import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 
 // Helper function to get the secret from Google Secret Manager
 async function getPrintfulApiKey(): Promise<string | null> {
-    // During build or local dev, prioritize env var to avoid Secret Manager permission warnings
     if (process.env.PRINTFUL_API_KEY) {
         return process.env.PRINTFUL_API_KEY;
     }
@@ -31,7 +30,6 @@ async function getPrintfulApiKey(): Promise<string | null> {
         }
         return null;
     } catch (error) {
-        // Only log warning if not in build process to keep logs clean
         if (process.env.NODE_ENV !== 'production') {
             console.warn(`Failed to access secret: ${secretName}.`);
         }
@@ -39,6 +37,10 @@ async function getPrintfulApiKey(): Promise<string | null> {
     }
 }
 
+const brandStoreMap: Record<string, string[]> = {
+  'Verse 3 Merch': ['V3 UK', 'V3 Europe'],
+  'Crude City': ['Crude City Europe', 'Crude City UK']
+};
 
 const getProductsFlow = ai.defineFlow(
   {
@@ -47,76 +49,75 @@ const getProductsFlow = ai.defineFlow(
     outputSchema: z.array(ProductSchema),
   },
   async ({ brand }) => {
-    if (brand === 'Crude City') {
-      const apiKey = await getPrintfulApiKey();
-      if (!apiKey) {
-        // Fallback or return empty if no key
-        return [];
-      }
+    const apiKey = await getPrintfulApiKey();
+    if (!apiKey) return [];
 
-      const headers = {
-        'Authorization': `Bearer ${apiKey}`,
-      };
+    const headers = { 'Authorization': `Bearer ${apiKey}` };
+    const targetStores = brandStoreMap[brand] || [];
 
-      try {
+    try {
         const storesResponse = await fetch('https://api.printful.com/stores', { headers });
         if (!storesResponse.ok) return [];
         
         const storesData = await storesResponse.json();
-        const crudeCityStore = storesData.result.find((store: any) => store.name === 'Crude City EU');
+        const matchingStores = storesData.result.filter((store: any) => targetStores.includes(store.name));
 
-        if (!crudeCityStore) return [];
-        const storeId = crudeCityStore.id;
+        if (matchingStores.length === 0) return [];
 
-        const response = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=24`, { headers });
-        if (!response.ok) return [];
+        const allDetailedProducts: Product[] = [];
 
-        const data = await response.json();
-        const products = data.result;
+        for (const store of matchingStores) {
+            const storeId = store.id;
+            const region = store.name.includes('UK') ? 'UK' : 'EU';
 
-        // Fetch details for each product to get variant information (sizes)
-        const detailedProducts = await Promise.all(products.map(async (item: any) => {
-            try {
-                const detailResponse = await fetch(`https://api.printful.com/sync/products/${item.id}?store_id=${storeId}`, { headers });
-                if (!detailResponse.ok) return null;
-                
-                const detailData = await detailResponse.json();
-                const syncProduct = detailData.result.sync_product;
-                const syncVariants = detailData.result.sync_variants;
+            const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=50`, { headers });
+            if (!productsResponse.ok) continue;
 
-                if (!syncProduct || !syncProduct.name || !syncProduct.thumbnail_url) return null;
+            const data = await productsResponse.json();
+            const products = data.result;
 
-                const sizes = syncVariants 
-                    ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
-                    : [];
-                
-                const slug = syncProduct.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+            const detailedProducts = await Promise.all(products.map(async (item: any) => {
+                try {
+                    const detailResponse = await fetch(`https://api.printful.com/sync/products/${item.id}?store_id=${storeId}`, { headers });
+                    if (!detailResponse.ok) return null;
+                    
+                    const detailData = await detailResponse.json();
+                    const syncProduct = detailData.result.sync_product;
+                    const syncVariants = detailData.result.sync_variants;
 
-                return {
-                    id: String(syncProduct.id),
-                    name: syncProduct.name,
-                    slug: slug,
-                    price: '€35.00', // Enforced pricing for Crude City merch
-                    description: `A high-quality product: ${syncProduct.name}.`,
-                    imageUrl: syncProduct.thumbnail_url,
-                    revolutLink: 'https://revolut.me/test-business-studio',
-                    type: 'merch',
-                    brand: 'Crude City',
-                    availableRegions: ['UK', 'EU'],
-                    sizes: sizes.length > 0 ? sizes : undefined,
-                };
-            } catch (err) {
-                return null;
-            }
-        }));
+                    if (!syncProduct || !syncProduct.name || !syncProduct.thumbnail_url) return null;
 
-        return detailedProducts.filter((p): p is Product => p !== null);
-      } catch (err) {
+                    const sizes = syncVariants 
+                        ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
+                        : [];
+                    
+                    const slug = syncProduct.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+
+                    return {
+                        id: String(syncProduct.id),
+                        name: syncProduct.name,
+                        slug: slug,
+                        price: '€35.00',
+                        description: `A high-quality product from ${brand}.`,
+                        imageUrl: syncProduct.thumbnail_url,
+                        revolutLink: 'https://revolut.me/test-business-studio',
+                        type: 'merch',
+                        brand: brand as any,
+                        availableRegions: [region as any],
+                        sizes: sizes.length > 0 ? sizes : undefined,
+                    };
+                } catch (err) {
+                    return null;
+                }
+            }));
+
+            allDetailedProducts.push(...detailedProducts.filter((p): p is Product => p !== null));
+        }
+
+        return allDetailedProducts;
+    } catch (err) {
         return [];
-      }
     }
-    
-    return [];
   }
 );
 

@@ -29,13 +29,15 @@ export const getAllProducts = async (): Promise<Product[]> => {
     }
 
     try {
-        // Genkit flows can run in Node environments during build
-        flowProducts = await getFlowProducts('Crude City');
+        const [crudeProducts, v3Products] = await Promise.all([
+            getFlowProducts('Crude City'),
+            getFlowProducts('Verse 3 Merch')
+        ]);
+        flowProducts = [...crudeProducts, ...v3Products];
     } catch (error) {
         console.warn("Warning: Could not fetch products from Printful Flow.", error);
     }
 
-    // Combine and enforce €35.00 pricing for all merchandise
     const combined = [...dbProducts, ...flowProducts].map(p => {
         if (p.type === 'merch') {
             return { ...p, price: '€35.00' };
