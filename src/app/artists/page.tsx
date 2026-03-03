@@ -32,7 +32,7 @@ export default function ArtistsPage() {
     <div className="container max-w-7xl mx-auto px-4 py-12 md:py-24">
       <BackButton />
       <div className="text-center mb-12">
-        <h1 className="font-headline text-4xl md:text-5xl font-bold text-chart-5">The Founders</h1>
+        <h1 className="font-headline text-4xl md:text-5xl font-bold text-chart-5">Meet The Team</h1>
         <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">Meet the talent and visionaries behind Verse3 Records.</p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">

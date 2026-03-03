@@ -30,7 +30,7 @@ const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/store', label: 'Store' },
   { href: '/music', label: 'Music' },
-  { href: '/artists', label: 'Artists' },
+  { href: '/artists', label: 'Meet The Team' },
   { href: '/news', label: 'News' },
   { href: '/submit-music', label: 'Submit Music' },
 ];
