@@ -50,9 +50,8 @@ export async function fetchClientSecret(cart: any[]) {
       ui_mode: 'embedded',
       line_items,
       mode: 'payment',
-      automatic_payment_methods: {
-        enabled: true,
-      },
+      // We remove automatic_payment_methods from here as it's enabled by default in the Stripe Dashboard
+      // and can cause errors with certain API versions or account configurations.
       shipping_address_collection: {
         allowed_countries: ['GB', 'IE', 'US', 'CA', 'FR', 'DE', 'ES', 'IT', 'AU', 'NZ'],
       },

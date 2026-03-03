@@ -126,20 +126,24 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
           )}
 
           <div className="mt-8 w-full space-y-4">
-            <Button size="lg" onClick={handleBuyNow} className="w-full h-14 text-lg font-bold bg-chart-1 text-black hover:bg-chart-1/80 rounded-none uppercase italic">
-                <CreditCard className="mr-2 h-6 w-6" />
+            <Button 
+                size="lg" 
+                onClick={handleBuyNow} 
+                className="w-full h-16 text-xl font-bold bg-chart-1 text-black hover:bg-black hover:text-chart-1 rounded-none uppercase italic transition-all duration-300 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
+            >
+                <CreditCard className="mr-3 h-6 w-6" />
                 Buy Now Instantly
             </Button>
             
             {!product.digital && (
-              <Button size="lg" variant="outline" onClick={handleAddToCart} className="w-full h-14 text-lg font-bold border-2 border-black rounded-none uppercase italic" disabled={addedToCart}>
-                <ShoppingCart className="mr-2 h-6 w-6" />
+              <Button size="lg" variant="outline" onClick={handleAddToCart} className="w-full h-16 text-xl font-bold border-2 border-black rounded-none uppercase italic transition-all hover:bg-black/5" disabled={addedToCart}>
+                <ShoppingCart className="mr-3 h-6 w-6" />
                 {addedToCart ? 'Added to Family!' : 'Add to Cart'}
               </Button>
             )}
 
             {addedToCart && (
-              <Button size="lg" variant="ghost" className="w-full h-14 font-bold bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-none uppercase italic" asChild>
+              <Button size="lg" variant="ghost" className="w-full h-14 font-bold bg-black text-chart-1 hover:bg-black/90 rounded-none uppercase italic" asChild>
                 <Link href="/cart">
                   <CheckCircle className="mr-2 h-5 w-5" />
                   View Cart & Checkout
