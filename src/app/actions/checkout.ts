@@ -49,6 +49,8 @@ export async function fetchClientSecret(cart: any[]) {
       };
     });
 
+    // We rely on Stripe Dashboard settings for payment methods (Apple Pay, Google Pay, etc.)
+    // to avoid API version mismatch errors with automatic_payment_methods.
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
       line_items,

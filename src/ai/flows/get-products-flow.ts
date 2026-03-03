@@ -53,7 +53,7 @@ const getProductsFlow = ai.defineFlow(
 
         const matchingStores = allStores.filter((store: any) => {
             const name = store.name.toLowerCase();
-            const isV3 = name.includes('v3') || name.includes('verse') || name.includes('three') || name.includes('records') || name.includes('v-3');
+            const isV3 = name.includes('v3') || name.includes('verse') || name.includes('three') || name.includes('records') || name.includes('v-1') || name.includes('v-2') || name.includes('v-3');
             const isCrude = name.includes('crude');
             
             if (brand === 'Verse 3 Merch') return isV3 && !isCrude;
@@ -69,10 +69,13 @@ const getProductsFlow = ai.defineFlow(
             const storeId = store.id;
             const storeNameUpper = store.name.toUpperCase();
             
+            // Expanded UK store detection keywords
             const isUKStore = storeNameUpper.includes('UK') || 
                             storeNameUpper.includes('UNITED KINGDOM') ||
                             storeNameUpper.includes('GBP') ||
-                            storeNameUpper.includes('V3 UK');
+                            storeNameUpper.includes('V3 UK') ||
+                            storeNameUpper.includes('CRUDE UK') ||
+                            storeNameUpper.includes('CRUDE CITY UK');
 
             const region = isUKStore ? 'UK' : 'EU';
             const currencySymbol = isUKStore ? '£' : '€';
@@ -100,18 +103,17 @@ const getProductsFlow = ai.defineFlow(
                     
                     let retailPrice = 0;
                     if (syncVariants && syncVariants.length > 0) {
-                        const firstVariantPrice = parseFloat(syncVariants[0].retail_price);
-                        if (!isNaN(firstVariantPrice) && firstVariantPrice > 0) {
-                            retailPrice = firstVariantPrice;
-                        } else {
-                            const validPrices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter((p: number) => !isNaN(p) && p > 0);
-                            if (validPrices.length > 0) {
-                                retailPrice = validPrices[0];
-                            }
+                        // Find the minimum price among variants for accurate "Starting from" pricing
+                        const validPrices = syncVariants
+                            .map((v: any) => parseFloat(v.retail_price))
+                            .filter((p: number) => !isNaN(p) && p > 0);
+                        
+                        if (validPrices.length > 0) {
+                            retailPrice = Math.min(...validPrices);
                         }
                     }
 
-                    // Force rounding up for GBP prices as requested
+                    // Force rounding up for ALL UK store products (both V3 and Crude City)
                     if (isUKStore && retailPrice > 0) {
                         retailPrice = Math.ceil(retailPrice);
                     }
@@ -124,7 +126,7 @@ const getProductsFlow = ai.defineFlow(
                         name: syncProduct.name,
                         slug: slug,
                         price: formattedPrice,
-                        description: `Official ${brand} merchandise. Premium quality craftsmanship.`,
+                        description: syncProduct.description || `Official ${brand} merchandise. Premium quality craftsmanship.`,
                         imageUrl: syncProduct.thumbnail_url,
                         revolutLink: 'https://checkout.stripe.com/',
                         type: 'merch',

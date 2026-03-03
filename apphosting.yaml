@@ -6,5 +6,4 @@ runConfig:
   # more instances in response to increased traffic.
   maxInstances: 1
 
-# Environment variables are now handled via .env for this prototype
-# to avoid Secret Manager permission issues during initial setup.
+# Secrets are handled via .env for this prototype to bypass permission issues.
