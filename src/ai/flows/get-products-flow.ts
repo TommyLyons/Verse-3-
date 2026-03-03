@@ -89,22 +89,21 @@ const getProductsFlow = ai.defineFlow(
                         ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
                         : [];
                     
-                    // Precise retail price logic: Extract the actual retail price from Printful variants
-                    let minPrice = Infinity;
-                    let currencySymbol = region === 'UK' ? '£' : '€';
+                    // Improved retail price logic:
+                    // We take the price of the first variant as the primary retail price.
+                    // This avoids picking up lower-priced 'sample' variants or accessories.
+                    let retailPrice = 0;
+                    let currencyCode = region === 'UK' ? 'GBP' : 'EUR';
 
                     if (syncVariants && syncVariants.length > 0) {
-                        syncVariants.forEach((v: any) => {
-                            const p = parseFloat(v.retail_price);
-                            if (!isNaN(p) && p < minPrice) {
-                                minPrice = p;
-                                currencySymbol = v.currency === 'GBP' ? '£' : '€';
-                            }
-                        });
+                        // Priority: use the first variant's price
+                        const primaryVariant = syncVariants[0];
+                        retailPrice = parseFloat(primaryVariant.retail_price);
+                        currencyCode = primaryVariant.currency || currencyCode;
                     }
 
-                    // Fallback to a zero-placeholder only if no variants found, otherwise use calculated min price
-                    const formattedPrice = minPrice === Infinity ? 'N/A' : `${currencySymbol}${minPrice.toFixed(2)}`;
+                    const currencySymbol = currencyCode === 'GBP' ? '£' : '€';
+                    const formattedPrice = retailPrice === 0 ? 'N/A' : `${currencySymbol}${retailPrice.toFixed(2)}`;
                     const slug = syncProduct.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 
                     return {
