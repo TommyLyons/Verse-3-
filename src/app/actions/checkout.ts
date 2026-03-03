@@ -6,6 +6,7 @@ import { stripe } from '@/lib/stripe';
 
 /**
  * Creates a Stripe Checkout Session with Embedded UI mode.
+ * Shipping and customer details are handled within the secure Stripe window.
  */
 export async function fetchClientSecret(cart: any[]) {
   const origin = (await headers()).get('origin');
@@ -46,16 +47,13 @@ export async function fetchClientSecret(cart: any[]) {
       };
     });
 
-    // Create the session with explicit automatic payment methods
+    // Create the session. 
+    // We removed 'automatic_payment_methods' as it's handled by Stripe Dashboard defaults.
+    // Domain verification in Stripe Dashboard is required for Apple Pay to show up.
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
       line_items,
       mode: 'payment',
-      // Explicitly enable automatic payment methods (includes Apple/Google Pay)
-      // Note: Domain verification in Stripe Dashboard is required for Apple Pay
-      automatic_payment_methods: {
-        enabled: true,
-      },
       shipping_address_collection: {
         allowed_countries: ['GB', 'IE', 'US', 'CA', 'FR', 'DE', 'ES', 'IT', 'AU', 'NZ'],
       },
