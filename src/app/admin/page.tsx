@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BarChart, Terminal, FileAudio, FileImage, PlusCircle, Mail, Users, RefreshCcw, ExternalLink } from 'lucide-react';
+import { BarChart, Terminal, FileAudio, FileImage, PlusCircle, Mail, Users, RefreshCcw, ExternalLink, Settings2, Package, Music, PieChart } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   Dialog,
@@ -36,6 +36,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { getProducts } from '@/ai/flows/get-products-flow';
 import { type Product } from '@/lib/schemas';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const adminEmail = 'verse3records@gmail.com';
 const adminUid = 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2';
@@ -63,17 +69,8 @@ const NewsletterSubscribers = () => {
     }
 
     return (
-        <Card className="border-2 border-chart-1/20">
-            <CardHeader className="bg-black text-white rounded-t-lg">
-                <CardTitle className="flex items-center gap-2 font-headline text-2xl uppercase italic text-chart-1">
-                    <Users className="h-6 w-6" />
-                    V3 Family Subscribers
-                </CardTitle>
-                <CardDescription className="text-white/60">
-                    Email list of users who joined via the newsletter signup.
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-6">
+        <Card className="border-none shadow-none bg-transparent">
+            <CardContent className="pt-0">
                 {!subscribers || subscribers.length === 0 ? (
                     <div className="text-center py-12 border-2 border-dashed rounded-lg">
                         <Mail className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -125,12 +122,8 @@ const MusicSubmissions = () => {
     }
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="font-headline text-2xl uppercase italic">Music Submissions</CardTitle>
-                <CardDescription>Review demos and EPs uploaded by artists.</CardDescription>
-            </CardHeader>
-            <CardContent>
+        <Card className="border-none shadow-none bg-transparent">
+            <CardContent className="pt-0">
                 {!submissions || submissions.length === 0 ? (
                     <p className="text-muted-foreground text-center py-8">No demo submissions yet.</p>
                 ) : (
@@ -378,13 +371,9 @@ const ProductManagement = () => {
     }, [dbProducts, printfulProducts]);
 
     return (
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                    <CardTitle className="font-headline text-2xl uppercase italic">Product Management</CardTitle>
-                    <CardDescription>Merchandise from Firestore and Printful API.</CardDescription>
-                </div>
-                <div className="flex gap-2">
+        <Card className="border-none shadow-none bg-transparent">
+            <CardContent className="pt-0">
+                <div className="flex justify-end gap-2 mb-6">
                     <Button variant="outline" size="sm" onClick={loadPrintfulData} disabled={isPrintfulLoading}>
                         <RefreshCcw className={`mr-2 h-4 w-4 ${isPrintfulLoading ? 'animate-spin' : ''}`} />
                         Sync Printful
@@ -403,8 +392,7 @@ const ProductManagement = () => {
                         </DialogContent>
                     </Dialog>
                 </div>
-            </CardHeader>
-            <CardContent>
+
                 {(isDbLoading || isPrintfulLoading) && <div className="py-4 space-y-2"><Skeleton className="h-10 w-full"/><Skeleton className="h-10 w-full"/><Skeleton className="h-10 w-full"/></div>}
                 {dbError && <p className="text-destructive">Error loading Firestore products.</p>}
                 {!isDbLoading && !isPrintfulLoading && allProducts.length > 0 && (
@@ -442,11 +430,8 @@ const ProductManagement = () => {
 };
 
 const SalesDashboard = () => (
-    <Card>
-        <CardHeader>
-            <CardTitle className="font-headline text-2xl uppercase italic">Sales Dashboard</CardTitle>
-        </CardHeader>
-        <CardContent>
+    <Card className="border-none shadow-none bg-transparent">
+        <CardContent className="pt-0">
             <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg">
                 <BarChart className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-xl font-semibold">Stripe Analytics Coming Soon</h3>
@@ -478,17 +463,64 @@ export default function AdminPage() {
     }
 
     return (
-        <div className="container py-12 md:py-24">
-            <div className="mb-8">
-                <h1 className="font-headline text-4xl md:text-5xl font-bold uppercase tracking-tighter italic">Admin <span className="text-chart-1">Control</span></h1>
-                <p className="text-muted-foreground mt-2">Authenticated as: <span className="font-bold text-foreground">{user?.displayName || adminEmail}</span></p>
+        <div className="container py-12 md:py-24 max-w-5xl mx-auto">
+            <div className="mb-12">
+                <div className="flex items-center gap-3 mb-2">
+                    <Settings2 className="h-8 w-8 text-chart-1" />
+                    <h1 className="font-headline text-4xl md:text-5xl font-bold uppercase tracking-tighter italic">Admin <span className="text-chart-1">Control</span></h1>
+                </div>
+                <p className="text-muted-foreground">Authenticated as: <span className="font-bold text-foreground">{user?.displayName || adminEmail}</span></p>
             </div>
-            <div className="grid gap-8">
-                <NewsletterSubscribers />
-                <ProductManagement />
-                <MusicSubmissions />
-                <SalesDashboard />
-            </div>
+
+            <Accordion type="multiple" defaultValue={['products']} className="w-full space-y-4">
+                <AccordionItem value="products" className="border-2 border-black/5 rounded-lg overflow-hidden bg-white shadow-sm">
+                    <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-black/5 transition-colors">
+                        <div className="flex items-center gap-3">
+                            <Package className="h-6 w-6 text-chart-1" />
+                            <span className="font-headline text-2xl uppercase italic">Product Management</span>
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-4">
+                        <ProductManagement />
+                    </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="subscribers" className="border-2 border-black/5 rounded-lg overflow-hidden bg-white shadow-sm">
+                    <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-black/5 transition-colors">
+                        <div className="flex items-center gap-3">
+                            <Users className="h-6 w-6 text-chart-1" />
+                            <span className="font-headline text-2xl uppercase italic">V3 Family Subscribers</span>
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-4">
+                        <NewsletterSubscribers />
+                    </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="submissions" className="border-2 border-black/5 rounded-lg overflow-hidden bg-white shadow-sm">
+                    <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-black/5 transition-colors">
+                        <div className="flex items-center gap-3">
+                            <Music className="h-6 w-6 text-chart-1" />
+                            <span className="font-headline text-2xl uppercase italic">Music Submissions</span>
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-4">
+                        <MusicSubmissions />
+                    </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="sales" className="border-2 border-black/5 rounded-lg overflow-hidden bg-white shadow-sm">
+                    <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-black/5 transition-colors">
+                        <div className="flex items-center gap-3">
+                            <PieChart className="h-6 w-6 text-chart-1" />
+                            <span className="font-headline text-2xl uppercase italic">Sales Dashboard</span>
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-4">
+                        <SalesDashboard />
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
         </div>
     );
 }
