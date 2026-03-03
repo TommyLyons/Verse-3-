@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useCallback } from 'react';
@@ -30,7 +31,7 @@ import {
   EmbeddedCheckout
 } from '@stripe/react-stripe-js';
 
-// Your Stripe Publishable Key (used for frontend initialization)
+// Your Stripe Publishable Key
 const STRIPE_PUBLISHABLE_KEY = "pk_live_51T6sTyB9Rp46v45XkIzRrWnjQQMZXFzErkzoeTK2h8VOGT7uP0PmfTBrVnRFPwQ5vFaQqrdLXJcuXpKhO29Zl8Iq004hGYRp53";
 const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
 
@@ -74,7 +75,6 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
-      // 1. Record the order in Firestore for label processing
       if (firestore) {
         const ordersCollection = collection(firestore, 'orders');
         const orderData = {
@@ -94,11 +94,10 @@ export default function CheckoutPage() {
         addDocumentNonBlocking(ordersCollection, orderData);
       }
       
-      // 2. Transition to the Stripe Embedded Checkout
       setShowStripe(true);
       toast({
-        title: 'Initializing Secure Payment',
-        description: "Preparing your checkout session...",
+        title: 'Initializing Payment',
+        description: "One moment while we load the secure checkout...",
       });
     } catch (error: any) {
       console.error('Order recording error:', error);
@@ -112,9 +111,7 @@ export default function CheckoutPage() {
     }
   };
 
-  // Wrapped in useCallback to ensure the provider doesn't reset unnecessarily
   const getClientSecret = useCallback(() => {
-    // We pass the cart to the server action to generate dynamic line items
     return fetchClientSecret(cart);
   }, [cart]);
 
@@ -126,8 +123,8 @@ export default function CheckoutPage() {
         </Button>
         <Card className="border-none shadow-2xl bg-white overflow-hidden rounded-none">
           <CardHeader className="bg-black text-white p-8">
-            <CardTitle className="font-headline text-3xl italic uppercase tracking-wider text-chart-1">Secure Checkout</CardTitle>
-            <CardDescription className="text-white/60 font-bold uppercase tracking-widest text-[10px]">Powering your payments with Stripe</CardDescription>
+            <CardTitle className="font-headline text-3xl italic uppercase tracking-wider text-chart-1">Secure Payment</CardTitle>
+            <CardDescription className="text-white/60 font-bold uppercase tracking-widest text-[10px]">Verse3 Records x Stripe</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             <div className="min-h-[400px]">
@@ -273,15 +270,6 @@ export default function CheckoutPage() {
                 <div className="flex justify-between font-headline text-3xl italic uppercase pt-2">
                     <span>Total</span>
                     <span className="text-chart-1 bg-black px-2">{currencySymbol}{total.toFixed(2)}</span>
-                </div>
-            </div>
-            <div className="pt-8">
-                <div className="bg-secondary/50 p-4 border-l-4 border-chart-1 flex items-start gap-3">
-                    <ShoppingBag className="h-5 w-5 text-black mt-1" />
-                    <div>
-                        <p className="text-[10px] font-bold uppercase text-black">V3 Family Guarantee</p>
-                        <p className="text-[10px] text-muted-foreground leading-tight mt-1">Premium quality gear, processed and shipped with care by Verse3 Records.</p>
-                    </div>
                 </div>
             </div>
         </div>

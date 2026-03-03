@@ -1,3 +1,4 @@
+
 'use server';
 
 import { headers } from 'next/headers';
@@ -12,11 +13,11 @@ export async function fetchClientSecret(cart: any[]) {
 
   // Ensure the Secret Key is available
   if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY.includes('PASTE_YOUR_SECRET_KEY_HERE')) {
-    throw new Error("Payment gateway configuration error. Please ensure your Stripe Secret Key (sk_live_...) is pasted into the .env file in the editor.");
+    throw new Error("Stripe Secret Key is missing. Please paste your 'sk_live_...' key into the .env file in the editor.");
   }
 
   try {
-    // Dynamically create line items from the cart to avoid needing hardcoded Price IDs
+    // Dynamically create line items from the cart
     const line_items = cart.map((item: any) => {
       // Extract numeric price from string like "£39" or "€75.00"
       const priceStr = item.price.replace(/[^0-9.]/g, '');
@@ -38,6 +39,10 @@ export async function fetchClientSecret(cart: any[]) {
         quantity: item.quantity,
       };
     });
+
+    if (line_items.length === 0) {
+      throw new Error("Cart is empty");
+    }
 
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
