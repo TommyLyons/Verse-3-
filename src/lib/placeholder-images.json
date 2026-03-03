@@ -33,13 +33,13 @@
     {
       "id": "merch-vinyl",
       "description": "A special edition vinyl record in its sleeve.",
-      "imageUrl": "https://images.unsplash.com/photo-1760274741733-21a64eed83c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx2aW55bCUyMHNsZWV2ZXxlbnwwfHx8fDE3NjM1NzY4MjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1760274741733-21a64eed83c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx2aW55bCUyMHJlY29yZHxlbnwwfHx8fDE3NjM1MDM5NTN8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "vinyl sleeve"
     },
     {
       "id": "merch-cap",
       "description": "A black cap with an embroidered logo.",
-      "imageUrl": "https://images.unsplash.com/photo-1680455084452-94ff3fd6209d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8YmxhY2slMjBjYXB8ZW58MHx8fHwxNzYzNTI0MjYyfDA&ixlibrb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1680455084452-94ff3fd6209d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8YmxhY2slMjBjYXB8ZW58MHx8fHwxNzYzNTI0MjYyfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "black cap"
     },
     {
@@ -50,9 +50,9 @@
     },
     {
       "id": "artist-lofty",
-      "description": "Portrait of DJ Lofty in a dimly lit room.",
-      "imageUrl": "https://images.unsplash.com/photo-1683166689835-a5f9dd264a01?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkaiUyMHBvcnRyYWl0fGVufDB8fHx8MTc2MzQ5MjU1Nnww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "dj portrait"
+      "description": "Steve Liddle (Lofty) Portrait",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/1000048005.jpg?alt=media&token=8e764d85-0a0d-45f9-a74f-5784a5b88cbd",
+      "imageHint": "producer portrait"
     },
     {
       "id": "artist-keith",
