@@ -248,23 +248,51 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
          <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField control={form.control} name="name" render={({ field }) => (
-                    <FormItem><FormLabel>Product Name</FormLabel><FormControl><Input placeholder="e.g., Hoodie" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem>
+                        <FormLabel>Product Name</FormLabel>
+                        <FormControl>
+                            <Input placeholder="e.g., Hoodie" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
                 )} />
                 <FormField control={form.control} name="slug" render={({ field }) => (
-                    <FormItem><FormLabel>Slug</FormLabel><FormControl><Input placeholder="e.g., hoodie" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem>
+                        <FormLabel>Slug</FormLabel>
+                        <FormControl>
+                            <Input placeholder="e.g., hoodie" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
                 )} />
                 <FormField control={form.control} name="description" render={({ field }) => (
-                    <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                            <Textarea {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
                 )} />
                 <div className="grid grid-cols-2 gap-4">
                     <FormField control={form.control} name="price" render={({ field }) => (
-                        <FormItem><FormLabel>Price</FormLabel><FormControl><Input placeholder="€35.00" {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem>
+                            <FormLabel>Price</FormLabel>
+                            <FormControl>
+                                <Input placeholder="€35.00" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
                     )} />
                     <FormField control={form.control} name="type" render={({ field }) => (
                         <FormItem>
                             <FormLabel>Type</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                                <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                </FormControl>
                                 <SelectContent>
                                     <SelectItem value="merch">Merch</SelectItem>
                                     <SelectItem value="music">Music</SelectItem>
@@ -278,7 +306,11 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                     <FormItem>
                         <FormLabel>Brand</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                            </FormControl>
                             <SelectContent>
                                 <SelectItem value="Verse 3 Merch">Verse 3 Merch</SelectItem>
                                 <SelectItem value="Crude City">Crude City</SelectItem>
@@ -289,14 +321,32 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                 )} />
                 {productType === 'merch' && (
                      <FormField control={form.control} name="sizes" render={({ field }) => (
-                        <FormItem><FormLabel>Sizes (S, M, L...)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                        <FormItem>
+                            <FormLabel>Sizes (S, M, L...)</FormLabel>
+                            <FormControl>
+                                <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
                     )} />
                 )}
                  <FormField control={form.control} name="imageUrl" render={({ field }) => (
-                    <FormItem><FormLabel>Image URL</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem>
+                        <FormLabel>Image URL</FormLabel>
+                        <FormControl>
+                            <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
                 )} />
                 <FormField control={form.control} name="revolutLink" render={({ field }) => (
-                    <FormItem><FormLabel>Revolut Link</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem>
+                        <FormLabel>Revolut Link</FormLabel>
+                        <FormControl>
+                            <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
                 )} />
                 <Button type="submit" disabled={isSubmitting} className="w-full">
                    {isSubmitting ? 'Adding...' : 'Add Product'}
@@ -353,8 +403,17 @@ const ProductManagement = () => {
                         Sync Printful
                     </Button>
                     <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                        <DialogTrigger asChild><Button size="sm"><PlusCircle className="mr-2 h-4 w-4" /> Add Product</Button></DialogTrigger>
-                        <DialogContent><DialogHeader><DialogTitle>Add Product</DialogTitle></DialogHeader><AddProductForm onFinished={() => setIsAddDialogOpen(false)} /></DialogContent>
+                        <DialogTrigger asChild>
+                            <Button size="sm">
+                                <PlusCircle className="mr-2 h-4 w-4" /> Add Product
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Add Product</DialogTitle>
+                            </DialogHeader>
+                            <AddProductForm onFinished={() => setIsAddDialogOpen(false)} />
+                        </DialogContent>
                     </Dialog>
                 </div>
             </CardHeader>
@@ -363,7 +422,15 @@ const ProductManagement = () => {
                 {dbError && <p className="text-destructive">Error loading Firestore products.</p>}
                 {!isDbLoading && !isPrintfulLoading && allProducts.length > 0 && (
                      <Table>
-                        <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Brand</TableHead><TableHead>Source</TableHead><TableHead>Type</TableHead><TableHead>Price</TableHead></TableRow></TableHeader>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Name</TableHead>
+                                <TableHead>Brand</TableHead>
+                                <TableHead>Source</TableHead>
+                                <TableHead>Type</TableHead>
+                                <TableHead>Price</TableHead>
+                            </TableRow>
+                        </TableHeader>
                         <TableBody>
                             {allProducts.map((p: any) => (
                                 <TableRow key={p.id || p.slug}>
@@ -388,8 +455,16 @@ const ProductManagement = () => {
 };
 
 const SalesDashboard = () => (
-    <Card><CardHeader><CardTitle className="font-headline text-2xl uppercase italic">Sales Dashboard</CardTitle></CardHeader>
-        <CardContent><div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg"><BarChart className="h-12 w-12 text-muted-foreground mb-4" /><h3 className="text-xl font-semibold">Sales Data Soon</h3></div></CardContent>
+    <Card>
+        <CardHeader>
+            <CardTitle className="font-headline text-2xl uppercase italic">Sales Dashboard</CardTitle>
+        </CardHeader>
+        <CardContent>
+            <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg">
+                <BarChart className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-xl font-semibold">Sales Data Soon</h3>
+            </div>
+        </CardContent>
     </Card>
 );
 

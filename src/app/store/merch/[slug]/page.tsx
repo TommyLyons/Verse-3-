@@ -1,3 +1,4 @@
+
 import { getAllProducts } from '@/lib/products';
 import { notFound } from 'next/navigation';
 import { ProductClientPage } from './product-client-page';
@@ -8,18 +9,15 @@ export const dynamic = 'force-static';
 export async function generateStaticParams() {
   try {
     const products = await getAllProducts();
-    const params = products
-      .filter((p) => p.type === 'merch' && p.slug)
-      .map((p) => ({
-        slug: p.slug,
-      }));
+    const merchProducts = products.filter((p) => p.type === 'merch' && p.slug);
     
-    // Fallback params to ensure build succeeds even if no products are found in flow
-    if (params.length === 0) {
+    if (merchProducts.length === 0) {
       return [{ slug: 'v3-hoodie' }];
     }
     
-    return params;
+    return merchProducts.map((p) => ({
+      slug: p.slug,
+    }));
   } catch (error) {
     console.error("Error generating static params for merch:", error);
     return [{ slug: 'v3-hoodie' }];

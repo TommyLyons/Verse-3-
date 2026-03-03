@@ -88,11 +88,12 @@ const getProductsFlow = ai.defineFlow(
                         ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
                         : [];
                     
+                    // We extract the maximum retail price from variants to avoid "sample" or accessory prices.
+                    // For single-item products like backpacks, this should reflect the set retail price accurately.
                     let retailPrice = 0;
                     let currencyCode = region === 'UK' ? 'GBP' : 'EUR';
 
                     if (syncVariants && syncVariants.length > 0) {
-                        // Find the highest retail price among variants to avoid "sample" prices
                         const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter((p: number) => !isNaN(p));
                         if (prices.length > 0) {
                             retailPrice = Math.max(...prices);
