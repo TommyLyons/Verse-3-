@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview A flow for fetching product information from Printful with accurate retail pricing and regional currency enforcement.
+ * @fileOverview A flow for fetching product information from Printful with accurate retail pricing, regional currency enforcement, and consistent alphabetical ordering.
  */
 
 import {ai} from '@/ai/genkit';
@@ -66,10 +66,12 @@ const getProductsFlow = ai.defineFlow(
 
         for (const store of matchingStores) {
             const storeId = store.id;
-            // Enhanced UK detection
-            const isUK = store.name.toUpperCase().includes('UK') || 
-                         store.name.toUpperCase().includes('UNITED KINGDOM') ||
-                         store.name.toUpperCase().includes('GBP');
+            // Enhanced UK detection to prevent currency mismatches
+            const storeNameUpper = store.name.toUpperCase();
+            const isUK = storeNameUpper.includes('UK') || 
+                         storeNameUpper.includes('UNITED KINGDOM') ||
+                         storeNameUpper.includes('GBP') ||
+                         storeNameUpper.includes('BRITAIN');
             
             const region = isUK ? 'UK' : 'EU';
             const currencySymbol = isUK ? '£' : '€';
@@ -95,11 +97,13 @@ const getProductsFlow = ai.defineFlow(
                         ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
                         : [];
                     
-                    // Prioritize the highest variant price to ensure premium items (like backpacks) reflect their true retail value.
+                    // Prioritize specific retail values from variants. 
+                    // This ensures premium items (like backpacks) show their intended retail price.
                     let retailPrice = 0;
                     if (syncVariants && syncVariants.length > 0) {
                         const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter((p: number) => !isNaN(p) && p > 0);
                         if (prices.length > 0) {
+                            // Using the maximum price ensures that even with small accessories, the main product price is represented.
                             retailPrice = Math.max(...prices);
                         }
                     }
@@ -130,7 +134,8 @@ const getProductsFlow = ai.defineFlow(
             allDetailedProducts.push(...detailedProducts.filter((p): p is Product => p !== null));
         }
 
-        return allDetailedProducts;
+        // Sort products alphabetically by name to ensure consistent ordering across all regional stores.
+        return allDetailedProducts.sort((a, b) => a.name.localeCompare(b.name));
     } catch (err) {
         return [];
     }

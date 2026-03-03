@@ -153,9 +153,11 @@ function StoreContent() {
     if (activeBrand === 'Crude City') setActiveBrand('Verse 3');
   };
 
-  const verse3Merch = useMemo(() => 
-    allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch' && (!p.availableRegions || p.availableRegions.includes(region))),
-  [allProducts, region]);
+  const verse3Merch = useMemo(() => {
+    // Products from the API flow are already sorted alphabetically.
+    // This filter preserves that order for the grid.
+    return allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch' && (!p.availableRegions || p.availableRegions.includes(region)));
+  }, [allProducts, region]);
 
   const physicalMusic = useMemo(() => 
     allProducts.filter(p => p.type === 'music' && !p.digital),
