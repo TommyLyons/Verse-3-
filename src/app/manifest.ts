@@ -1,8 +1,8 @@
 import { MetadataRoute } from 'next';
 
-const ICON_URL = 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/IMG-20260205-WA0003.jpg?alt=media&token=98291edc-2261-4cf8-9892-a10f7b00f8b0';
-
 export const dynamic = 'force-static';
+
+const ICON_URL = 'https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/IMG-20260205-WA0003.jpg?alt=media&token=98291edc-2261-4cf8-9892-a10f7b00f8b0';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {

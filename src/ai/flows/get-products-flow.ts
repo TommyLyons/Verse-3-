@@ -30,9 +30,7 @@ async function getPrintfulApiKey(): Promise<string | null> {
         }
         return null;
     } catch (error) {
-        if (process.env.NODE_ENV !== 'production') {
-            console.warn(`Failed to access secret: ${secretName}.`);
-        }
+        // Silently fail during build if Secret Manager is not accessible
         return null;
     }
 }
@@ -91,13 +89,22 @@ const getProductsFlow = ai.defineFlow(
                         ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
                         : [];
                     
+                    // Get the price from the first variant and format it
+                    let price = '€35.00'; // Default fallback
+                    if (syncVariants && syncVariants.length > 0) {
+                        const variant = syncVariants[0];
+                        const amount = variant.retail_price || '35.00';
+                        const currency = variant.currency === 'GBP' ? '£' : '€';
+                        price = `${currency}${amount}`;
+                    }
+
                     const slug = syncProduct.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 
                     return {
                         id: String(syncProduct.id),
                         name: syncProduct.name,
                         slug: slug,
-                        price: '€35.00',
+                        price: price,
                         description: `A high-quality product from ${brand}.`,
                         imageUrl: syncProduct.thumbnail_url,
                         revolutLink: 'https://revolut.me/test-business-studio',

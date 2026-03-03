@@ -183,7 +183,7 @@ const MusicSubmissions = () => {
 const productFormSchema = z.object({
   name: z.string().min(3, "Product name must be at least 3 characters."),
   description: z.string().min(10, "Description must be at least 10 characters."),
-  price: z.string().regex(/^[\$\€]\d+(\.\d{2})?$/, "Price must be in the format $XX.XX or €XX.XX."),
+  price: z.string().regex(/^[\$\€\£]\d+(\.\d{2})?$/, "Price must be in the format $XX.XX, €XX.XX or £XX.XX."),
   revolutLink: z.string().url("Please enter a valid Revolut purchase link."),
   type: z.enum(['merch', 'music']),
   brand: z.enum(['Verse 3 Merch', 'Crude City']),
@@ -315,7 +315,6 @@ const ProductManagement = () => {
 
     const allProducts = useMemo(() => {
         const combined = [...(dbProducts || [])];
-        // Only add printful products if they aren't already in the list (by slug)
         const slugs = new Set(combined.map(p => p.slug));
         printfulProducts.forEach(p => {
             if (!slugs.has(p.slug)) combined.push(p);
