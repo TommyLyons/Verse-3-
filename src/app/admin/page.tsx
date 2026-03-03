@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BarChart, Terminal, FileAudio, FileImage, PlusCircle, Mail, Users } from 'lucide-react';
+import { BarChart, Terminal, FileAudio, FileImage, PlusCircle, Mail, Users, RefreshCcw, ExternalLink } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   Dialog,
@@ -34,6 +34,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { getProducts } from '@/ai/flows/get-products-flow';
+import { type Product } from '@/lib/schemas';
 
 const adminEmail = 'verse3records@gmail.com';
 const adminUid = 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2';
@@ -289,27 +291,76 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
 const ProductManagement = () => {
     const firestore = useFirestore();
     const productsQuery = useMemo(() => firestore ? collection(firestore, 'products') : null, [firestore]);
-    const { data: products, isLoading, error } = useCollection(productsQuery);
+    const { data: dbProducts, isLoading: isDbLoading, error: dbError } = useCollection(productsQuery);
+    const [printfulProducts, setPrintfulProducts] = useState<Product[]>([]);
+    const [isPrintfulLoading, setIsPrintfulLoading] = useState(false);
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+
+    const loadPrintfulData = async () => {
+        setIsPrintfulLoading(true);
+        try {
+            const v3 = await getProducts('Verse 3 Merch');
+            const crude = await getProducts('Crude City');
+            setPrintfulProducts([...v3, ...crude]);
+        } catch (err) {
+            console.error("Failed to fetch Printful products:", err);
+        } finally {
+            setIsPrintfulLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadPrintfulData();
+    }, []);
+
+    const allProducts = useMemo(() => {
+        const combined = [...(dbProducts || [])];
+        // Only add printful products if they aren't already in the list (by slug)
+        const slugs = new Set(combined.map(p => p.slug));
+        printfulProducts.forEach(p => {
+            if (!slugs.has(p.slug)) combined.push(p);
+        });
+        return combined;
+    }, [dbProducts, printfulProducts]);
 
     return (
         <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-                <div><CardTitle className="font-headline text-2xl uppercase italic">Product Management</CardTitle></div>
-                <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                    <DialogTrigger asChild><Button><PlusCircle className="mr-2 h-4 w-4" /> Add Product</Button></DialogTrigger>
-                    <DialogContent><DialogHeader><DialogTitle>Add Product</DialogTitle></DialogHeader><AddProductForm onFinished={() => setIsAddDialogOpen(false)} /></DialogContent>
-                </Dialog>
+                <div>
+                    <CardTitle className="font-headline text-2xl uppercase italic">Product Management</CardTitle>
+                    <CardDescription>All merchandise from Firestore and Printful API.</CardDescription>
+                </div>
+                <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={loadPrintfulData} disabled={isPrintfulLoading}>
+                        <RefreshCcw className={`mr-2 h-4 w-4 ${isPrintfulLoading ? 'animate-spin' : ''}`} />
+                        Sync Printful
+                    </Button>
+                    <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                        <DialogTrigger asChild><Button size="sm"><PlusCircle className="mr-2 h-4 w-4" /> Add Product</Button></DialogTrigger>
+                        <DialogContent><DialogHeader><DialogTitle>Add Product</DialogTitle></DialogHeader><AddProductForm onFinished={() => setIsAddDialogOpen(false)} /></DialogContent>
+                    </Dialog>
+                </div>
             </CardHeader>
             <CardContent>
-                {isLoading && <p>Loading...</p>}
-                {error && <p className="text-destructive">Error loading products.</p>}
-                {products && products.length > 0 && (
+                {(isDbLoading || isPrintfulLoading) && <div className="py-4 space-y-2"><Skeleton className="h-10 w-full"/><Skeleton className="h-10 w-full"/><Skeleton className="h-10 w-full"/></div>}
+                {dbError && <p className="text-destructive">Error loading Firestore products.</p>}
+                {!isDbLoading && !isPrintfulLoading && allProducts.length > 0 && (
                      <Table>
-                        <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Brand</TableHead><TableHead>Type</TableHead><TableHead>Price</TableHead></TableRow></TableHeader>
+                        <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Brand</TableHead><TableHead>Source</TableHead><TableHead>Type</TableHead><TableHead>Price</TableHead></TableRow></TableHeader>
                         <TableBody>
-                            {products.map((p: any) => (
-                                <TableRow key={p.id}><TableCell>{p.name}</TableCell><TableCell><Badge variant="secondary">{p.brand}</Badge></TableCell><TableCell>{p.type}</TableCell><TableCell>{p.price}</TableCell></TableRow>
+                            {allProducts.map((p: any) => (
+                                <TableRow key={p.id || p.slug}>
+                                    <TableCell className="font-bold">{p.name}</TableCell>
+                                    <TableCell><Badge variant="secondary">{p.brand}</Badge></TableCell>
+                                    <TableCell>
+                                        <Badge variant="outline" className="flex w-fit items-center gap-1">
+                                            {p.id && String(p.id).length > 10 ? 'Firestore' : 'Printful'}
+                                            {!p.id && <ExternalLink className="h-3 w-3" />}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell className="capitalize">{p.type}</TableCell>
+                                    <TableCell>{p.price}</TableCell>
+                                </TableRow>
                             ))}
                         </TableBody>
                     </Table>
