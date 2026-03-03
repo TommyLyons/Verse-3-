@@ -88,7 +88,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 
 export function useFirebaseContext() {
     const context = useContext(FirebaseContext);
-    // Return a stable fallback instead of throwing an error to prevent hydration crashes.
+    // Return a stable fallback instead of throwing an error to prevent hydration crashes or SSR failures.
     if (context === undefined) {
         return {
             firebaseApp: null,

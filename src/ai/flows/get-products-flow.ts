@@ -53,6 +53,7 @@ const getProductsFlow = ai.defineFlow(
 
         const matchingStores = allStores.filter((store: any) => {
             const name = store.name.toLowerCase();
+            // Robust brand matching for both regional versions
             const isV3 = name.includes('v3') || name.includes('verse') || name.includes('three');
             const isCrude = name.includes('crude');
             
@@ -69,8 +70,8 @@ const getProductsFlow = ai.defineFlow(
             const storeId = store.id;
             const storeNameUpper = store.name.toUpperCase();
             
-            // Initial guess based on store name
-            let isUKStore = storeNameUpper.includes('UK') || 
+            // Determine region from store name keywords
+            const isUKStore = storeNameUpper.includes('UK') || 
                             storeNameUpper.includes('UNITED KINGDOM') ||
                             storeNameUpper.includes('GBP') ||
                             storeNameUpper.includes('BRITAIN');
@@ -92,13 +93,11 @@ const getProductsFlow = ai.defineFlow(
 
                     if (!syncProduct || !syncProduct.name || !syncProduct.thumbnail_url) return null;
 
-                    // More accurate currency detection from variants
+                    // Detect currency from the first variant to ensure regional accuracy
                     const variantCurrency = syncVariants?.[0]?.currency;
-                    const isGBP = variantCurrency === 'GBP';
-                    const isEUR = variantCurrency === 'EUR';
                     
-                    // Final determination of region and currency
-                    const currentIsUK = isGBP || (isUKStore && !isEUR);
+                    // Final determination of region: priority to variant currency, fallback to store name
+                    const currentIsUK = variantCurrency === 'GBP' || (isUKStore && variantCurrency !== 'EUR');
                     const currentCurrencySymbol = currentIsUK ? '£' : '€';
                     const currentRegion = currentIsUK ? 'UK' : 'EU';
 
@@ -110,11 +109,12 @@ const getProductsFlow = ai.defineFlow(
                     if (syncVariants && syncVariants.length > 0) {
                         const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter((p: number) => !isNaN(p) && p > 0);
                         if (prices.length > 0) {
+                            // Extract maximum retail price (usually uniform across sizes, but covers backpacks vs tees)
                             retailPrice = Math.max(...prices);
                         }
                     }
 
-                    // Round up to nearest whole number for GBP prices as requested
+                    // REQUIREMENT: Round up to nearest whole number for GBP prices
                     if (currentIsUK && retailPrice > 0) {
                         retailPrice = Math.ceil(retailPrice);
                     }
@@ -145,7 +145,7 @@ const getProductsFlow = ai.defineFlow(
             allDetailedProducts.push(...detailedProducts.filter((p): p is Product => p !== null));
         }
 
-        // Enforce consistent alphabetical ordering across all regional stores
+        // Enforce consistent alphabetical ordering across all regional stores for UI parity
         return allDetailedProducts.sort((a, b) => a.name.localeCompare(b.name));
     } catch (err) {
         return [];
