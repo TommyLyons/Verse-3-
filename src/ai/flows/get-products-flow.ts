@@ -88,7 +88,6 @@ const getProductsFlow = ai.defineFlow(
                         : [];
                     
                     // Prioritize getting the actual retail price.
-                    // Instead of Math.min (which might pick up accessories), we look for the dominant retail price.
                     let retailPrice = 0;
                     let currencyCode = region === 'UK' ? 'GBP' : 'EUR';
 
@@ -96,7 +95,7 @@ const getProductsFlow = ai.defineFlow(
                         const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter((p: number) => !isNaN(p));
                         if (prices.length > 0) {
                             // Use the maximum price found to ensure items like backpacks show their proper €75 price
-                            // rather than a lower price from a potential accessory or sample variant.
+                            // rather than a lower price from a potential accessory variant.
                             retailPrice = Math.max(...prices);
                         }
                         currencyCode = syncVariants[0].currency || currencyCode;
