@@ -1,6 +1,3 @@
-
-'use server';
-
 import { getProducts as getFlowProducts } from '@/ai/flows/get-products-flow';
 import { type Product } from '@/lib/schemas';
 import { initializeApp, getApps, getApp } from 'firebase/app';
@@ -32,21 +29,29 @@ export const getAllProducts = async (): Promise<Product[]> => {
     }
 
     try {
+        // Genkit flows can run in Node environments during build
         flowProducts = await getFlowProducts('Crude City');
     } catch (error) {
         console.warn("Warning: Could not fetch products from Printful Flow.", error);
     }
 
     // Combine and enforce €35.00 pricing for all merchandise
-    return [...dbProducts, ...flowProducts].map(p => {
+    const combined = [...dbProducts, ...flowProducts].map(p => {
         if (p.type === 'merch') {
             return { ...p, price: '€35.00' };
         }
         return p;
     });
+
+    return combined;
 };
 
 export const getProductBySlug = async (slug: string): Promise<Product | undefined> => {
-    const allProducts = await getAllProducts();
-    return allProducts.find(p => p.slug === slug);
+    try {
+        const allProducts = await getAllProducts();
+        return allProducts.find(p => p.slug === slug);
+    } catch (error) {
+        console.error("Error in getProductBySlug:", error);
+        return undefined;
+    }
 }
