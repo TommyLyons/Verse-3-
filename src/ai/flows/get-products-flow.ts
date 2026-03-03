@@ -53,7 +53,6 @@ const getProductsFlow = ai.defineFlow(
 
         const matchingStores = allStores.filter((store: any) => {
             const name = store.name.toLowerCase();
-            // Broader V3 detection to capture all variations
             const isV3 = name.includes('v3') || name.includes('verse') || name.includes('three') || (name.includes('records') && !name.includes('crude'));
             const isCrude = name.includes('crude');
             
@@ -70,12 +69,13 @@ const getProductsFlow = ai.defineFlow(
             const storeId = store.id;
             const storeNameUpper = store.name.toUpperCase();
             
-            // Comprehensive Region Detection
+            // Broad Region Identification
             const isUKStore = storeNameUpper.includes('UK') || 
                             storeNameUpper.includes('UNITED KINGDOM') ||
                             storeNameUpper.includes('GBP') ||
                             storeNameUpper.includes('BRITAIN') ||
                             storeNameUpper.includes('LONDON') ||
+                            storeNameUpper.includes('GREAT BRITAIN') ||
                             storeNameUpper.includes('NORTHAMPTON');
 
             const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
@@ -95,10 +95,8 @@ const getProductsFlow = ai.defineFlow(
 
                     if (!syncProduct || !syncProduct.name || !syncProduct.thumbnail_url) return null;
 
-                    // Extract currencies from variants
+                    // Improved Currency & Region Detection
                     const variantCurrencies = new Set(syncVariants?.map((v: any) => v.currency).filter(Boolean));
-                    
-                    // Priority: 1. Variant Currency, 2. Store Name hints
                     const currentIsUK = variantCurrencies.has('GBP') || (isUKStore && !variantCurrencies.has('EUR'));
                     const currentRegion = currentIsUK ? 'UK' : 'EU';
                     const currentCurrencySymbol = currentIsUK ? '£' : '€';
@@ -109,15 +107,15 @@ const getProductsFlow = ai.defineFlow(
                     
                     let retailPrice = 0;
                     if (syncVariants && syncVariants.length > 0) {
-                        // Priority variant selection to get the correct retail price
+                        // Prioritize primary variant prices to get the correct intended retail value
                         const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter((p: number) => !isNaN(p) && p > 0);
                         if (prices.length > 0) {
-                            // Using Math.max to capture the intended retail value (avoiding samples/accessories)
+                            // Using Math.max captures the intended retail price even if samples or accessories are in the variants
                             retailPrice = Math.max(...prices);
                         }
                     }
 
-                    // Round up GBP prices to the nearest whole number as requested
+                    // Apply rounding logic for GBP as requested
                     if (currentIsUK && retailPrice > 0) {
                         retailPrice = Math.ceil(retailPrice);
                     }
@@ -131,8 +129,8 @@ const getProductsFlow = ai.defineFlow(
                         slug: slug,
                         price: formattedPrice,
                         description: syncProduct.name.includes('Backpack') 
-                            ? `Premium official ${brand} utility gear. Built for durability and style.`
-                            : `Official ${brand} merchandise. Premium quality.`,
+                            ? `Premium official ${brand} utility gear. Designed for durability and street style.`
+                            : `Official ${brand} merchandise. Premium quality craftsmanship.`,
                         imageUrl: syncProduct.thumbnail_url,
                         revolutLink: 'https://checkout.stripe.com/',
                         type: 'merch',
@@ -148,7 +146,7 @@ const getProductsFlow = ai.defineFlow(
             allDetailedProducts.push(...detailedProducts.filter((p): p is Product => p !== null));
         }
 
-        // Enforce consistent alphabetical sorting for all regions
+        // Final Sort: Alphabetical for consistency across regions
         return allDetailedProducts.sort((a, b) => a.name.localeCompare(b.name));
     } catch (err) {
         return [];

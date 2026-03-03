@@ -13,30 +13,21 @@ export function FirebaseClientProvider({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // Only initialize SDKs on the client after mount
     const initializedSdks = getSdks();
     setSdks(initializedSdks);
     setMounted(true);
   }, []);
 
-  // Simple loading state to prevent hydration mismatches
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-chart-1 border-t-transparent"></div>
-          <p className="font-headline text-xl tracking-widest uppercase italic text-white">Initializing Verse3</p>
-        </div>
-      </div>
-    );
-  }
-
+  // Return a consistent structure during hydration to avoid mismatches.
+  // We use the same layout wrapper but with null props until mounted.
   return (
     <FirebaseProvider
       firebaseApp={sdks?.firebaseApp || null}
       auth={sdks?.auth || null}
       firestore={sdks?.firestore || null}
     >
-      {children}
+      {mounted ? children : null}
     </FirebaseProvider>
   );
 }

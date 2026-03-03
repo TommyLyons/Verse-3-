@@ -34,7 +34,17 @@ export interface UserHookResult {
   userError: Error | null;
 }
 
-export const FirebaseContext = createContext<FirebaseContextState | undefined>(undefined);
+// Provide a default state to avoid "null" access during SSR
+const defaultState: FirebaseContextState = {
+  firebaseApp: null,
+  firestore: null,
+  auth: null,
+  user: null,
+  isUserLoading: true,
+  userError: null,
+};
+
+export const FirebaseContext = createContext<FirebaseContextState>(defaultState);
 
 export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   children,
@@ -86,38 +96,22 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   );
 };
 
-/**
- * Defensive hook for accessing Firebase context.
- * Returns a stable fallback state instead of throwing to prevent hydration crashes or SSR failures.
- */
 export function useFirebaseContext() {
     const context = useContext(FirebaseContext);
-    if (context === undefined) {
-        return {
-            firebaseApp: null,
-            firestore: null,
-            auth: null,
-            user: null,
-            isUserLoading: true,
-            userError: null,
-        };
-    }
-    return context;
+    // Return defaultState if context is missing (SSR safety)
+    return context || defaultState;
 }
 
 export const useAuth = (): Auth | null => {
-  const context = useFirebaseContext();
-  return context?.auth || null;
+  return useFirebaseContext().auth;
 };
 
 export const useFirestore = (): Firestore | null => {
-  const context = useFirebaseContext();
-  return context?.firestore || null;
+  return useFirebaseContext().firestore;
 };
 
 export const useFirebaseApp = (): FirebaseApp | null => {
-  const context = useFirebaseContext();
-  return context?.firebaseApp || null;
+  return useFirebaseContext().firebaseApp;
 };
 
 export const useUser = (): UserHookResult => {
