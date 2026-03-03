@@ -1,6 +1,7 @@
+
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -21,12 +22,18 @@ import {
 } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { BackButton } from '@/components/ui/back-button';
-import { CreditCard, CheckCircle, ShieldCheck, ShoppingBag, RefreshCcw } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { CreditCard, ShieldCheck, ShoppingBag, RefreshCcw } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { createCheckoutSession } from '@/app/actions/checkout';
+import { fetchClientSecret } from '@/app/actions/checkout';
+import { loadStripe } from '@stripe/stripe-js';
+import {
+  EmbeddedCheckoutProvider,
+  EmbeddedCheckout
+} from '@stripe/react-stripe-js';
 
 const STRIPE_PUBLISHABLE_KEY = "pk_live_51T6sTyB9Rp46v45XkIzRrWnjQQMZXFzErkzoeTK2h8VOGT7uP0PmfTBrVnRFPwQ5vFaQqrdLXJcuXpKhO29Zl8Iq004hGYRp53";
+const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
 
 const checkoutFormSchema = z.object({
   name: z.string().min(2, { message: 'Full name is required.' }),
@@ -40,20 +47,11 @@ type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
 export default function CheckoutPage() {
   const { toast } = useToast();
   const firestore = useFirestore();
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const { user } = useUser();
-  const { cart, clearCart } = useCart();
+  const { cart } = useCart();
   
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [orderComplete, setOrderComplete] = useState(false);
-
-  useEffect(() => {
-    if (searchParams.get('success')) {
-      setOrderComplete(true);
-      clearCart();
-    }
-  }, [searchParams, clearCart]);
+  const [showStripe, setShowStripe] = useState(false);
 
   const total = cart.reduce((acc, item) => acc + parseFloat(item.price.replace(/[^0-9.]/g, '')) * item.quantity, 0);
   const currencySymbol = cart.length > 0 ? cart[0].price.replace(/[0-9.,]/g, '') : '£';
@@ -77,7 +75,7 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
-      // 1. Record the pending order in Firestore
+      // 1. Record the order in Firestore
       if (firestore) {
         const ordersCollection = collection(firestore, 'orders');
         const orderData = {
@@ -91,28 +89,20 @@ export default function CheckoutPage() {
           })),
           total: `${currencySymbol}${total.toFixed(2)}`,
           submittedAt: serverTimestamp(),
-          status: 'pending_payment',
+          status: 'awaiting_payment',
           userId: user?.uid || 'guest'
         };
         addDocumentNonBlocking(ordersCollection, orderData);
       }
       
-      // 2. Initiate Stripe Checkout
+      // 2. Show the Stripe Embedded UI
+      setShowStripe(true);
       toast({
-        title: 'Connecting to Stripe...',
-        description: "Redirecting to secure payment gateway.",
+        title: 'Initializing Secure Payment',
+        description: "Preparing your checkout session...",
       });
-
-      const result = await createCheckoutSession({ cart, customerDetails: values });
-      
-      if (result.url) {
-        window.location.assign(result.url);
-      } else {
-        throw new Error("Failed to initialize Stripe session.");
-      }
-
     } catch (error: any) {
-      console.error('Order submission error:', error);
+      console.error('Order recording error:', error);
       toast({
         variant: 'destructive',
         title: 'Checkout Error',
@@ -123,15 +113,32 @@ export default function CheckoutPage() {
     }
   };
 
-  if (orderComplete) {
+  const getClientSecret = useCallback(() => {
+    return fetchClientSecret(cart);
+  }, [cart]);
+
+  if (showStripe) {
     return (
-        <div className="container py-12 md:py-24 text-center">
-            <CheckCircle className="h-16 w-16 text-chart-1 mx-auto mb-4" />
-            <h1 className="font-headline text-3xl md:text-4xl font-bold text-primary mb-2 italic">Order Confirmed!</h1>
-            <p className="text-muted-foreground max-w-md mx-auto mb-6">Thank you for your purchase. A confirmation email will be sent shortly with your details.</p>
-            <Button onClick={() => router.push('/store')} className="bg-black text-chart-1 font-bold">Continue Shopping</Button>
-        </div>
-    )
+      <div className="container py-12 md:py-24 max-w-4xl mx-auto">
+        <Button variant="ghost" onClick={() => setShowStripe(false)} className="mb-8">
+           &larr; Back to details
+        </Button>
+        <Card className="border-none shadow-xl bg-white overflow-hidden">
+          <CardHeader className="bg-black text-white p-8">
+            <CardTitle className="font-headline text-3xl italic uppercase tracking-wider">Secure Payment</CardTitle>
+            <CardDescription className="text-white/60">Complete your order via Stripe</CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            <EmbeddedCheckoutProvider
+              stripe={stripePromise}
+              options={{ fetchClientSecret: getClientSecret }}
+            >
+              <EmbeddedCheckout />
+            </EmbeddedCheckoutProvider>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -217,7 +224,7 @@ export default function CheckoutPage() {
                           </div>
                         ) : (
                           <>
-                            Pay {currencySymbol}{total.toFixed(2)} with Stripe
+                            Checkout {currencySymbol}{total.toFixed(2)}
                             <CreditCard className="ml-3 h-6 w-6" />
                           </>
                         )}

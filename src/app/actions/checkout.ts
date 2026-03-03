@@ -1,21 +1,18 @@
+
 'use server';
 
-import Stripe from 'stripe';
 import { headers } from 'next/headers';
+import { stripe } from '@/lib/stripe';
 
-// Initialize Stripe with the Secret Key from environment variables
-// This is securely mapped from App Hosting Secrets
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-01-27.acacia',
-});
-
-export async function createCheckoutSession(formData: { cart: any[]; customerDetails: any }) {
-  const { cart, customerDetails } = formData;
+/**
+ * Creates a Stripe Checkout Session with Embedded UI mode.
+ * Returns the client secret used by the client-side EmbeddedCheckoutProvider.
+ */
+export async function fetchClientSecret(cart: any[]) {
   const origin = (await headers()).get('origin');
 
   if (!process.env.STRIPE_SECRET_KEY) {
-    console.error("STRIPE_SECRET_KEY is missing from environment variables.");
-    throw new Error("Payment gateway configuration error. Please ensure STRIPE_SECRET_KEY is set in App Hosting secrets.");
+    throw new Error("Payment gateway configuration error. Please ensure STRIPE_SECRET_KEY is set.");
   }
 
   try {
@@ -40,19 +37,13 @@ export async function createCheckoutSession(formData: { cart: any[]; customerDet
     });
 
     const session = await stripe.checkout.sessions.create({
+      ui_mode: 'embedded',
       line_items,
       mode: 'payment',
-      success_url: `${origin}/checkout?success=true`,
-      cancel_url: `${origin}/checkout?canceled=true`,
-      customer_email: customerDetails.email,
-      metadata: {
-        customerName: customerDetails.name,
-        customerAddress: customerDetails.address,
-        customerPhone: customerDetails.phone,
-      },
+      return_url: `${origin}/return?session_id={CHECKOUT_SESSION_ID}`,
     });
 
-    return { url: session.url };
+    return session.client_secret;
   } catch (error: any) {
     console.error('Stripe Session Error:', error);
     throw new Error(error.message || 'Failed to create checkout session');
