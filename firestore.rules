@@ -19,7 +19,6 @@ service cloud.firestore {
     // Public permissions for non-admins
     match /newsletterSubscriptions/{subId} {
       allow create: if true;
-      allow list: if isV3Admin();
     }
 
     match /users/{userId} {
