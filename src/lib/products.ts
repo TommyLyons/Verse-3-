@@ -38,7 +38,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
         console.warn("Warning: Could not fetch products from Printful Flow.", error);
     }
 
-    // Combine products without overriding the price with a hardcoded value
+    // Combine products. Printful prices are already formatted in the flow.
     const combined = [...dbProducts, ...flowProducts];
 
     return combined;
