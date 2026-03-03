@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper: Checks if the user is the specific Verse3 Admin
+    // God-mode for specific administrative account
     function isV3Admin() {
       return request.auth != null && (
         request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2' || 
@@ -10,7 +10,7 @@ service cloud.firestore {
       );
     }
     
-    // Admin bypass: Admin has unrestricted access to ALL data and operations
+    // Admin has unrestricted access to ALL data
     match /{document=**} {
       allow read, write: if isV3Admin();
     }
@@ -18,30 +18,26 @@ service cloud.firestore {
     // Public permissions for non-admins
     match /newsletterSubscriptions/{subId} {
       allow create: if true;
-      allow read: if isV3Admin();
     }
 
     match /users/{userId} {
-      allow read, write: if request.auth != null && (request.auth.uid == userId || isV3Admin());
+      allow read, write: if request.auth != null && request.auth.uid == userId;
 
       match /purchasedProducts/{purchaseId} {
-        allow read: if request.auth != null && (request.auth.uid == userId || isV3Admin());
+        allow read: if request.auth != null && request.auth.uid == userId;
       }
     }
 
     match /demoSubmissions/{submissionId} {
       allow create: if true;
-      allow read: if isV3Admin();
     }
 
     match /products/{productId} {
       allow read: if true;
-      allow write: if isV3Admin();
     }
 
     match /orders/{orderId} {
       allow create: if true;
-      allow read: if isV3Admin();
     }
   }
 }

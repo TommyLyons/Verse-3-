@@ -15,8 +15,7 @@ export async function generateStaticParams() {
         slug: p.slug,
       }));
     
-    // Ensure we return at least one param for the build process
-    return params.length > 0 ? params : [{ slug: 'placeholder-slug' }];
+    return params;
   } catch (error) {
     console.error("Error in generateStaticParams for merch:", error);
     return [];

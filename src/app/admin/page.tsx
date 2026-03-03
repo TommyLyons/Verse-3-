@@ -500,4 +500,5 @@ export default function AdminPage() {
                 <SalesDashboard />
             </div>
         </div>
+    );
 }
