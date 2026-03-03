@@ -13,10 +13,15 @@ export async function generateStaticParams() {
         slug: p.slug,
       }));
     
+    // Fallback params to ensure build succeeds even if no products are found
+    if (params.length === 0) {
+      return [{ slug: 'fallback' }];
+    }
+    
     return params;
   } catch (error) {
     console.error("Error generating static params for merch:", error);
-    return [];
+    return [{ slug: 'fallback' }];
   }
 }
 

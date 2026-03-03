@@ -259,7 +259,7 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                         <FormItem><FormLabel>Price</FormLabel><FormControl><Input placeholder="€35.00" {...field} /></FormControl><FormMessage /></FormItem>
                     )} />
                     <FormField control={form.control} name="type" render={({ field }) => (
-                        <FormItem><FormLabel>Type</FormLabel>
+                        <FormItem><FormLabel>Type</TableHead>
                             <Select onValueChange={field.onChange} defaultValue={field.value}><FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl><SelectContent><SelectItem value="merch">Merch</SelectItem><SelectItem value="music">Music</SelectItem></SelectContent></Select>
                         <FormMessage /></FormItem>
                     )} />

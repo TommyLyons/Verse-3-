@@ -38,12 +38,8 @@ export const getAllProducts = async (): Promise<Product[]> => {
         console.warn("Warning: Could not fetch products from Printful Flow.", error);
     }
 
-    const combined = [...dbProducts, ...flowProducts].map(p => {
-        if (p.type === 'merch') {
-            return { ...p, price: '€35.00' };
-        }
-        return p;
-    });
+    // Combine products without overriding the price with a hardcoded value
+    const combined = [...dbProducts, ...flowProducts];
 
     return combined;
 };
