@@ -33,7 +33,7 @@
     {
       "id": "merch-vinyl",
       "description": "A special edition vinyl record in its sleeve.",
-      "imageUrl": "https://images.unsplash.com/photo-1760274741733-21a64eed83c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx2aW55bCUyMHJlY29yZHxlbnwwfHx8fDE3NjM1MDM5NTN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1760274741733-21a64eed83c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw8fHx2aW55bCUyMHJlY29yZHxlbnwwfHx8fDE3NjM1MDM5NTN8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "vinyl sleeve"
     },
     {
@@ -56,8 +56,8 @@
     },
     {
       "id": "artist-keith",
-      "description": "Portrait of a man in a creative studio.",
-      "imageUrl": "https://images.unsplash.com/photo-1543132728-9d364950a782?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtYW4lMjBwb3J0cmFpdCUyMHN0dWRpb3xlbnwwfHx8fDE3NjM3NDYwNTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "description": "Keith Doyle Portrait",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/1000048011.jpg?alt=media&token=9bad45b2-8c1f-46a7-8ad9-e45444b35812",
       "imageHint": "man portrait"
     },
     {
