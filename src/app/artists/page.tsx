@@ -39,7 +39,7 @@ export default function ArtistsPage() {
           <Card key={artist.name} className="flex flex-col">
             <CardHeader className="items-center">
               {artist.image && (
-                <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-primary/50 mb-4">
+                <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-primary/50 mb-4 bg-black">
                   <Image
                     src={artist.image.imageUrl}
                     alt={`Portrait of ${artist.name}`}
