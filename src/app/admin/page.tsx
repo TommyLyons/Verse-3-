@@ -93,7 +93,7 @@ const NewsletterSubscribers = () => {
                                 <TableRow key={sub.id} className="hover:bg-chart-1/5 transition-colors">
                                     <TableCell className="font-medium text-lg">{sub.email}</TableCell>
                                     <TableCell className="text-right text-muted-foreground">
-                                        {sub.subscribedAt ? format(sub.subscribedAt.toDate(), 'PPP p') : 'N/A'}
+                                        {sub.subscribedAt && sub.subscribedAt.toDate ? format(sub.subscribedAt.toDate(), 'PPP p') : 'N/A'}
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -157,7 +157,7 @@ const MusicSubmissions = () => {
                                     </TableCell>
                                     <TableCell>{submission.trackTitle}</TableCell>
                                     <TableCell>
-                                        {submission.submittedAt ? format(submission.submittedAt.toDate(), 'PPP') : 'N/A'}
+                                        {submission.submittedAt && submission.submittedAt.toDate ? format(submission.submittedAt.toDate(), 'PPP') : 'N/A'}
                                     </TableCell>
                                     <TableCell className="text-right space-x-2">
                                         {submission.audioUrl && (
@@ -500,5 +500,4 @@ export default function AdminPage() {
                 <SalesDashboard />
             </div>
         </div>
-    );
 }
