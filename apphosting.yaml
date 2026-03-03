@@ -6,6 +6,5 @@ runConfig:
   # more instances in response to increased traffic.
   maxInstances: 1
 
-env:
-  - variable: STRIPE_SECRET_KEY
-    secret: STRIPE_SECRET_KEY
+# Environment variables are now handled via .env for this prototype
+# to avoid Secret Manager permission issues during initial setup.

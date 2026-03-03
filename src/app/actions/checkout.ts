@@ -10,9 +10,12 @@ import { stripe } from '@/lib/stripe';
 export async function fetchClientSecret(cart: any[]) {
   const origin = (await headers()).get('origin');
 
-  if (!process.env.STRIPE_SECRET_KEY) {
-    console.error("STRIPE_SECRET_KEY is missing from environment variables.");
-    throw new Error("Payment system is currently offline. Please contact support.");
+  // Ensure the secret key is available from .env or environment
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+
+  if (!secretKey || secretKey === 'sk_live_PASTE_YOUR_SECRET_KEY_HERE') {
+    console.error("STRIPE_SECRET_KEY is missing or invalid in environment variables.");
+    throw new Error("Payment system is currently being configured. Please try again in a few minutes.");
   }
 
   if (!cart || cart.length === 0) {
@@ -46,9 +49,6 @@ export async function fetchClientSecret(cart: any[]) {
       };
     });
 
-    // Create the session. 
-    // We removed 'automatic_payment_methods' as a top-level parameter to avoid "unknown parameter" errors.
-    // It is now managed entirely via the Stripe Dashboard (Settings > Payment Methods).
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
       line_items,
