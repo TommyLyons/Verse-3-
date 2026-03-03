@@ -87,25 +87,23 @@ const getProductsFlow = ai.defineFlow(
                         ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
                         : [];
                     
-                    // CRITICAL: Extract the actual retail price set on Printful.
-                    // We prioritize the highest retail price among variants (e.g., if different sizes have different prices).
+                    // ACCURATE RETAIL PRICE EXTRACTION
                     let retailPrice = 0;
                     let currencyCode = region === 'UK' ? 'GBP' : 'EUR';
 
                     if (syncVariants && syncVariants.length > 0) {
-                        // Extract retail prices from all variants and pick the intended one.
+                        // Extract retail prices from all synced variants.
                         const prices = syncVariants.map((v: any) => {
-                            // Printful retail_price is usually a string.
                             const p = parseFloat(v.retail_price);
                             return !isNaN(p) ? p : 0;
                         }).filter((p: number) => p > 0);
 
                         if (prices.length > 0) {
-                            // Using the maximum retail price ensures premium items like backpacks (75.00) show correctly.
+                            // Using the maximum retail price ensures the intended high-value price (like €75.00 for backpacks) 
+                            // is prioritized over sample or accessory prices if they exist in the same product listing.
                             retailPrice = Math.max(...prices);
                         }
                         
-                        // Use the currency specified in the variants if available.
                         if (syncVariants[0].currency) {
                             currencyCode = syncVariants[0].currency;
                         }
@@ -120,7 +118,7 @@ const getProductsFlow = ai.defineFlow(
                         name: syncProduct.name,
                         slug: slug,
                         price: formattedPrice,
-                        description: `A high-quality product from ${brand}.`,
+                        description: `Official ${brand} merchandise. Premium quality.`,
                         imageUrl: syncProduct.thumbnail_url,
                         revolutLink: 'https://revolut.me/test-business-studio',
                         type: 'merch',

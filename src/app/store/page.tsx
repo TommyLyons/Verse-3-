@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -38,7 +38,7 @@ const ProductGrid = ({ products, isLoading, type, onProductClick }: { products: 
     }
 
     if (products.length === 0) {
-        return <p className="text-muted-foreground text-center py-8">No {type} products available.</p>;
+        return <p className="text-muted-foreground text-center py-8">No {type} products available for this region.</p>;
     }
 
     return (
@@ -90,11 +90,9 @@ function StoreContent() {
   const [isAgeVerified, setIsAgeVerified] = useState(false);
 
   useEffect(() => {
-    // Check if user is already verified in this session
     const verified = sessionStorage.getItem('v3_age_verified') === 'true';
     setIsAgeVerified(verified);
 
-    // Initial brand from query params
     const initialBrand = searchParams.get('brand');
     if (initialBrand === 'crude' && verified) {
       setActiveBrand('Crude City');
@@ -151,10 +149,22 @@ function StoreContent() {
     if (activeBrand === 'Crude City') setActiveBrand('Verse 3');
   };
 
-  const verse3Merch = allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch');
-  const physicalMusic = allProducts.filter(p => p.type === 'music' && !p.digital);
-  const digitalMusic = allProducts.filter(p => p.type === 'music' && p.digital);
-  const crudeCityMerch = allProducts.filter(p => p.brand === 'Crude City' && p.type === 'merch' && (!p.availableRegions || p.availableRegions.includes(region)));
+  // Strictly filter products by current region to ensure correct prices and availability
+  const verse3Merch = useMemo(() => 
+    allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch' && (!p.availableRegions || p.availableRegions.includes(region))),
+  [allProducts, region]);
+
+  const physicalMusic = useMemo(() => 
+    allProducts.filter(p => p.type === 'music' && !p.digital),
+  [allProducts]);
+
+  const digitalMusic = useMemo(() => 
+    allProducts.filter(p => p.type === 'music' && p.digital),
+  [allProducts]);
+
+  const crudeCityMerch = useMemo(() => 
+    allProducts.filter(p => p.brand === 'Crude City' && p.type === 'merch' && (!p.availableRegions || p.availableRegions.includes(region))),
+  [allProducts, region]);
 
   return (
     <>
@@ -163,7 +173,6 @@ function StoreContent() {
         <p className="text-muted-foreground mt-2">Merchandise, vinyls, and more.</p>
        </div>
 
-       {/* Region and Brand Toggles */}
        <div className="mb-12 flex flex-col items-center gap-8">
          <div className="flex w-full max-w-md gap-2">
             <Button 
