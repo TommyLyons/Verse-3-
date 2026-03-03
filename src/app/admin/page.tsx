@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
@@ -238,7 +237,7 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                 productData.sizes = [];
             }
 
-            await addDocumentNonBlocking(productsCollection, productData);
+            addDocumentNonBlocking(productsCollection, productData);
             
             toast({
                 title: 'Product Added!',
