@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
@@ -89,7 +88,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 
 export function useFirebaseContext() {
     const context = useContext(FirebaseContext);
-    // Be defensive during SSR/Initialization
+    // Return a stable fallback instead of throwing an error to prevent SSR and initialization crashes
     if (context === undefined) {
         return {
             firebaseApp: null,
@@ -104,15 +103,18 @@ export function useFirebaseContext() {
 }
 
 export const useAuth = (): Auth | null => {
-  return useFirebaseContext().auth;
+  const context = useFirebaseContext();
+  return context?.auth || null;
 };
 
 export const useFirestore = (): Firestore | null => {
-  return useFirebaseContext().firestore;
+  const context = useFirebaseContext();
+  return context?.firestore || null;
 };
 
 export const useFirebaseApp = (): FirebaseApp | null => {
-  return useFirebaseContext().firebaseApp;
+  const context = useFirebaseContext();
+  return context?.firebaseApp || null;
 };
 
 export const useUser = (): UserHookResult => {

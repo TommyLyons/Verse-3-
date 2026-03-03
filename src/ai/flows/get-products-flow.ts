@@ -50,7 +50,6 @@ const getProductsFlow = ai.defineFlow(
         const storesData = await storesResponse.json();
         const allStores = storesData.result || [];
 
-        // Precise store filtering to prevent region/brand crossover
         const matchingStores = allStores.filter((store: any) => {
             const name = store.name.toLowerCase();
             const isV3 = name.includes('v3') || name.includes('verse') || name.includes('three');
@@ -67,8 +66,11 @@ const getProductsFlow = ai.defineFlow(
 
         for (const store of matchingStores) {
             const storeId = store.id;
-            // Robust region detection
-            const isUK = store.name.toUpperCase().includes('UK') || store.name.toUpperCase().includes('UNITED KINGDOM');
+            // Enhanced UK detection
+            const isUK = store.name.toUpperCase().includes('UK') || 
+                         store.name.toUpperCase().includes('UNITED KINGDOM') ||
+                         store.name.toUpperCase().includes('GBP');
+            
             const region = isUK ? 'UK' : 'EU';
             const currencySymbol = isUK ? '£' : '€';
 
@@ -93,9 +95,7 @@ const getProductsFlow = ai.defineFlow(
                         ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
                         : [];
                     
-                    // ACCURATE RETAIL PRICE EXTRACTION
-                    // We pull the retail price specifically as set in this regional store.
-                    // We take the MAX to ensure premium items (like backpacks) reflect their true value.
+                    // Prioritize the highest variant price to ensure premium items (like backpacks) reflect their true retail value.
                     let retailPrice = 0;
                     if (syncVariants && syncVariants.length > 0) {
                         const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter((p: number) => !isNaN(p) && p > 0);

@@ -56,7 +56,7 @@ const NewsletterSubscribers = () => {
                 <Terminal className="h-4 w-4" />
                 <AlertTitle>Access Error</AlertTitle>
                 <AlertDescription>
-                    You do not have permission to view the subscriber list.
+                    There was a problem accessing the subscriber list.
                 </AlertDescription>
             </Alert>
         );

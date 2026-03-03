@@ -13,14 +13,12 @@ export function FirebaseClientProvider({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Only run on client
     setMounted(true);
     const initializedSdks = getSdks();
     setSdks(initializedSdks);
   }, []);
 
-  // During initial SSR and first client render, we render a shell that doesn't 
-  // rely on auth context to prevent hydration mismatch.
+  // Use a consistent class structure during initialization to prevent hydration mismatches
   if (!mounted) {
     return (
         <div className="relative flex min-h-dvh flex-col bg-background text-foreground">
