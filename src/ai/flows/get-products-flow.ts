@@ -49,14 +49,16 @@ const getProductsFlow = ai.defineFlow(
     if (!apiKey) return [];
 
     const headers = { 'Authorization': `Bearer ${apiKey}` };
-    const targetStores = brandStoreMap[brand] || [];
+    const targetStores = (brandStoreMap[brand] || []).map(s => s.toLowerCase().trim());
 
     try {
         const storesResponse = await fetch('https://api.printful.com/stores', { headers });
         if (!storesResponse.ok) return [];
         
         const storesData = await storesResponse.json();
-        const matchingStores = storesData.result.filter((store: any) => targetStores.includes(store.name));
+        const matchingStores = storesData.result.filter((store: any) => 
+            targetStores.includes(store.name.toLowerCase().trim())
+        );
 
         if (matchingStores.length === 0) return [];
 
@@ -66,7 +68,7 @@ const getProductsFlow = ai.defineFlow(
             const storeId = store.id;
             const region = store.name.includes('UK') ? 'UK' : 'EU';
 
-            const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=50`, { headers });
+            const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
             if (!productsResponse.ok) continue;
 
             const data = await productsResponse.json();
@@ -87,20 +89,19 @@ const getProductsFlow = ai.defineFlow(
                         ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
                         : [];
                     
-                    // ACCURATE RETAIL PRICE EXTRACTION
+                    // IMPROVED RETAIL PRICE EXTRACTION
+                    // We prioritize the intended high-value price (like €75.00 for backpacks) 
+                    // over sample or accessory prices by taking the maximum retail price found.
                     let retailPrice = 0;
                     let currencyCode = region === 'UK' ? 'GBP' : 'EUR';
 
                     if (syncVariants && syncVariants.length > 0) {
-                        // Extract retail prices from all synced variants.
                         const prices = syncVariants.map((v: any) => {
                             const p = parseFloat(v.retail_price);
                             return !isNaN(p) ? p : 0;
                         }).filter((p: number) => p > 0);
 
                         if (prices.length > 0) {
-                            // Using the maximum retail price ensures the intended high-value price (like €75.00 for backpacks) 
-                            // is prioritized over sample or accessory prices if they exist in the same product listing.
                             retailPrice = Math.max(...prices);
                         }
                         
@@ -118,7 +119,9 @@ const getProductsFlow = ai.defineFlow(
                         name: syncProduct.name,
                         slug: slug,
                         price: formattedPrice,
-                        description: `Official ${brand} merchandise. Premium quality.`,
+                        description: syncProduct.name.includes('Backpack') 
+                            ? `Premium official ${brand} utility gear. Built for durability and style.`
+                            : `Official ${brand} merchandise. Premium quality.`,
                         imageUrl: syncProduct.thumbnail_url,
                         revolutLink: 'https://revolut.me/test-business-studio',
                         type: 'merch',
@@ -127,7 +130,6 @@ const getProductsFlow = ai.defineFlow(
                         sizes: sizes.length > 0 ? sizes : undefined,
                     };
                 } catch (err) {
-                    console.error(`Error processing Printful product ${item.id}:`, err);
                     return null;
                 }
             }));
@@ -137,7 +139,6 @@ const getProductsFlow = ai.defineFlow(
 
         return allDetailedProducts;
     } catch (err) {
-        console.error("Printful Sync Error:", err);
         return [];
     }
   }

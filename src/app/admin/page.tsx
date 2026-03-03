@@ -65,11 +65,11 @@ const NewsletterSubscribers = () => {
     return (
         <Card className="border-2 border-chart-1/20">
             <CardHeader className="bg-black text-white rounded-t-lg">
-                <CardTitle className="flex items-center gap-2 font-headline text-2xl uppercase italic">
-                    <Users className="h-6 w-6 text-chart-1" />
+                <CardTitle className="flex items-center gap-2 font-headline text-2xl uppercase italic text-chart-1">
+                    <Users className="h-6 w-6" />
                     V3 Family Subscribers
                 </CardTitle>
-                <CardDescription className="text-chart-1/60">
+                <CardDescription className="text-white/60">
                     Email list of users who joined via the newsletter signup.
                 </CardDescription>
             </CardHeader>
@@ -83,8 +83,8 @@ const NewsletterSubscribers = () => {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="font-bold uppercase text-[10px] tracking-widest text-foreground">Email Address</TableHead>
-                                <TableHead className="font-bold uppercase text-[10px] tracking-widest text-right text-foreground">Joined On</TableHead>
+                                <TableHead className="font-bold uppercase text-[10px] tracking-widest">Email Address</TableHead>
+                                <TableHead className="font-bold uppercase text-[10px] tracking-widest text-right">Joined On</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -236,7 +236,6 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
             onFinished();
             form.reset();
         } catch (error) {
-            console.error(error);
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to add product.' });
         } finally {
             setIsSubmitting(false);
@@ -394,7 +393,7 @@ const ProductManagement = () => {
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                     <CardTitle className="font-headline text-2xl uppercase italic">Product Management</CardTitle>
-                    <CardDescription>All merchandise from Firestore and Printful API.</CardDescription>
+                    <CardDescription>Merchandise from Firestore and Printful API.</CardDescription>
                 </div>
                 <div className="flex gap-2">
                     <Button variant="outline" size="sm" onClick={loadPrintfulData} disabled={isPrintfulLoading}>

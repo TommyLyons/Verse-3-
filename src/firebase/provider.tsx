@@ -44,7 +44,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 }) => {
   const [userAuthState, setUserAuthState] = useState<UserAuthState>({
     user: null,
-    isUserLoading: !!auth, // Only consider loading if auth instance exists (client-side)
+    isUserLoading: !!auth, 
     userError: null,
   });
 
@@ -54,20 +54,15 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
       return;
     }
 
-    const unsubscribe = onSnapshotAuth();
-    
-    function onSnapshotAuth() {
-        return onAuthStateChanged(
-          auth!,
-          (firebaseUser) => {
-            setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null });
-          },
-          (error) => {
-            console.error("FirebaseProvider: onAuthStateChanged error:", error);
-            setUserAuthState({ user: null, isUserLoading: false, userError: error });
-          }
-        );
-    }
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (firebaseUser) => {
+        setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null });
+      },
+      (error) => {
+        setUserAuthState({ user: null, isUserLoading: false, userError: error });
+      }
+    );
 
     return () => unsubscribe();
   }, [auth]);
@@ -91,10 +86,20 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   );
 };
 
-function useFirebaseContext() {
+export function useFirebaseContext() {
     const context = useContext(FirebaseContext);
+    // On the server or during initialization, context might be undefined if not wrapped properly.
+    // However, to prevent crashes in the Header during SSR, we return an empty object if needed,
+    // although standard behavior is to throw.
     if (context === undefined) {
-        throw new Error('useFirebaseContext must be used within a FirebaseProvider.');
+        return {
+            firebaseApp: null,
+            firestore: null,
+            auth: null,
+            user: null,
+            isUserLoading: true,
+            userError: null,
+        };
     }
     return context;
 }

@@ -38,7 +38,11 @@ const ProductGrid = ({ products, isLoading, type, onProductClick }: { products: 
     }
 
     if (products.length === 0) {
-        return <p className="text-muted-foreground text-center py-8">No {type} products available for this region.</p>;
+        return (
+            <div className="text-center py-16 border-2 border-dashed rounded-lg">
+                <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">No {type} products found for this brand/region.</p>
+            </div>
+        );
     }
 
     return (
@@ -59,15 +63,15 @@ const ProductGrid = ({ products, isLoading, type, onProductClick }: { products: 
                             />
                         </div>
                     </CardContent>
-                    <div className="mt-4 flex justify-between items-center">
+                    <div className="mt-4 flex justify-between items-center px-1">
                         <div>
-                            <p className="font-bold text-black uppercase">{item.name}</p>
-                            <p className="text-sm font-medium">{item.price}</p>
+                            <p className="font-bold text-black uppercase text-sm leading-tight">{item.name}</p>
+                            <p className="text-sm font-bold text-primary italic">{item.price}</p>
                         </div>
                         <Button 
                           size="sm" 
                           onClick={() => onProductClick?.(item)}
-                          className="bg-black text-chart-1 font-bold"
+                          className="bg-black text-chart-1 font-bold hover:bg-black/80"
                         >
                             {item.digital ? <DownloadCloud className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
                         </Button>
@@ -149,7 +153,6 @@ function StoreContent() {
     if (activeBrand === 'Crude City') setActiveBrand('Verse 3');
   };
 
-  // Strictly filter products by current region to ensure correct prices and availability
   const verse3Merch = useMemo(() => 
     allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch' && (!p.availableRegions || p.availableRegions.includes(region))),
   [allProducts, region]);
@@ -178,14 +181,14 @@ function StoreContent() {
             <Button 
                 onClick={() => handleBrandSwitch('Verse 3')}
                 variant={activeBrand === 'Verse 3' ? 'default' : 'outline'}
-                className={`flex-1 h-14 font-headline text-xl uppercase italic ${activeBrand === 'Verse 3' ? 'bg-black text-chart-1' : 'border-2 border-black'}`}
+                className={`flex-1 h-14 font-headline text-xl uppercase italic rounded-none border-2 border-black transition-all ${activeBrand === 'Verse 3' ? 'bg-black text-chart-1' : 'bg-transparent text-black hover:bg-black/5'}`}
             >
                 Verse 3
             </Button>
             <Button 
                 onClick={() => handleBrandSwitch('Crude City')}
                 variant={activeBrand === 'Crude City' ? 'default' : 'outline'}
-                className={`flex-1 h-14 font-headline text-xl uppercase italic ${activeBrand === 'Crude City' ? 'bg-black text-chart-1' : 'border-2 border-black'}`}
+                className={`flex-1 h-14 font-headline text-xl uppercase italic rounded-none border-2 border-black transition-all ${activeBrand === 'Crude City' ? 'bg-black text-chart-1' : 'bg-transparent text-black hover:bg-black/5'}`}
             >
                 Crude City
             </Button>
@@ -194,15 +197,15 @@ function StoreContent() {
          <div className="max-w-xs w-full">
             <div className="flex items-center justify-center gap-2 mb-2">
                 <Globe className="h-4 w-4 text-black"/>
-                <span className="text-xs font-bold uppercase tracking-widest">Region Selection</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Region Selection</span>
             </div>
             <Select value={region} onValueChange={(value) => setRegion(value as 'UK' | 'EU')}>
-              <SelectTrigger className="border-black bg-white text-black h-12 focus:ring-black">
+              <SelectTrigger className="border-black bg-white text-black h-12 focus:ring-black rounded-none border-2 font-bold uppercase text-xs">
                   <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                  <SelectItem value="UK">United Kingdom</SelectItem>
-                  <SelectItem value="EU">European Union</SelectItem>
+                  <SelectItem value="UK">United Kingdom (GBP)</SelectItem>
+                  <SelectItem value="EU">European Union (EUR)</SelectItem>
               </SelectContent>
             </Select>
          </div>
@@ -227,7 +230,7 @@ function StoreContent() {
          </>
        ) : (
          <section className="mb-20">
-            <h2 className="font-headline text-3xl font-bold text-black mb-8 uppercase italic border-b-2 border-black pb-2">Crude City EU/UK</h2>
+            <h2 className="font-headline text-3xl font-bold text-black mb-8 uppercase italic border-b-2 border-black pb-2">Crude City {region}</h2>
             <ProductGrid products={crudeCityMerch} isLoading={isLoading} type="merch" onProductClick={handleProductClick} />
          </section>
        )}
@@ -245,7 +248,7 @@ export default function StorePage() {
   return (
     <div className="container max-w-7xl mx-auto px-4 py-12 md:py-24 bg-white">
       <BackButton />
-      <Suspense fallback={<div className="text-center py-20">Loading Store...</div>}>
+      <Suspense fallback={<div className="text-center py-20 font-headline text-2xl animate-pulse">Loading Store...</div>}>
         <StoreContent />
       </Suspense>
     </div>
