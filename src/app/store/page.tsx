@@ -48,7 +48,7 @@ const ProductGrid = ({ products, isLoading, type, onProductClick }: { products: 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             {products.map((item) => (
-                <Card key={item.id} className="overflow-hidden group flex flex-col border-none bg-transparent">
+                <Card key={item.id || item.slug} className="overflow-hidden group flex flex-col border-none bg-transparent">
                     <CardContent className="p-0">
                         <div 
                           onClick={() => onProductClick?.(item)}

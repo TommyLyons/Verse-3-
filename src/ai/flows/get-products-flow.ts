@@ -1,8 +1,6 @@
 'use server';
 /**
  * @fileOverview A flow for fetching product information from multiple Printful stores with accurate retail pricing.
- *
- * - getProducts - A function that fetches products from specific regional Printful stores.
  */
 
 import {ai} from '@/ai/genkit';
@@ -66,7 +64,7 @@ const getProductsFlow = ai.defineFlow(
 
         for (const store of matchingStores) {
             const storeId = store.id;
-            const region = store.name.includes('UK') ? 'UK' : 'EU';
+            const region = store.name.toUpperCase().includes('UK') ? 'UK' : 'EU';
 
             const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
             if (!productsResponse.ok) continue;
@@ -89,9 +87,7 @@ const getProductsFlow = ai.defineFlow(
                         ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
                         : [];
                     
-                    // IMPROVED RETAIL PRICE EXTRACTION
-                    // We prioritize the intended high-value price (like €75.00 for backpacks) 
-                    // over sample or accessory prices by taking the maximum retail price found.
+                    // ACCURATE RETAIL PRICE EXTRACTION
                     let retailPrice = 0;
                     let currencyCode = region === 'UK' ? 'GBP' : 'EUR';
 
@@ -102,6 +98,7 @@ const getProductsFlow = ai.defineFlow(
                         }).filter((p: number) => p > 0);
 
                         if (prices.length > 0) {
+                            // Use max variant price for consistent premium branding (e.g. Backpack at €75)
                             retailPrice = Math.max(...prices);
                         }
                         

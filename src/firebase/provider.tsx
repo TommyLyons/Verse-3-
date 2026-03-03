@@ -88,9 +88,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 
 export function useFirebaseContext() {
     const context = useContext(FirebaseContext);
-    // On the server or during initialization, context might be undefined if not wrapped properly.
-    // However, to prevent crashes in the Header during SSR, we return an empty object if needed,
-    // although standard behavior is to throw.
+    // Be defensive during SSR/Initialization
     if (context === undefined) {
         return {
             firebaseApp: null,
