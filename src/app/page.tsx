@@ -153,16 +153,15 @@ export default function Home() {
 
       {/* Impact Image Hero Section - Placed directly above Choose Your Vibe */}
       {vibeHero && (
-        <section className="w-full h-[60vh] md:h-[80vh] relative">
+        <section className="w-full h-[60vh] md:h-[80vh] relative bg-black">
           <Image
             src={vibeHero.imageUrl}
             alt={vibeHero.description}
             fill
-            className="object-cover"
+            className="object-contain"
             priority
             data-ai-hint={vibeHero.imageHint}
           />
-          <div className="absolute inset-0 bg-black/20" />
         </section>
       )}
 
@@ -435,3 +434,4 @@ export default function Home() {
     </div>
   );
 }
+
