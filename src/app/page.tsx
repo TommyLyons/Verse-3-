@@ -52,12 +52,24 @@ export default function Home() {
     fetchProducts();
   }, []);
   
-  // Featured Merch specifically for EU V3 Store
-  const merchProducts = allProducts.filter(p => 
-    p.type === 'merch' && 
-    p.brand === 'Verse 3 Merch' && 
-    p.availableRegions?.includes('EU')
-  ).slice(0, 8);
+  // Featured Merch specifically for EU V3 Store, prioritizing hoodies and bags
+  const merchProducts = React.useMemo(() => {
+    const euV3Items = allProducts.filter(p => 
+      p.type === 'merch' && 
+      p.brand === 'Verse 3 Merch' && 
+      (p.availableRegions?.includes('EU') || !p.availableRegions)
+    );
+
+    // Prioritize bags and hoodies for the featured display
+    return [...euV3Items]
+      .sort((a, b) => {
+          const aPriority = (a.name.toLowerCase().includes('hoodie') || a.name.toLowerCase().includes('bag')) ? 0 : 1;
+          const bPriority = (b.name.toLowerCase().includes('hoodie') || b.name.toLowerCase().includes('bag')) ? 0 : 1;
+          if (aPriority !== bPriority) return aPriority - bPriority;
+          return a.name.localeCompare(b.name);
+      })
+      .slice(0, 8);
+  }, [allProducts]);
 
   const musicProducts = allProducts.filter(p => p.type === 'music' && !p.digital).slice(0, 8);
 
@@ -155,10 +167,10 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image Hero Section - Optimized fit to avoid cropping */}
+      {/* Impact Image Hero Section - Full width container with object-contain to avoid cropping */}
       {vibeHero && (
-        <section className="w-full h-[60vh] md:h-[80vh] relative bg-black flex items-center justify-center overflow-hidden">
-          <div className="relative w-full h-full max-w-7xl">
+        <section className="w-full bg-black flex items-center justify-center py-4">
+          <div className="relative w-full aspect-[16/9] md:aspect-[21/9] max-w-screen-2xl">
             <Image
               src={vibeHero.imageUrl}
               alt={vibeHero.description}
