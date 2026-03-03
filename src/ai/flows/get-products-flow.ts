@@ -69,14 +69,15 @@ const getProductsFlow = ai.defineFlow(
             const storeId = store.id;
             const storeNameUpper = store.name.toUpperCase();
             
-            // Broad Region Identification
+            // Region Identification
             const isUKStore = storeNameUpper.includes('UK') || 
                             storeNameUpper.includes('UNITED KINGDOM') ||
                             storeNameUpper.includes('GBP') ||
                             storeNameUpper.includes('BRITAIN') ||
-                            storeNameUpper.includes('LONDON') ||
-                            storeNameUpper.includes('GREAT BRITAIN') ||
-                            storeNameUpper.includes('NORTHAMPTON');
+                            storeNameUpper.includes('LONDON');
+
+            const region = isUKStore ? 'UK' : 'EU';
+            const currencySymbol = isUKStore ? '£' : '€';
 
             const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
             if (!productsResponse.ok) continue;
@@ -95,32 +96,24 @@ const getProductsFlow = ai.defineFlow(
 
                     if (!syncProduct || !syncProduct.name || !syncProduct.thumbnail_url) return null;
 
-                    // Improved Currency & Region Detection
-                    const variantCurrencies = new Set(syncVariants?.map((v: any) => v.currency).filter(Boolean));
-                    const currentIsUK = variantCurrencies.has('GBP') || (isUKStore && !variantCurrencies.has('EUR'));
-                    const currentRegion = currentIsUK ? 'UK' : 'EU';
-                    const currentCurrencySymbol = currentIsUK ? '£' : '€';
-
                     const sizes = syncVariants 
                         ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
                         : [];
                     
                     let retailPrice = 0;
                     if (syncVariants && syncVariants.length > 0) {
-                        // Prioritize primary variant prices to get the correct intended retail value
                         const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter((p: number) => !isNaN(p) && p > 0);
                         if (prices.length > 0) {
-                            // Using Math.max captures the intended retail price even if samples or accessories are in the variants
                             retailPrice = Math.max(...prices);
                         }
                     }
 
                     // Apply rounding logic for GBP as requested
-                    if (currentIsUK && retailPrice > 0) {
+                    if (isUKStore && retailPrice > 0) {
                         retailPrice = Math.ceil(retailPrice);
                     }
 
-                    const formattedPrice = retailPrice === 0 ? 'N/A' : `${currentCurrencySymbol}${retailPrice % 1 === 0 ? retailPrice.toFixed(0) : retailPrice.toFixed(2)}`;
+                    const formattedPrice = retailPrice === 0 ? 'N/A' : `${currencySymbol}${retailPrice % 1 === 0 ? retailPrice.toFixed(0) : retailPrice.toFixed(2)}`;
                     const slug = syncProduct.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 
                     return {
@@ -128,14 +121,12 @@ const getProductsFlow = ai.defineFlow(
                         name: syncProduct.name,
                         slug: slug,
                         price: formattedPrice,
-                        description: syncProduct.name.includes('Backpack') 
-                            ? `Premium official ${brand} utility gear. Designed for durability and street style.`
-                            : `Official ${brand} merchandise. Premium quality craftsmanship.`,
+                        description: `Official ${brand} merchandise. Premium quality craftsmanship.`,
                         imageUrl: syncProduct.thumbnail_url,
                         revolutLink: 'https://checkout.stripe.com/',
                         type: 'merch',
                         brand: brand as any,
-                        availableRegions: [currentRegion as any],
+                        availableRegions: [region as any],
                         sizes: sizes.length > 0 ? sizes : undefined,
                     };
                 } catch (err) {
@@ -146,7 +137,7 @@ const getProductsFlow = ai.defineFlow(
             allDetailedProducts.push(...detailedProducts.filter((p): p is Product => p !== null));
         }
 
-        // Final Sort: Alphabetical for consistency across regions
+        // Final Sort: Alphabetical for consistency
         return allDetailedProducts.sort((a, b) => a.name.localeCompare(b.name));
     } catch (err) {
         return [];

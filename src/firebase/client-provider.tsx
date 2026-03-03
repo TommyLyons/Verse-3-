@@ -20,7 +20,8 @@ export function FirebaseClientProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Return a consistent structure during hydration to avoid mismatches.
-  // We use the same layout wrapper but with null props until mounted.
+  // We wrap the children in FirebaseProvider even before mount but with nulls.
+  // This helps avoid the "useState is null" error which can happen if React context is unstable.
   return (
     <FirebaseProvider
       firebaseApp={sdks?.firebaseApp || null}

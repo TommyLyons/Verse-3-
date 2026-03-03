@@ -222,7 +222,7 @@ function StoreContent() {
        {activeBrand === 'Verse 3' ? (
          <>
            <section className="mb-20">
-                <h2 className="font-headline text-3xl font-bold text-black mb-8 uppercase italic border-b-2 border-black pb-2">V3 Merch</h2>
+                <h2 className="font-headline text-3xl font-bold text-black mb-8 uppercase italic border-b-2 border-black pb-2">V3 Merch {region}</h2>
                 <ProductGrid products={verse3Merch} isLoading={isLoading} type="merch" onProductClick={handleProductClick} />
            </section>
            
