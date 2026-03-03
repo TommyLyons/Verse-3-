@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -105,7 +104,7 @@ export default function CartPage() {
                 </div>
                 <div className="flex justify-between text-muted-foreground text-sm">
                   <span>Shipping</span>
-                  <span>Calculated at checkout</span>
+                  <span className="text-chart-1 font-bold">FREE (Included)</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between font-bold text-lg">
@@ -136,5 +135,3 @@ export default function CartPage() {
     </div>
   );
 }
-
-    

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useCallback, useMemo, useState } from 'react';
@@ -128,7 +127,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="bg-black/5 p-4 text-[9px] text-center font-bold uppercase tracking-widest space-y-1">
                     <p>Shipping & Taxes</p>
-                    <p className="text-muted-foreground">Calculated in the secure window</p>
+                    <p className="text-chart-1 font-bold">FREE (INCLUDED IN PRICE)</p>
                 </div>
             </div>
         </div>

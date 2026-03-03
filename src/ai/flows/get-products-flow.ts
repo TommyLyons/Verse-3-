@@ -1,7 +1,7 @@
 'use server';
 /**
- * @fileOverview A flow for fetching product information from Printful with accurate retail pricing, regional currency enforcement, and consistent alphabetical ordering.
- * GBP prices are rounded up to the nearest whole number.
+ * @fileOverview A flow for fetching product information from Printful with accurate retail pricing, shipping integration, and regional currency enforcement.
+ * Shipping costs are incorporated into the retail price (£5/€6 buffer) for a "Free Shipping" model.
  */
 
 import {ai} from '@/ai/genkit';
@@ -69,16 +69,15 @@ const getProductsFlow = ai.defineFlow(
             const storeId = store.id;
             const storeNameUpper = store.name.toUpperCase();
             
-            // Expanded UK store detection keywords
             const isUKStore = storeNameUpper.includes('UK') || 
                             storeNameUpper.includes('UNITED KINGDOM') ||
-                            storeNameUpper.includes('GBP') ||
-                            storeNameUpper.includes('V3 UK') ||
-                            storeNameUpper.includes('CRUDE UK') ||
-                            storeNameUpper.includes('CRUDE CITY UK');
+                            storeNameUpper.includes('GBP');
 
             const region = isUKStore ? 'UK' : 'EU';
             const currencySymbol = isUKStore ? '£' : '€';
+            
+            // Shipping buffers to incorporate into price (estimated average shipping)
+            const shippingBuffer = isUKStore ? 5.00 : 6.00;
 
             const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
             if (!productsResponse.ok) continue;
@@ -103,7 +102,6 @@ const getProductsFlow = ai.defineFlow(
                     
                     let retailPrice = 0;
                     if (syncVariants && syncVariants.length > 0) {
-                        // Find the minimum price among variants for accurate "Starting from" pricing
                         const validPrices = syncVariants
                             .map((v: any) => parseFloat(v.retail_price))
                             .filter((p: number) => !isNaN(p) && p > 0);
@@ -113,8 +111,13 @@ const getProductsFlow = ai.defineFlow(
                         }
                     }
 
-                    // Force rounding up for ALL UK store products (both V3 and Crude City)
-                    if (isUKStore && retailPrice > 0) {
+                    // Incorporate shipping buffer into the price
+                    if (retailPrice > 0) {
+                        retailPrice += shippingBuffer;
+                    }
+
+                    // Force rounding up for ALL stores now that shipping is included
+                    if (retailPrice > 0) {
                         retailPrice = Math.ceil(retailPrice);
                     }
 
@@ -126,7 +129,7 @@ const getProductsFlow = ai.defineFlow(
                         name: syncProduct.name,
                         slug: slug,
                         price: formattedPrice,
-                        description: syncProduct.description || `Official ${brand} merchandise. Premium quality craftsmanship.`,
+                        description: syncProduct.description || `Official ${brand} merchandise. Premium quality craftsmanship. Free shipping included.`,
                         imageUrl: syncProduct.thumbnail_url,
                         revolutLink: 'https://checkout.stripe.com/',
                         type: 'merch',
