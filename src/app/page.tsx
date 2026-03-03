@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -38,6 +39,8 @@ export default function Home() {
   const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
   const [pendingBrand, setPendingBrand] = useState<string | null>(null);
   const [isAgeVerified, setIsAgeVerified] = useState(false);
+
+  const vibeHero = PlaceHolderImages.find(img => img.id === 'vibe-hero');
 
   useEffect(() => {
     const verified = sessionStorage.getItem('v3_age_verified') === 'true';
@@ -101,13 +104,11 @@ export default function Home() {
     
     const subscriptionsCol = collection(firestore, 'newsletterSubscriptions');
     
-    // Non-blocking write: we don't await this.
     addDocumentNonBlocking(subscriptionsCol, {
       email: email,
       subscribedAt: serverTimestamp(),
     });
 
-    // Optimistic success UI
     toast({
       title: "Welcome to the V3 Family!",
       description: "You've been added to our exclusive list.",
@@ -148,6 +149,21 @@ export default function Home() {
               </p>
           </div>
       </section>
+
+      {/* Impact Image Hero Section */}
+      {vibeHero && (
+        <section className="w-full h-[60vh] md:h-[80vh] relative">
+          <Image
+            src={vibeHero.imageUrl}
+            alt={vibeHero.description}
+            fill
+            className="object-cover"
+            priority
+            data-ai-hint={vibeHero.imageHint}
+          />
+          <div className="absolute inset-0 bg-black/20" />
+        </section>
+      )}
 
       {/* Choose Your Vibe - FULL WIDTH */}
       <section className="w-full py-12 bg-black text-white">
