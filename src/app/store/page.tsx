@@ -154,21 +154,29 @@ function StoreContent() {
   };
 
   const verse3Merch = useMemo(() => {
-    // Products from the API flow are already sorted alphabetically.
-    // This filter preserves that order for the grid.
-    return allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch' && (!p.availableRegions || p.availableRegions.includes(region)));
+    const filtered = allProducts.filter(p => 
+      p.type === 'merch' && 
+      p.brand === 'Verse 3 Merch' && 
+      (!p.availableRegions || p.availableRegions.includes(region))
+    );
+    // Sort alphabetically to ensure UK and EU grids match exactly
+    return filtered.sort((a, b) => a.name.localeCompare(b.name));
   }, [allProducts, region]);
 
   const physicalMusic = useMemo(() => 
-    allProducts.filter(p => p.type === 'music' && !p.digital),
+    allProducts.filter(p => p.type === 'music' && !p.digital).sort((a, b) => a.name.localeCompare(b.name)),
   [allProducts]);
 
   const digitalMusic = useMemo(() => 
-    allProducts.filter(p => p.type === 'music' && p.digital),
+    allProducts.filter(p => p.type === 'music' && p.digital).sort((a, b) => a.name.localeCompare(b.name)),
   [allProducts]);
 
   const crudeCityMerch = useMemo(() => 
-    allProducts.filter(p => p.brand === 'Crude City' && p.type === 'merch' && (!p.availableRegions || p.availableRegions.includes(region))),
+    allProducts.filter(p => 
+      p.brand === 'Crude City' && 
+      p.type === 'merch' && 
+      (!p.availableRegions || p.availableRegions.includes(region))
+    ).sort((a, b) => a.name.localeCompare(b.name)),
   [allProducts, region]);
 
   return (

@@ -53,7 +53,6 @@ const getProductsFlow = ai.defineFlow(
 
         const matchingStores = allStores.filter((store: any) => {
             const name = store.name.toLowerCase();
-            // Robust brand matching for both regional versions
             const isV3 = name.includes('v3') || name.includes('verse') || name.includes('three');
             const isCrude = name.includes('crude');
             
@@ -70,11 +69,12 @@ const getProductsFlow = ai.defineFlow(
             const storeId = store.id;
             const storeNameUpper = store.name.toUpperCase();
             
-            // Determine region from store name keywords
+            // Region detection: check store name or contents
             const isUKStore = storeNameUpper.includes('UK') || 
                             storeNameUpper.includes('UNITED KINGDOM') ||
                             storeNameUpper.includes('GBP') ||
-                            storeNameUpper.includes('BRITAIN');
+                            storeNameUpper.includes('BRITAIN') ||
+                            storeNameUpper.includes('LONDON');
 
             const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
             if (!productsResponse.ok) continue;
@@ -93,13 +93,11 @@ const getProductsFlow = ai.defineFlow(
 
                     if (!syncProduct || !syncProduct.name || !syncProduct.thumbnail_url) return null;
 
-                    // Detect currency from the first variant to ensure regional accuracy
+                    // Detect region from variant currency
                     const variantCurrency = syncVariants?.[0]?.currency;
-                    
-                    // Final determination of region: priority to variant currency, fallback to store name
                     const currentIsUK = variantCurrency === 'GBP' || (isUKStore && variantCurrency !== 'EUR');
-                    const currentCurrencySymbol = currentIsUK ? '£' : '€';
                     const currentRegion = currentIsUK ? 'UK' : 'EU';
+                    const currentCurrencySymbol = currentIsUK ? '£' : '€';
 
                     const sizes = syncVariants 
                         ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
@@ -109,12 +107,11 @@ const getProductsFlow = ai.defineFlow(
                     if (syncVariants && syncVariants.length > 0) {
                         const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter((p: number) => !isNaN(p) && p > 0);
                         if (prices.length > 0) {
-                            // Extract maximum retail price (usually uniform across sizes, but covers backpacks vs tees)
                             retailPrice = Math.max(...prices);
                         }
                     }
 
-                    // REQUIREMENT: Round up to nearest whole number for GBP prices
+                    // Round up GBP prices to the nearest whole number
                     if (currentIsUK && retailPrice > 0) {
                         retailPrice = Math.ceil(retailPrice);
                     }
@@ -131,7 +128,7 @@ const getProductsFlow = ai.defineFlow(
                             ? `Premium official ${brand} utility gear. Built for durability and style.`
                             : `Official ${brand} merchandise. Premium quality.`,
                         imageUrl: syncProduct.thumbnail_url,
-                        revolutLink: 'https://revolut.me/',
+                        revolutLink: 'https://checkout.stripe.com/',
                         type: 'merch',
                         brand: brand as any,
                         availableRegions: [currentRegion as any],
@@ -145,7 +142,7 @@ const getProductsFlow = ai.defineFlow(
             allDetailedProducts.push(...detailedProducts.filter((p): p is Product => p !== null));
         }
 
-        // Enforce consistent alphabetical ordering across all regional stores for UI parity
+        // Sort alphabetically to match EU store ordering
         return allDetailedProducts.sort((a, b) => a.name.localeCompare(b.name));
     } catch (err) {
         return [];
