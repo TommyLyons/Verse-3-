@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A flow for fetching product information from Printful with accurate retail pricing and regional currency enforcement.
@@ -51,13 +50,13 @@ const getProductsFlow = ai.defineFlow(
         const storesData = await storesResponse.json();
         const allStores = storesData.result || [];
 
-        // Fuzzy matching for stores to ensure Europe and UK are both caught
+        // Precise store filtering to prevent region/brand crossover
         const matchingStores = allStores.filter((store: any) => {
             const name = store.name.toLowerCase();
             const isV3 = name.includes('v3') || name.includes('verse') || name.includes('three');
             const isCrude = name.includes('crude');
             
-            if (brand === 'Verse 3 Merch') return isV3;
+            if (brand === 'Verse 3 Merch') return isV3 && !isCrude;
             if (brand === 'Crude City') return isCrude;
             return false;
         });
@@ -68,7 +67,10 @@ const getProductsFlow = ai.defineFlow(
 
         for (const store of matchingStores) {
             const storeId = store.id;
-            const region = (store.name.toUpperCase().includes('UK') || store.name.toUpperCase().includes('UNITED KINGDOM')) ? 'UK' : 'EU';
+            // Robust region detection
+            const isUK = store.name.toUpperCase().includes('UK') || store.name.toUpperCase().includes('UNITED KINGDOM');
+            const region = isUK ? 'UK' : 'EU';
+            const currencySymbol = isUK ? '£' : '€';
 
             const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
             if (!productsResponse.ok) continue;
@@ -92,18 +94,16 @@ const getProductsFlow = ai.defineFlow(
                         : [];
                     
                     // ACCURATE RETAIL PRICE EXTRACTION
-                    // We prioritize the primary retail price. We take the MAX variant price to ensure
-                    // premium items (like backpacks) reflect their true value.
+                    // We pull the retail price specifically as set in this regional store.
+                    // We take the MAX to ensure premium items (like backpacks) reflect their true value.
                     let retailPrice = 0;
                     if (syncVariants && syncVariants.length > 0) {
-                        const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter(p => !isNaN(p) && p > 0);
+                        const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter((p: number) => !isNaN(p) && p > 0);
                         if (prices.length > 0) {
                             retailPrice = Math.max(...prices);
                         }
                     }
 
-                    // Enforce currency based on region
-                    const currencySymbol = region === 'UK' ? '£' : '€';
                     const formattedPrice = retailPrice === 0 ? 'N/A' : `${currencySymbol}${retailPrice.toFixed(2)}`;
                     const slug = syncProduct.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 
@@ -116,7 +116,7 @@ const getProductsFlow = ai.defineFlow(
                             ? `Premium official ${brand} utility gear. Built for durability and style.`
                             : `Official ${brand} merchandise. Premium quality.`,
                         imageUrl: syncProduct.thumbnail_url,
-                        revolutLink: 'https://revolut.me/', // Legacy fallback
+                        revolutLink: 'https://revolut.me/',
                         type: 'merch',
                         brand: brand as any,
                         availableRegions: [region as any],

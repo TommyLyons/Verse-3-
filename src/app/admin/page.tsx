@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
@@ -57,7 +56,7 @@ const NewsletterSubscribers = () => {
                 <Terminal className="h-4 w-4" />
                 <AlertTitle>Access Error</AlertTitle>
                 <AlertDescription>
-                    {error.message || "You do not have permission to view the subscriber list."}
+                    You do not have permission to view the subscriber list.
                 </AlertDescription>
             </Alert>
         );
