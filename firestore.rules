@@ -11,15 +11,14 @@ service cloud.firestore {
     }
     
     // Global admin override: Admin can do anything
+    // This explicitly grants list/get/create/update/delete across all collections
     match /{document=**} {
       allow read, write: if isV3Admin();
     }
 
     // Public permissions for non-admins
-    
     match /newsletterSubscriptions/{subId} {
       allow create: if true;
-      // read/write handled by admin override
     }
 
     match /users/{userId} {

@@ -84,8 +84,8 @@ const NewsletterSubscribers = () => {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="font-bold uppercase text-[10px] tracking-widest">Email Address</TableHead>
-                                <TableHead className="font-bold uppercase text-[10px] tracking-widest text-right">Joined On</TableHead>
+                                <TableHead className="font-bold uppercase text-[10px] tracking-widest text-foreground">Email Address</TableHead>
+                                <TableHead className="font-bold uppercase text-[10px] tracking-widest text-right text-foreground">Joined On</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>

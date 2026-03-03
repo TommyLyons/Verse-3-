@@ -38,7 +38,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href={ICON_URL} />
+        <link rel="icon" type="image/jpeg" href={ICON_URL} />
         <link rel="apple-touch-icon" href={ICON_URL} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
