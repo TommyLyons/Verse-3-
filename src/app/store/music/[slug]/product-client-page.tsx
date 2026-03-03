@@ -165,7 +165,7 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
                             src={item.imageUrl || ''}
                             alt={item.name}
                             fill
-                            className="object-contain transition-transform duration-300 group-hover:scale-105"
+                            className="object-contain transition-transform duration-500 group-hover:scale-105"
                             sizes="(max-width: 640px) 100vw, 50vw"
                         />
                         </Link>
