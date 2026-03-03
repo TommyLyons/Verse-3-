@@ -405,13 +405,13 @@ export default function Home() {
                     Join For Pre Releases, Discounts, News & More
                 </p>
                 <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2 w-full max-w-md">
-                    <Input 
+                    <input 
                         type="email" 
                         placeholder="EMAIL ADDRESS" 
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="h-12 bg-white/30 border-black/20 text-black placeholder:text-black/40 font-bold rounded-none focus-visible:ring-black/20"
+                        className="h-12 bg-white/30 border-black/20 text-black placeholder:text-black/40 font-bold rounded-none focus-visible:ring-black/20 px-4 flex-grow outline-none"
                     />
                     <Button 
                         type="submit" 
