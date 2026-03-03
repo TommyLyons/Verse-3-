@@ -12,6 +12,11 @@ import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 
 // Helper function to get the secret from Google Secret Manager
 async function getPrintfulApiKey(): Promise<string | null> {
+    // During build or local dev, prioritize env var to avoid Secret Manager permission warnings
+    if (process.env.PRINTFUL_API_KEY) {
+        return process.env.PRINTFUL_API_KEY;
+    }
+
     const secretName = 'projects/studio-6967403383-a8bb0/secrets/PRINTFUL_API_KEY/versions/latest';
 
     try {
@@ -26,8 +31,11 @@ async function getPrintfulApiKey(): Promise<string | null> {
         }
         return null;
     } catch (error) {
-        console.warn(`Failed to access secret: ${secretName}. Falling back to env.`);
-        return process.env.PRINTFUL_API_KEY || null;
+        // Only log warning if not in build process to keep logs clean
+        if (process.env.NODE_ENV !== 'production') {
+            console.warn(`Failed to access secret: ${secretName}.`);
+        }
+        return null;
     }
 }
 
@@ -42,7 +50,8 @@ const getProductsFlow = ai.defineFlow(
     if (brand === 'Crude City') {
       const apiKey = await getPrintfulApiKey();
       if (!apiKey) {
-        throw new Error('Printful API key is not available.');
+        // Fallback or return empty if no key
+        return [];
       }
 
       const headers = {
@@ -97,14 +106,12 @@ const getProductsFlow = ai.defineFlow(
                     sizes: sizes.length > 0 ? sizes : undefined,
                 };
             } catch (err) {
-                console.error(`Failed to fetch details for product ${item.id}`, err);
                 return null;
             }
         }));
 
         return detailedProducts.filter((p): p is Product => p !== null);
       } catch (err) {
-        console.error("Printful fetch failed", err);
         return [];
       }
     }
