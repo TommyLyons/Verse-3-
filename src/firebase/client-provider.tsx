@@ -13,22 +13,20 @@ export function FirebaseClientProvider({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     const initializedSdks = getSdks();
     setSdks(initializedSdks);
+    setMounted(true);
   }, []);
 
-  // Use a consistent structure during initialization to prevent hydration mismatches
+  // Simple loading state to prevent hydration mismatches
   if (!mounted) {
     return (
-        <div className="relative flex min-h-dvh flex-col bg-background text-foreground">
-            <div className="flex-1 flex items-center justify-center bg-black">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-chart-1 border-t-transparent"></div>
-                    <p className="font-headline text-xl tracking-widest uppercase italic text-white">Initializing Verse3</p>
-                </div>
-            </div>
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-chart-1 border-t-transparent"></div>
+          <p className="font-headline text-xl tracking-widest uppercase italic text-white">Initializing Verse3</p>
         </div>
+      </div>
     );
   }
 

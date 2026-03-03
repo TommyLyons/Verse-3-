@@ -53,6 +53,7 @@ const getProductsFlow = ai.defineFlow(
 
         const matchingStores = allStores.filter((store: any) => {
             const name = store.name.toLowerCase();
+            // Broader V3 detection to capture all variations
             const isV3 = name.includes('v3') || name.includes('verse') || name.includes('three') || (name.includes('records') && !name.includes('crude'));
             const isCrude = name.includes('crude');
             
@@ -69,12 +70,13 @@ const getProductsFlow = ai.defineFlow(
             const storeId = store.id;
             const storeNameUpper = store.name.toUpperCase();
             
-            // Refined Region Detection
+            // Comprehensive Region Detection
             const isUKStore = storeNameUpper.includes('UK') || 
                             storeNameUpper.includes('UNITED KINGDOM') ||
                             storeNameUpper.includes('GBP') ||
                             storeNameUpper.includes('BRITAIN') ||
-                            storeNameUpper.includes('LONDON');
+                            storeNameUpper.includes('LONDON') ||
+                            storeNameUpper.includes('NORTHAMPTON');
 
             const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
             if (!productsResponse.ok) continue;
@@ -107,9 +109,10 @@ const getProductsFlow = ai.defineFlow(
                     
                     let retailPrice = 0;
                     if (syncVariants && syncVariants.length > 0) {
-                        // Extract retail prices. We use the maximum variant price to capture the primary item's value (e.g. €75 for backpack)
+                        // Priority variant selection to get the correct retail price
                         const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter((p: number) => !isNaN(p) && p > 0);
                         if (prices.length > 0) {
+                            // Using Math.max to capture the intended retail value (avoiding samples/accessories)
                             retailPrice = Math.max(...prices);
                         }
                     }
@@ -145,7 +148,7 @@ const getProductsFlow = ai.defineFlow(
             allDetailedProducts.push(...detailedProducts.filter((p): p is Product => p !== null));
         }
 
-        // Consistent alphabetical sorting
+        // Enforce consistent alphabetical sorting for all regions
         return allDetailedProducts.sort((a, b) => a.name.localeCompare(b.name));
     } catch (err) {
         return [];
