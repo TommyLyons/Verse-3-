@@ -20,7 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -49,7 +49,7 @@ const NewsletterSubscribers = () => {
     const { data: subscribers, isLoading, error } = useCollection(subscribersQuery);
 
     if (isLoading) {
-        return <Skeleton className="h-64 w-full" />
+        return <Skeleton className="h-64 w-full" />;
     }
 
     if (error) {
@@ -61,7 +61,7 @@ const NewsletterSubscribers = () => {
                     {error.message || "You do not have permission to view the subscriber list."}
                 </AlertDescription>
             </Alert>
-        )
+        );
     }
 
     return (
@@ -103,8 +103,8 @@ const NewsletterSubscribers = () => {
                 )}
             </CardContent>
         </Card>
-    )
-}
+    );
+};
 
 const MusicSubmissions = () => {
     const firestore = useFirestore();
@@ -115,7 +115,7 @@ const MusicSubmissions = () => {
     const { data: submissions, isLoading, error } = useCollection(submissionsQuery);
 
     if (isLoading) {
-        return <Skeleton className="h-64 w-full" />
+        return <Skeleton className="h-64 w-full" />;
     }
 
     if (error) {
@@ -127,7 +127,7 @@ const MusicSubmissions = () => {
                     There was a problem fetching the music submissions.
                 </AlertDescription>
             </Alert>
-        )
+        );
     }
 
     return (
@@ -183,8 +183,8 @@ const MusicSubmissions = () => {
                 )}
             </CardContent>
         </Card>
-    )
-}
+    );
+};
 
 const productFormSchema = z.object({
   name: z.string().min(3, "Product name must be at least 3 characters."),
@@ -200,7 +200,6 @@ const productFormSchema = z.object({
   sizes: z.string().optional(),
 });
 type ProductFormValues = z.infer<typeof productFormSchema>;
-
 
 const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
     const { toast } = useToast();
@@ -383,8 +382,8 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                 </Button>
             </form>
          </Form>
-    )
-}
+    );
+};
 
 const ProductManagement = () => {
     const firestore = useFirestore();
@@ -448,7 +447,6 @@ const ProductManagement = () => {
     );
 };
 
-
 const SalesDashboard = () => {
     return (
         <Card>
@@ -466,8 +464,8 @@ const SalesDashboard = () => {
                 </div>
             </CardContent>
         </Card>
-    )
-}
+    );
+};
 
 export default function AdminPage() {
     const { user, isUserLoading } = useUser();
@@ -486,7 +484,7 @@ export default function AdminPage() {
             <div className="container py-12 md:py-24 text-center">
                 <p>Checking administrative credentials...</p>
             </div>
-        )
+        );
     }
 
     return (
