@@ -154,13 +154,11 @@ function StoreContent() {
   };
 
   const verse3Merch = useMemo(() => {
-    const filtered = allProducts.filter(p => 
+    return allProducts.filter(p => 
       p.type === 'merch' && 
       p.brand === 'Verse 3 Merch' && 
       (!p.availableRegions || p.availableRegions.includes(region))
-    );
-    // Sort alphabetically to ensure UK and EU grids match exactly
-    return filtered.sort((a, b) => a.name.localeCompare(b.name));
+    ).sort((a, b) => a.name.localeCompare(b.name));
   }, [allProducts, region]);
 
   const physicalMusic = useMemo(() => 

@@ -86,9 +86,12 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   );
 };
 
+/**
+ * Defensive hook for accessing Firebase context.
+ * Returns a stable fallback state instead of throwing to prevent hydration crashes or SSR failures.
+ */
 export function useFirebaseContext() {
     const context = useContext(FirebaseContext);
-    // Return a stable fallback instead of throwing an error to prevent hydration crashes or SSR failures.
     if (context === undefined) {
         return {
             firebaseApp: null,
