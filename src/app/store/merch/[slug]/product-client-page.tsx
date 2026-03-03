@@ -78,7 +78,7 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
         });
         return;
     }
-    // "Buy Now" provides an instant checkout experience for this item only
+    // Instant direct checkout flow
     clearCart();
     addToCart(product, quantity, selectedSize);
     router.push('/checkout');
