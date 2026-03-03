@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
@@ -19,10 +20,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
+  Form,
   FormControl,
   FormField,
   FormItem,
@@ -243,7 +245,7 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
     };
 
     return (
-         <FormProvider {...form}>
+         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField control={form.control} name="name" render={({ field }) => (
                     <FormItem><FormLabel>Product Name</FormLabel><FormControl><Input placeholder="e.g., Hoodie" {...field} /></FormControl><FormMessage /></FormItem>
@@ -300,7 +302,7 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                    {isSubmitting ? 'Adding...' : 'Add Product'}
                 </Button>
             </form>
-         </FormProvider>
+         </Form>
     );
 };
 

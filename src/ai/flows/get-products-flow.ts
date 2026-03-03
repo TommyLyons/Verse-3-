@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A flow for fetching product information from multiple Printful stores with accurate retail pricing.
@@ -10,7 +11,6 @@ import {z} from 'genkit';
 import { ProductSchema, type Product } from '@/lib/schemas';
 import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 
-// Helper function to get the secret from Google Secret Manager
 async function getPrintfulApiKey(): Promise<string | null> {
     if (process.env.PRINTFUL_API_KEY) {
         return process.env.PRINTFUL_API_KEY;
@@ -30,7 +30,6 @@ async function getPrintfulApiKey(): Promise<string | null> {
         }
         return null;
     } catch (error) {
-        // Silently fail during build if Secret Manager is not accessible
         return null;
     }
 }
@@ -89,17 +88,16 @@ const getProductsFlow = ai.defineFlow(
                         ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
                         : [];
                     
-                    // Improved retail price logic:
-                    // We take the price of the first variant as the primary retail price.
-                    // This avoids picking up lower-priced 'sample' variants or accessories.
                     let retailPrice = 0;
                     let currencyCode = region === 'UK' ? 'GBP' : 'EUR';
 
                     if (syncVariants && syncVariants.length > 0) {
-                        // Priority: use the first variant's price
-                        const primaryVariant = syncVariants[0];
-                        retailPrice = parseFloat(primaryVariant.retail_price);
-                        currencyCode = primaryVariant.currency || currencyCode;
+                        // Find the highest retail price among variants to avoid "sample" prices
+                        const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter((p: number) => !isNaN(p));
+                        if (prices.length > 0) {
+                            retailPrice = Math.max(...prices);
+                        }
+                        currencyCode = syncVariants[0].currency || currencyCode;
                     }
 
                     const currencySymbol = currencyCode === 'GBP' ? '£' : '€';
