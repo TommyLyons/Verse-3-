@@ -1,3 +1,4 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -11,7 +12,6 @@ service cloud.firestore {
     }
     
     // Global admin override: Admin can do anything
-    // This explicitly grants list/get/create/update/delete across all collections
     match /{document=**} {
       allow read, write: if isV3Admin();
     }

@@ -1,3 +1,4 @@
+
 import type { Metadata, Viewport } from 'next';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
@@ -40,6 +41,7 @@ export default function RootLayout({
       <head>
         <link rel="icon" type="image/jpeg" href={ICON_URL} />
         <link rel="apple-touch-icon" href={ICON_URL} />
+        <link rel="shortcut icon" href={ICON_URL} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
