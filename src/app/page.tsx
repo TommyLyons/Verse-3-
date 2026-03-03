@@ -210,12 +210,12 @@ export default function Home() {
           </div>
        </section>
 
-       {/* Featured Merch Carousel - Specifically EU V3 Store */}
+       {/* Featured Merch Carousel */}
        <section className="py-16 md:py-24 bg-white">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
-                    <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl uppercase tracking-wider">Featured Merch (EU)</h2>
-                    <p className="mt-2 text-muted-foreground">Premium gear from the V3 EU Collection.</p>
+                    <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl uppercase tracking-wider">Featured Merch</h2>
+                    <p className="mt-2 text-muted-foreground">Premium gear from the V3 collection.</p>
                 </div>
                 
                 {isLoading ? (
@@ -224,7 +224,7 @@ export default function Home() {
                     </div>
                 ) : merchProducts.length === 0 ? (
                     <div className="text-center py-12 border-2 border-dashed rounded-lg">
-                        <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">Syncing EU collection...</p>
+                        <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">Syncing collection...</p>
                     </div>
                 ) : (
                     <div className="relative">
