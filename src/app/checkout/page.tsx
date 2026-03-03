@@ -1,7 +1,6 @@
-
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -22,8 +21,7 @@ import {
 } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { BackButton } from '@/components/ui/back-button';
-import { CreditCard, ShieldCheck, ShoppingBag, RefreshCcw } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { CreditCard, ShieldCheck, ShoppingBag, RefreshCcw, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 import { fetchClientSecret } from '@/app/actions/checkout';
 import { loadStripe } from '@stripe/stripe-js';
@@ -32,6 +30,7 @@ import {
   EmbeddedCheckout
 } from '@stripe/react-stripe-js';
 
+// Your Stripe Publishable Key
 const STRIPE_PUBLISHABLE_KEY = "pk_live_51T6sTyB9Rp46v45XkIzRrWnjQQMZXFzErkzoeTK2h8VOGT7uP0PmfTBrVnRFPwQ5vFaQqrdLXJcuXpKhO29Zl8Iq004hGYRp53";
 const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY);
 
@@ -113,6 +112,7 @@ export default function CheckoutPage() {
     }
   };
 
+  // Wrapped in useCallback for the EmbeddedCheckoutProvider
   const getClientSecret = useCallback(() => {
     return fetchClientSecret(cart);
   }, [cart]);
@@ -120,21 +120,23 @@ export default function CheckoutPage() {
   if (showStripe) {
     return (
       <div className="container py-12 md:py-24 max-w-4xl mx-auto">
-        <Button variant="ghost" onClick={() => setShowStripe(false)} className="mb-8">
-           &larr; Back to details
+        <Button variant="ghost" onClick={() => setShowStripe(false)} className="mb-8 font-headline uppercase italic">
+           <ArrowLeft className="mr-2 h-4 w-4" /> Back to details
         </Button>
-        <Card className="border-none shadow-xl bg-white overflow-hidden">
+        <Card className="border-none shadow-2xl bg-white overflow-hidden rounded-none">
           <CardHeader className="bg-black text-white p-8">
-            <CardTitle className="font-headline text-3xl italic uppercase tracking-wider">Secure Payment</CardTitle>
-            <CardDescription className="text-white/60">Complete your order via Stripe</CardDescription>
+            <CardTitle className="font-headline text-3xl italic uppercase tracking-wider text-chart-1">Secure Checkout</CardTitle>
+            <CardDescription className="text-white/60 font-bold uppercase tracking-widest text-[10px]">Powering your payments with Stripe</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <EmbeddedCheckoutProvider
-              stripe={stripePromise}
-              options={{ fetchClientSecret: getClientSecret }}
-            >
-              <EmbeddedCheckout />
-            </EmbeddedCheckoutProvider>
+            <div className="min-h-[400px]">
+              <EmbeddedCheckoutProvider
+                stripe={stripePromise}
+                options={{ fetchClientSecret: getClientSecret }}
+              >
+                <EmbeddedCheckout />
+              </EmbeddedCheckoutProvider>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -149,9 +151,9 @@ export default function CheckoutPage() {
             <Card className="border-none shadow-none bg-transparent">
                 <CardHeader className="px-0">
                     <CardTitle className="text-4xl md:text-5xl font-headline text-primary uppercase italic tracking-tighter">Secure <span className="text-chart-1">Checkout</span></CardTitle>
-                    <CardDescription className="flex items-center gap-2 font-medium">
+                    <CardDescription className="flex items-center gap-2 font-bold uppercase tracking-widest text-xs">
                         <ShieldCheck className="h-4 w-4 text-chart-1" />
-                        Payments processed securely via Stripe.
+                        Enter your shipping details
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="px-0 pt-6">
@@ -163,9 +165,9 @@ export default function CheckoutPage() {
                             name="name"
                             render={({ field }) => (
                                 <FormItem>
-                                <FormLabel className="uppercase tracking-widest text-xs font-bold">Full Name</FormLabel>
+                                <FormLabel className="uppercase tracking-widest text-[10px] font-bold">Full Name</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="John Doe" className="h-12 border-2 rounded-none" {...field} />
+                                    <Input placeholder="John Doe" className="h-12 border-2 rounded-none border-black/10 focus-visible:ring-black" {...field} />
                                 </FormControl>
                                 <FormMessage />
                                 </FormItem>
@@ -176,9 +178,9 @@ export default function CheckoutPage() {
                             name="email"
                             render={({ field }) => (
                                 <FormItem>
-                                <FormLabel className="uppercase tracking-widest text-xs font-bold">Email Address</FormLabel>
+                                <FormLabel className="uppercase tracking-widest text-[10px] font-bold">Email Address</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="john@example.com" className="h-12 border-2 rounded-none" {...field} />
+                                    <Input placeholder="john@example.com" className="h-12 border-2 rounded-none border-black/10 focus-visible:ring-black" {...field} />
                                 </FormControl>
                                 <FormMessage />
                                 </FormItem>
@@ -190,9 +192,9 @@ export default function CheckoutPage() {
                         name="phone"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel className="uppercase tracking-widest text-xs font-bold">Phone Number</FormLabel>
+                            <FormLabel className="uppercase tracking-widest text-[10px] font-bold">Phone Number</FormLabel>
                             <FormControl>
-                                <Input placeholder="+44..." className="h-12 border-2 rounded-none" {...field} />
+                                <Input placeholder="+44..." className="h-12 border-2 rounded-none border-black/10 focus-visible:ring-black" {...field} />
                             </FormControl>
                             <FormMessage />
                             </FormItem>
@@ -203,11 +205,11 @@ export default function CheckoutPage() {
                         name="address"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel className="uppercase tracking-widest text-xs font-bold">Shipping Address</FormLabel>
+                            <FormLabel className="uppercase tracking-widest text-[10px] font-bold">Shipping Address</FormLabel>
                             <FormControl>
                                 <Textarea
                                 placeholder="Full address including postal code"
-                                className="min-h-[120px] border-2 rounded-none resize-none"
+                                className="min-h-[120px] border-2 rounded-none border-black/10 focus-visible:ring-black resize-none"
                                 {...field}
                                 />
                             </FormControl>
@@ -220,11 +222,11 @@ export default function CheckoutPage() {
                         {isSubmitting ? (
                           <div className="flex items-center gap-2">
                             <RefreshCcw className="h-5 w-5 animate-spin" />
-                            Processing...
+                            Initializing...
                           </div>
                         ) : (
                           <>
-                            Checkout {currencySymbol}{total.toFixed(2)}
+                            Proceed to Payment
                             <CreditCard className="ml-3 h-6 w-6" />
                           </>
                         )}
@@ -265,7 +267,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between text-muted-foreground font-bold uppercase text-xs">
                     <span>Shipping</span>
-                    <span>Calculated Next</span>
+                    <span>Calculated at checkout</span>
                 </div>
                 <div className="flex justify-between font-headline text-3xl italic uppercase pt-2">
                     <span>Total</span>

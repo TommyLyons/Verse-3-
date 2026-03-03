@@ -1,4 +1,3 @@
-
 'use server';
 
 import { headers } from 'next/headers';
@@ -6,16 +5,17 @@ import { stripe } from '@/lib/stripe';
 
 /**
  * Creates a Stripe Checkout Session with Embedded UI mode.
- * Returns the client secret used by the client-side EmbeddedCheckoutProvider.
+ * This function is called by the client-side EmbeddedCheckoutProvider.
  */
 export async function fetchClientSecret(cart: any[]) {
   const origin = (await headers()).get('origin');
 
   if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error("Payment gateway configuration error. Please ensure STRIPE_SECRET_KEY is set.");
+    throw new Error("Payment gateway configuration error. Please ensure STRIPE_SECRET_KEY is set in App Hosting Secrets.");
   }
 
   try {
+    // Dynamically create line items from the cart
     const line_items = cart.map((item: any) => {
       // Extract numeric price from string like "£39" or "€75.00"
       const priceStr = item.price.replace(/[^0-9.]/g, '');
