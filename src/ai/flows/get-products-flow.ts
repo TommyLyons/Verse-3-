@@ -87,21 +87,20 @@ const getProductsFlow = ai.defineFlow(
                         ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
                         : [];
                     
-                    // Prioritize getting the actual retail price.
+                    // Prioritize getting the actual retail price set on Printful.
                     let retailPrice = 0;
                     let currencyCode = region === 'UK' ? 'GBP' : 'EUR';
 
                     if (syncVariants && syncVariants.length > 0) {
+                        // Use the highest retail price among variants to ensure the correct primary price is shown.
                         const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter((p: number) => !isNaN(p));
                         if (prices.length > 0) {
-                            // Use the maximum price found to ensure items like backpacks show their proper €75 price
-                            // rather than a lower price from a potential accessory variant.
                             retailPrice = Math.max(...prices);
                         }
                         currencyCode = syncVariants[0].currency || currencyCode;
                     }
 
-                    const currencySymbol = currencyCode === 'GBP' ? '£' : '€';
+                    const currencySymbol = currencyCode === 'GBP' ? '£' : (currencyCode === 'EUR' ? '€' : '$');
                     const formattedPrice = retailPrice === 0 ? 'N/A' : `${currencySymbol}${retailPrice.toFixed(2)}`;
                     const slug = syncProduct.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 

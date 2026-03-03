@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
@@ -9,42 +8,34 @@ import { FirebaseErrorListener } from '@/components/FirebaseErrorListener'
 
 interface FirebaseProviderProps {
   children: ReactNode;
-  firebaseApp: FirebaseApp;
-  firestore: Firestore;
-  auth: Auth;
+  firebaseApp: FirebaseApp | null;
+  firestore: Firestore | null;
+  auth: Auth | null;
 }
 
-// Internal state for user authentication
 interface UserAuthState {
   user: User | null;
   isUserLoading: boolean;
   userError: Error | null;
 }
 
-// Combined state for the Firebase context
 export interface FirebaseContextState {
-  firebaseApp: FirebaseApp;
-  firestore: Firestore;
-  auth: Auth; // The Auth service instance
-  // User authentication state
+  firebaseApp: FirebaseApp | null;
+  firestore: Firestore | null;
+  auth: Auth | null;
   user: User | null;
-  isUserLoading: boolean; // True during initial auth check
-  userError: Error | null; // Error from auth listener
+  isUserLoading: boolean;
+  userError: Error | null;
 }
 
-// Return type for useUser() - specific to user auth state
 export interface UserHookResult { 
   user: User | null;
   isUserLoading: boolean;
   userError: Error | null;
 }
 
-// React Context
 export const FirebaseContext = createContext<FirebaseContextState | undefined>(undefined);
 
-/**
- * FirebaseProvider manages and provides Firebase services and user authentication state.
- */
 export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   children,
   firebaseApp,
@@ -53,33 +44,39 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 }) => {
   const [userAuthState, setUserAuthState] = useState<UserAuthState>({
     user: null,
-    isUserLoading: true, // Start loading until first auth event
+    isUserLoading: !!auth, // Only consider loading if auth instance exists (client-side)
     userError: null,
   });
 
-  // Effect to subscribe to Firebase auth state changes
   useEffect(() => {
-    setUserAuthState({ user: null, isUserLoading: true, userError: null }); // Reset on auth instance change
+    if (!auth) {
+      setUserAuthState({ user: null, isUserLoading: false, userError: null });
+      return;
+    }
 
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (firebaseUser) => { // Auth state determined
-        setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null });
-      },
-      (error) => { // Auth listener error
-        console.error("FirebaseProvider: onAuthStateChanged error:", error);
-        setUserAuthState({ user: null, isUserLoading: false, userError: error });
-      }
-    );
-    return () => unsubscribe(); // Cleanup
-  }, [auth]); // Depends on the auth instance
+    const unsubscribe = onSnapshotAuth();
+    
+    function onSnapshotAuth() {
+        return onAuthStateChanged(
+          auth!,
+          (firebaseUser) => {
+            setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null });
+          },
+          (error) => {
+            console.error("FirebaseProvider: onAuthStateChanged error:", error);
+            setUserAuthState({ user: null, isUserLoading: false, userError: error });
+          }
+        );
+    }
 
-  // Memoize the context value
+    return () => unsubscribe();
+  }, [auth]);
+
   const contextValue = useMemo((): FirebaseContextState => {
     return {
-      firebaseApp: firebaseApp,
-      firestore: firestore,
-      auth: auth,
+      firebaseApp,
+      firestore,
+      auth,
       user: userAuthState.user,
       isUserLoading: userAuthState.isUserLoading,
       userError: userAuthState.userError,
@@ -94,7 +91,6 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   );
 };
 
-// Hook to access the entire Firebase context state.
 function useFirebaseContext() {
     const context = useContext(FirebaseContext);
     if (context === undefined) {
@@ -103,27 +99,18 @@ function useFirebaseContext() {
     return context;
 }
 
-
-/** Hook to access Firebase Auth instance. */
-export const useAuth = (): Auth => {
+export const useAuth = (): Auth | null => {
   return useFirebaseContext().auth;
 };
 
-/** Hook to access Firestore instance. */
-export const useFirestore = (): Firestore => {
+export const useFirestore = (): Firestore | null => {
   return useFirebaseContext().firestore;
 };
 
-/** Hook to access Firebase App instance. */
-export const useFirebaseApp = (): FirebaseApp => {
+export const useFirebaseApp = (): FirebaseApp | null => {
   return useFirebaseContext().firebaseApp;
 };
 
-/**
- * Hook specifically for accessing the authenticated user's state.
- * This provides the User object, loading status, and any auth errors.
- * @returns {UserHookResult} Object with user, isUserLoading, userError.
- */
 export const useUser = (): UserHookResult => {
   const { user, isUserLoading, userError } = useFirebaseContext(); 
   return { user, isUserLoading, userError };

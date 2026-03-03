@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState, useEffect, type ReactNode } from 'react';
+import React, { type ReactNode } from 'react';
 import { FirebaseProvider } from '@/firebase/provider';
 import { getSdks } from '@/firebase/init';
 
@@ -9,19 +9,10 @@ interface FirebaseClientProviderProps {
 }
 
 export function FirebaseClientProvider({ children }: FirebaseClientProviderProps) {
-  const [mounted, setMounted] = useState(false);
-  const sdks = useMemo(() => getSdks(), []);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // To prevent hydration mismatch, we ensure the initial render on the client
-  // matches the server's empty output. We only render the provider
-  // after the component has mounted on the client.
-  if (!mounted || !sdks.firebaseApp || !sdks.auth || !sdks.firestore) {
-    return null;
-  }
+  // getSdks returns initialized SDKs on the client, and null placeholders on the server.
+  // This ensures the FirebaseProvider is always present in the component tree,
+  // preventing "useFirebaseContext must be used within a FirebaseProvider" errors during SSR.
+  const sdks = getSdks();
 
   return (
     <FirebaseProvider
