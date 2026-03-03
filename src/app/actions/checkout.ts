@@ -4,7 +4,7 @@ import Stripe from 'stripe';
 import { headers } from 'next/headers';
 
 // Initialize Stripe with the Secret Key from environment variables
-// Note: You must add STRIPE_SECRET_KEY to your .env or Firebase App Hosting secrets
+// This is securely mapped from App Hosting Secrets
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-01-27.acacia',
 });
@@ -15,11 +15,12 @@ export async function createCheckoutSession(formData: { cart: any[]; customerDet
 
   if (!process.env.STRIPE_SECRET_KEY) {
     console.error("STRIPE_SECRET_KEY is missing from environment variables.");
-    throw new Error("Payment gateway configuration error.");
+    throw new Error("Payment gateway configuration error. Please ensure STRIPE_SECRET_KEY is set in App Hosting secrets.");
   }
 
   try {
     const line_items = cart.map((item: any) => {
+      // Extract numeric price from string like "£39" or "€75.00"
       const priceStr = item.price.replace(/[^0-9.]/g, '');
       const amount = Math.round(parseFloat(priceStr) * 100);
       const currency = item.price.includes('£') ? 'gbp' : 'eur';
