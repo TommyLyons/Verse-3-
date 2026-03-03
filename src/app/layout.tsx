@@ -38,7 +38,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" type="image/jpeg" href={ICON_URL} />
+        {/* Force favicon updates with a direct link and type */}
+        <link rel="icon" type="image/jpeg" href={`${ICON_URL}&v=1`} />
         <link rel="apple-touch-icon" href={ICON_URL} />
         <link rel="shortcut icon" href={ICON_URL} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

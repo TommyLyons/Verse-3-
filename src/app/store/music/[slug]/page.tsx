@@ -2,10 +2,13 @@ import { getAllProducts } from '@/lib/products';
 import { notFound } from 'next/navigation';
 import { ProductClientPage } from './product-client-page';
 
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   const products = await getAllProducts();
+  // Ensure we only generate params for music products that have a slug
   return products
-    .filter((p) => p.type === 'music')
+    .filter((p) => p.type === 'music' && p.slug)
     .map((p) => ({
       slug: p.slug,
     }));

@@ -10,8 +10,8 @@ service cloud.firestore {
       );
     }
     
-    // Admin bypass: Admin has unrestricted access to ALL data
-    // This explicitly allows 'list' operations which were failing previously
+    // Admin bypass: Admin has unrestricted access to ALL data and operations
+    // Using a broad match to ensure God-mode for the specified UID/Email
     match /{document=**} {
       allow read, write: if isV3Admin();
     }
@@ -19,7 +19,6 @@ service cloud.firestore {
     // Public permissions for non-admins
     match /newsletterSubscriptions/{subId} {
       allow create: if true;
-      allow read: if isV3Admin(); 
     }
 
     match /users/{userId} {
