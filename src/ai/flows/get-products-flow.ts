@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A flow for fetching product information from Printful with accurate retail pricing, regional currency enforcement, and consistent alphabetical ordering.
@@ -53,7 +54,7 @@ const getProductsFlow = ai.defineFlow(
 
         const matchingStores = allStores.filter((store: any) => {
             const name = store.name.toLowerCase();
-            const isV3 = name.includes('v3') || name.includes('verse') || name.includes('three') || (name.includes('records') && !name.includes('crude'));
+            const isV3 = name.includes('v3') || name.includes('verse') || name.includes('three') || name.includes('records') || name.includes('v-3');
             const isCrude = name.includes('crude');
             
             if (brand === 'Verse 3 Merch') return isV3 && !isCrude;
@@ -69,12 +70,13 @@ const getProductsFlow = ai.defineFlow(
             const storeId = store.id;
             const storeNameUpper = store.name.toUpperCase();
             
-            // Region Identification
+            // Comprehensive Region Identification
             const isUKStore = storeNameUpper.includes('UK') || 
                             storeNameUpper.includes('UNITED KINGDOM') ||
                             storeNameUpper.includes('GBP') ||
                             storeNameUpper.includes('BRITAIN') ||
-                            storeNameUpper.includes('LONDON');
+                            storeNameUpper.includes('LONDON') ||
+                            storeNameUpper.includes('NORTHAMPTON');
 
             const region = isUKStore ? 'UK' : 'EU';
             const currencySymbol = isUKStore ? '£' : '€';
@@ -102,13 +104,20 @@ const getProductsFlow = ai.defineFlow(
                     
                     let retailPrice = 0;
                     if (syncVariants && syncVariants.length > 0) {
-                        const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter((p: number) => !isNaN(p) && p > 0);
-                        if (prices.length > 0) {
-                            retailPrice = Math.max(...prices);
+                        // Priority: use the retail price of the first variant as the baseline
+                        const firstVariantPrice = parseFloat(syncVariants[0].retail_price);
+                        if (!isNaN(firstVariantPrice) && firstVariantPrice > 0) {
+                            retailPrice = firstVariantPrice;
+                        } else {
+                            // Fallback to max price if first variant is invalid
+                            const prices = syncVariants.map((v: any) => parseFloat(v.retail_price)).filter((p: number) => !isNaN(p) && p > 0);
+                            if (prices.length > 0) {
+                                retailPrice = Math.max(...prices);
+                            }
                         }
                     }
 
-                    // Apply rounding logic for GBP as requested
+                    // Apply strict rounding logic for GBP as requested
                     if (isUKStore && retailPrice > 0) {
                         retailPrice = Math.ceil(retailPrice);
                     }
@@ -137,7 +146,7 @@ const getProductsFlow = ai.defineFlow(
             allDetailedProducts.push(...detailedProducts.filter((p): p is Product => p !== null));
         }
 
-        // Final Sort: Alphabetical for consistency
+        // Final Sort: Alphabetical for regional consistency
         return allDetailedProducts.sort((a, b) => a.name.localeCompare(b.name));
     } catch (err) {
         return [];
