@@ -3,6 +3,7 @@
 /**
  * @fileOverview A flow for fetching product information from Printful with accurate retail pricing, shipping integration, and regional currency enforcement.
  * Shipping costs are incorporated into the retail price (£5/€6 buffer) for a "Free Shipping" model.
+ * Prices are rounded to the nearest multiple of 5 (e.g., 64 -> 65, 61 -> 60).
  */
 
 import {ai} from '@/ai/genkit';
@@ -112,10 +113,9 @@ const getProductsFlow = ai.defineFlow(
                     }
 
                     if (retailPrice > 0) {
+                        // Apply shipping buffer before rounding
                         retailPrice += shippingBuffer;
-                    }
-
-                    if (retailPrice > 0) {
+                        // Round to nearest multiple of 5 as requested (e.g., 64 -> 65, 61 -> 60)
                         retailPrice = Math.round(retailPrice / 5) * 5;
                     }
 
