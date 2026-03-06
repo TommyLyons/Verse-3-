@@ -44,9 +44,14 @@ export default function Home() {
 
     async function fetchProducts() {
         setIsLoading(true);
-        const products = await getAllProducts();
-        setAllProducts(products);
-        setIsLoading(false);
+        try {
+          const products = await getAllProducts();
+          setAllProducts(products);
+        } catch (err) {
+          console.error("Failed to fetch home products:", err);
+        } finally {
+          setIsLoading(false);
+        }
     }
     fetchProducts();
   }, []);
@@ -67,7 +72,8 @@ export default function Home() {
       setIsAgeGateOpen(true);
       return;
     }
-    router.push(`/store/${product.type}/${product.slug}`);
+    const targetPath = `/store/${product.type}/${product.slug}`;
+    router.push(targetPath);
   };
 
   const handleBrandClick = (brand: 'Verse 3' | 'Crude City') => {
@@ -127,10 +133,10 @@ export default function Home() {
           />
         </div>
         <div className="absolute bottom-12 z-10 flex gap-4 px-6 w-full max-w-sm mx-auto">
-          <Button asChild className="flex-1 bg-black text-chart-1 font-bold h-11 rounded-none uppercase italic tracking-wider shadow-lg">
+          <Button asChild className="flex-1 bg-black text-chart-1 font-bold h-11 rounded-none uppercase italic tracking-wider shadow-lg hover:bg-chart-1 hover:text-black transition-all">
             <Link href="/store">Shop Merch</Link>
           </Button>
-          <Button asChild className="flex-1 bg-black text-chart-1 font-bold h-11 rounded-none uppercase italic tracking-wider shadow-lg">
+          <Button asChild className="flex-1 bg-black text-chart-1 font-bold h-11 rounded-none uppercase italic tracking-wider shadow-lg hover:bg-chart-1 hover:text-black transition-all">
             <Link href="/music">Music</Link>
           </Button>
         </div>
@@ -147,7 +153,7 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image above Vibe Selector */}
+      {/* Impact Image precisely above Choice section */}
       {vibeHero && (
         <section className="w-full bg-black py-4">
           <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto">
@@ -197,7 +203,7 @@ export default function Home() {
                 
                 {isLoading ? (
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-                        {[...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full" />)}
+                        {[...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full rounded-none" />)}
                     </div>
                 ) : (
                     <div className="relative px-4 md:px-0">
@@ -246,7 +252,7 @@ export default function Home() {
 
                 {isLoading ? (
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-                        {[...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full" />)}
+                        {[...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full rounded-none" />)}
                     </div>
                 ) : (
                     <div className="relative px-4 md:px-0">
