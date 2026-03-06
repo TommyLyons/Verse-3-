@@ -18,6 +18,11 @@ export const ProductSchema = z.object({
   type: z.enum(['merch', 'music']),
   brand: z.enum(['Verse 3 Merch', 'Crude City']).optional(),
   digital: z.boolean().optional(),
+  isAlbum: z.boolean().optional(),
+  tracks: z.array(z.object({
+    title: z.string(),
+    audioUrl: z.string().url()
+  })).optional(),
   downloadUrl: z.string().url().optional(),
   availableRegions: z.array(z.enum(['UK', 'EU'])).optional(),
   sizes: z.array(z.string()).optional(),

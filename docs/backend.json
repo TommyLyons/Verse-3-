@@ -246,6 +246,20 @@
           "description": "The secure download URL for the purchased file in Firebase Storage.",
           "format": "uri"
         },
+        "imageUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "tracks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "downloadUrl": { "type": "string", "format": "uri" }
+            }
+          }
+        },
         "purchasedAt": {
           "type": "string",
           "description": "The timestamp when the product was purchased.",
@@ -255,7 +269,6 @@
       "required": [
         "productId",
         "productName",
-        "downloadUrl",
         "purchasedAt"
       ]
     },
@@ -300,6 +313,19 @@
         },
         "digital": {
           "type": "boolean"
+        },
+        "isAlbum": {
+          "type": "boolean"
+        },
+        "tracks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "audioUrl": { "type": "string", "format": "uri" }
+            }
+          }
         },
         "downloadUrl": {
           "type": "string",

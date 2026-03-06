@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
@@ -11,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BarChart, Terminal, FileAudio, FileImage, PlusCircle, Mail, Users, RefreshCcw, ExternalLink, Settings2, Package, Music, PieChart, UploadCloud, Disc } from 'lucide-react';
+import { BarChart, Terminal, FileAudio, FileImage, PlusCircle, Mail, Users, RefreshCcw, ExternalLink, Settings2, Package, Music, PieChart, UploadCloud, Disc, Trash2, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   Dialog,
@@ -20,7 +21,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -35,6 +36,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { getProducts } from '@/ai/flows/get-products-flow';
 import { type Product } from '@/lib/schemas';
@@ -185,6 +187,12 @@ const productFormSchema = z.object({
   slug: z.string().min(3, "Slug is required.").refine(s => !s.includes(' '), "Slug cannot contain spaces."),
   imageUrl: z.string().optional(),
   digital: z.boolean().optional(),
+  isAlbum: z.boolean().optional(),
+  tracks: z.array(z.object({
+      title: z.string().min(1, "Track title is required"),
+      audioFile: z.any().optional(),
+      audioUrl: z.string().optional()
+  })).optional(),
   downloadUrl: z.string().optional(),
   sizes: z.string().optional(),
   audioFile: z.any().optional(),
@@ -199,6 +207,7 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
     const storage = getStorage();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+    const [currentStep, setCurrentStep] = useState<string>('');
 
     const form = useForm<ProductFormValues>({
         resolver: zodResolver(productFormSchema),
@@ -211,12 +220,20 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
             slug: '',
             imageUrl: '',
             digital: initialType === 'music',
+            isAlbum: false,
             downloadUrl: '',
-            sizes: ''
+            sizes: '',
+            tracks: []
         },
     });
 
+    const { fields, append, remove } = useFieldArray({
+        control: form.control,
+        name: "tracks",
+    });
+
     const productType = form.watch('type');
+    const isAlbum = form.watch('isAlbum');
 
     const handleFileUpload = (file: File, path: string): Promise<string> => {
         return new Promise((resolve, reject) => {
@@ -249,19 +266,36 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
         try {
             let finalImageUrl = values.imageUrl || '';
             let finalDownloadUrl = values.downloadUrl || '';
+            const finalTracks: any[] = [];
 
-            // Handle Image Upload
+            // 1. Handle Image Upload
             if (values.imageFile && values.imageFile.length > 0) {
+                setCurrentStep('Uploading Product Image...');
                 const imgFile = values.imageFile[0] as File;
                 const imgPath = `products/images/${Date.now()}_${imgFile.name}`;
                 finalImageUrl = await handleFileUpload(imgFile, imgPath);
             }
 
-            // Handle Audio Upload for Music
-            if (values.type === 'music' && values.audioFile && values.audioFile.length > 0) {
+            // 2. Handle Audio Upload for Single
+            if (values.type === 'music' && !values.isAlbum && values.audioFile && values.audioFile.length > 0) {
+                setCurrentStep('Uploading Audio...');
                 const audFile = values.audioFile[0] as File;
                 const audPath = `products/audio/${Date.now()}_${audFile.name}`;
                 finalDownloadUrl = await handleFileUpload(audFile, audPath);
+            }
+
+            // 3. Handle Album Tracks Upload
+            if (values.type === 'music' && values.isAlbum && values.tracks) {
+                for (let i = 0; i < values.tracks.length; i++) {
+                    const track = values.tracks[i];
+                    if (track.audioFile && track.audioFile.length > 0) {
+                        setCurrentStep(`Uploading Track ${i + 1}: ${track.title}...`);
+                        const tFile = track.audioFile[0] as File;
+                        const tPath = `products/audio/${Date.now()}_${tFile.name}`;
+                        const tUrl = await handleFileUpload(tFile, tPath);
+                        finalTracks.push({ title: track.title, audioUrl: tUrl });
+                    }
+                }
             }
 
             const productsCollection = collection(firestore, 'products');
@@ -269,6 +303,7 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                 ...values, 
                 imageUrl: finalImageUrl,
                 downloadUrl: finalDownloadUrl,
+                tracks: finalTracks,
                 revolutLink: 'https://checkout.stripe.com/',
                 createdAt: serverTimestamp()
             };
@@ -276,6 +311,9 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
             // Clean up file objects from firestore data
             delete productData.audioFile;
             delete productData.imageFile;
+            if (productData.tracks) {
+                productData.tracks = productData.tracks.map((t: any) => ({ title: t.title, audioUrl: t.audioUrl }));
+            }
 
             if (productData.sizes && typeof productData.sizes === 'string') {
                 productData.sizes = productData.sizes.split(',').map((s: string) => s.trim().toUpperCase());
@@ -293,45 +331,29 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
         } finally {
             setIsSubmitting(false);
             setUploadProgress(null);
+            setCurrentStep('');
         }
     };
 
     return (
          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-h-[70vh] overflow-y-auto px-1 custom-scrollbar">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-h-[80vh] overflow-y-auto px-1 custom-scrollbar">
                 <FormField control={form.control} name="name" render={({ field }) => (
                     <FormItem>
-                        <FormLabel>{productType === 'music' ? 'Track Title' : 'Product Name'}</FormLabel>
+                        <FormLabel>{productType === 'music' ? (isAlbum ? 'Album Title' : 'Single Title') : 'Product Name'}</FormLabel>
                         <FormControl>
                             <Input placeholder={productType === 'music' ? "e.g., Quiet Steps" : "e.g., Hoodie"} {...field} />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
                 )} />
-                <FormField control={form.control} name="slug" render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>URL Slug (Unique)</FormLabel>
-                        <FormControl>
-                            <Input placeholder="e.g., quiet-steps" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )} />
-                <FormField control={form.control} name="description" render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Description</FormLabel>
-                        <FormControl>
-                            <Textarea {...field} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )} />
+                
                 <div className="grid grid-cols-2 gap-4">
-                    <FormField control={form.control} name="price" render={({ field }) => (
+                    <FormField control={form.control} name="slug" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Price</FormLabel>
+                            <FormLabel>URL Slug</FormLabel>
                             <FormControl>
-                                <Input placeholder="£2.00" {...field} />
+                                <Input placeholder="e.g., quiet-steps" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -353,6 +375,42 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                             <FormMessage />
                         </FormItem>
                     )} />
+                </div>
+
+                <FormField control={form.control} name="description" render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                            <Textarea {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )} />
+
+                <div className="grid grid-cols-2 gap-4">
+                    <FormField control={form.control} name="price" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Price</FormLabel>
+                            <FormControl>
+                                <Input placeholder="£2.00" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+                    
+                    {productType === 'music' && (
+                        <FormField control={form.control} name="isAlbum" render={({ field }) => (
+                            <FormItem className="flex flex-col justify-end space-y-2">
+                                <FormLabel className='text-xs font-bold uppercase'>Album/EP Mode</FormLabel>
+                                <FormControl>
+                                    <div className="flex items-center gap-2 h-10">
+                                        <Switch checked={field.value} onCheckedChange={field.onChange} />
+                                        <span className="text-xs font-medium">{field.value ? 'Album/EP' : 'Single Track'}</span>
+                                    </div>
+                                </FormControl>
+                            </FormItem>
+                        )} />
+                    )}
                 </div>
 
                 {productType === 'merch' && (
@@ -379,7 +437,7 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                         </FormItem>
                     )} />
 
-                    {productType === 'music' && (
+                    {productType === 'music' && !isAlbum && (
                         <FormField control={form.control} name="audioFile" render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Audio File (MP3/WAV)</FormLabel>
@@ -390,20 +448,56 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                             </FormItem>
                         ) } />
                     )}
+
+                    {productType === 'music' && isAlbum && (
+                        <div className="space-y-4">
+                            <FormLabel className="flex justify-between items-center">
+                                Tracklist
+                                <Button type="button" variant="outline" size="sm" onClick={() => append({ title: '', audioFile: null })}>
+                                    <Plus className="mr-2 h-3 w-3" /> Add Track
+                                </Button>
+                            </FormLabel>
+                            {fields.map((field, index) => (
+                                <div key={field.id} className="p-4 border bg-black/5 rounded space-y-3 relative">
+                                    <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2 text-destructive" onClick={() => remove(index)}>
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                    <FormField control={form.control} name={`tracks.${index}.title`} render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-xs">Track {index + 1} Title</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g., Intro" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )} />
+                                    <FormField control={form.control} name={`tracks.${index}.audioFile`} render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-xs">Audio File</FormLabel>
+                                            <FormControl>
+                                                <Input type="file" accept="audio/*" onChange={(e) => field.onChange(e.target.files)} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )} />
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {isSubmitting && uploadProgress !== null && (
-                    <div className='space-y-2 py-2'>
-                        <div className="flex justify-between text-xs font-bold uppercase italic">
-                            <span>Uploading Content...</span>
+                    <div className='space-y-2 py-4 sticky bottom-0 bg-white border-t'>
+                        <div className="flex justify-between text-[10px] font-bold uppercase italic text-chart-1">
+                            <span>{currentStep}</span>
                             <span>{Math.round(uploadProgress)}%</span>
                         </div>
-                        <Progress value={uploadProgress} className="h-2" />
+                        <Progress value={uploadProgress} className="h-1" />
                     </div>
                 )}
 
                 <Button type="submit" disabled={isSubmitting} className="w-full h-12 bg-black text-chart-1 font-bold">
-                   {isSubmitting ? 'Processing...' : (productType === 'music' ? 'Upload Track' : 'Add Item')}
+                   {isSubmitting ? 'Processing Library...' : (productType === 'music' ? (isAlbum ? 'Publish Album' : 'Upload Track') : 'Add Item')}
                    {!isSubmitting && <UploadCloud className="ml-2 h-4 w-4" />}
                 </Button>
             </form>
@@ -490,7 +584,7 @@ const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoadi
                     <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
                         <DialogTrigger asChild>
                             <Button size="sm" className="bg-chart-1 text-black hover:bg-black hover:text-chart-1">
-                                <Disc className="mr-2 h-4 w-4" /> Upload New Track
+                                <Disc className="mr-2 h-4 w-4" /> Upload New Music
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-xl">
@@ -508,24 +602,33 @@ const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoadi
                      <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Track Title</TableHead>
+                                <TableHead>Title</TableHead>
+                                <TableHead>Type</TableHead>
                                 <TableHead>Price</TableHead>
-                                <TableHead className="text-right">Preview</TableHead>
+                                <TableHead className="text-right">Content</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {musicOnly.map((p: any) => (
                                 <TableRow key={p.id || p.slug}>
                                     <TableCell className="font-bold">{p.name}</TableCell>
+                                    <TableCell>
+                                        <Badge variant="outline">{p.isAlbum ? 'Album/EP' : 'Single'}</Badge>
+                                    </TableCell>
                                     <TableCell>{p.price}</TableCell>
                                     <TableCell className="text-right">
-                                        {p.downloadUrl && (
-                                            <Button variant="ghost" size="sm" asChild>
-                                                <a href={p.downloadUrl} target="_blank" rel="noopener noreferrer">
-                                                    <FileAudio className="h-4 w-4" />
-                                                </a>
-                                            </Button>
-                                        )}
+                                        <div className="flex justify-end gap-1">
+                                            {p.downloadUrl && (
+                                                <Button variant="ghost" size="sm" asChild>
+                                                    <a href={p.downloadUrl} target="_blank" rel="noopener noreferrer">
+                                                        <FileAudio className="h-4 w-4" />
+                                                    </a>
+                                                </Button>
+                                            )}
+                                            {p.tracks && p.tracks.length > 0 && (
+                                                <Badge className="bg-chart-1 text-black">{p.tracks.length} Tracks</Badge>
+                                            )}
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             ))}

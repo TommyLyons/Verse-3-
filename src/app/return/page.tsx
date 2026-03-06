@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useState, Suspense } from 'react';
@@ -26,11 +27,19 @@ function ReturnContent() {
           if (digitalItems.length > 0) {
               digitalItems.forEach(item => {
                   const purchaseRef = collection(firestore, 'users', user.uid, 'purchasedProducts');
+                  
+                  // Flatten tracks for the purchase record if it's an album
+                  const trackData = item.tracks ? item.tracks.map((t: any) => ({
+                      title: t.title,
+                      downloadUrl: t.audioUrl
+                  })) : [];
+
                   addDocumentNonBlocking(purchaseRef, {
                       productId: String(item.id),
                       productName: item.name,
                       downloadUrl: item.downloadUrl || '',
                       imageUrl: item.imageUrl || '',
+                      tracks: trackData,
                       purchasedAt: serverTimestamp(),
                   });
               });
