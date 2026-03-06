@@ -5,7 +5,7 @@ import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useCart } from '@/context/cart-context';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, ShoppingBag, ArrowRight, RefreshCcw } from 'lucide-react';
+import { CheckCircle, ShoppingBag, ArrowRight, RefreshCcw, DownloadCloud } from 'lucide-react';
 import { useUser, useFirestore, addDocumentNonBlocking } from '@/firebase';
 import { collection, serverTimestamp } from 'firebase/firestore';
 
@@ -17,33 +17,46 @@ function ReturnContent() {
   const firestore = useFirestore();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [processed, setProcessed] = useState(false);
+  const [purchasedDigitalItems, setPurchasedDigitalItems] = useState<any[]>([]);
 
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
     if (sessionId && !processed) {
-      // 1. Identify digital products and save them to the user's profile if they are logged in
-      if (user && firestore && cart.length > 0) {
-          const digitalItems = cart.filter(item => item.digital);
-          if (digitalItems.length > 0) {
-              digitalItems.forEach(item => {
-                  const purchaseRef = collection(firestore, 'users', user.uid, 'purchasedProducts');
-                  
-                  // Flatten tracks for the purchase record if it's an album
-                  const trackData = item.tracks ? item.tracks.map((t: any) => ({
-                      title: t.title,
-                      downloadUrl: t.audioUrl
-                  })) : [];
+      const digitalItems = cart.filter(item => item.digital);
+      setPurchasedDigitalItems(digitalItems);
 
-                  addDocumentNonBlocking(purchaseRef, {
-                      productId: String(item.id),
-                      productName: item.name,
-                      downloadUrl: item.downloadUrl || '',
-                      imageUrl: item.imageUrl || '',
-                      tracks: trackData,
-                      purchasedAt: serverTimestamp(),
-                  });
+      // 1. Trigger automatic download for each digital item
+      digitalItems.forEach(item => {
+        if (item.downloadUrl) {
+          const link = document.createElement('a');
+          link.href = item.downloadUrl;
+          link.download = `${item.name}.mp3`;
+          link.target = '_blank';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      });
+
+      // 2. Save to user collection if logged in
+      if (user && firestore && digitalItems.length > 0) {
+          digitalItems.forEach(item => {
+              const purchaseRef = collection(firestore, 'users', user.uid, 'purchasedProducts');
+              
+              const trackData = item.tracks ? item.tracks.map((t: any) => ({
+                  title: t.title,
+                  downloadUrl: t.audioUrl
+              })) : [];
+
+              addDocumentNonBlocking(purchaseRef, {
+                  productId: String(item.id),
+                  productName: item.name,
+                  downloadUrl: item.downloadUrl || '',
+                  imageUrl: item.imageUrl || '',
+                  tracks: trackData,
+                  purchasedAt: serverTimestamp(),
               });
-          }
+          });
       }
 
       setStatus('success');
@@ -92,8 +105,25 @@ function ReturnContent() {
       </h1>
       
       <p className="text-muted-foreground text-lg md:text-xl max-w-xl mx-auto mb-10">
-        Welcome to the family. Your gear is being prepared and a confirmation email is on its way.
+        Welcome to the family. Your gear is being prepared and your digital masters should be downloading now.
       </p>
+
+      {purchasedDigitalItems.length > 0 && (
+          <div className="w-full max-w-md bg-black/5 p-6 border-2 border-black/10 mb-10 space-y-4">
+              <p className="font-bold uppercase tracking-widest text-[10px] text-muted-foreground">Manual Download Links</p>
+              {purchasedDigitalItems.map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between border-b border-black/5 pb-2 last:border-0 last:pb-0">
+                      <span className="font-headline text-lg uppercase italic">{item.name}</span>
+                      <Button asChild size="sm" className="bg-chart-1 text-black font-bold h-9">
+                          <a href={item.downloadUrl} download>
+                              <DownloadCloud className="mr-2 h-4 w-4" />
+                              Get File
+                          </a>
+                      </Button>
+                  </div>
+              ))}
+          </div>
+      )}
 
       <div className="flex flex-col sm:flex-row gap-4 w-full max-w-md">
         <Button onClick={() => router.push('/store')} size="lg" className="flex-1 h-16 bg-black text-chart-1 font-headline text-xl uppercase italic rounded-none hover:bg-black/90">

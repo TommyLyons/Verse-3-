@@ -6,7 +6,7 @@ import { stripe } from '@/lib/stripe';
 
 /**
  * Creates a Stripe Checkout Session with Embedded UI mode.
- * Includes metadata for automated Printful fulfillment.
+ * Includes metadata for automated Printful fulfillment and digital processing.
  */
 export async function fetchClientSecret(cart: any[]) {
   const origin = (await headers()).get('origin');
@@ -39,11 +39,12 @@ export async function fetchClientSecret(cart: any[]) {
             name: item.name + (item.size ? ` (${item.size})` : ''),
             images: item.imageUrl ? [item.imageUrl] : [],
             description: item.description?.substring(0, 250),
-            // Metadata at the line item level for the webhook to read
             metadata: {
-              printful_id: item.id, // This is the sync_product_id
+              product_id: String(item.id),
+              printful_id: item.type === 'merch' ? String(item.id) : '',
               size: item.size || '',
-              type: item.type
+              type: item.type,
+              digital: item.digital ? 'true' : 'false'
             }
           },
           unit_amount: amount,
@@ -59,7 +60,6 @@ export async function fetchClientSecret(cart: any[]) {
       shipping_address_collection: {
         allowed_countries: ['GB', 'IE', 'US', 'CA', 'FR', 'DE', 'ES', 'IT', 'AU', 'NZ'],
       },
-      // Pass general metadata to the session
       metadata: {
         order_source: 'verse3_web_store'
       },
