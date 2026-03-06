@@ -258,7 +258,7 @@ export default function Home() {
                                                     src={item.imageUrl || ''}
                                                     alt={item.name}
                                                     fill
-                                                    className="object-contain transition-transform duration-500 group-hover:scale-105"
+                                                    className="object-contain p-6 transition-transform duration-500 group-hover:scale-105"
                                                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                                                 />
                                             </div>
@@ -332,7 +332,7 @@ export default function Home() {
                                                     src={item.imageUrl || ''}
                                                     alt={item.name}
                                                     fill
-                                                    className="object-contain transition-transform duration-500 group-hover:scale-105"
+                                                    className="object-contain p-6 transition-transform duration-500 group-hover:scale-105"
                                                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                                                 />
                                             </div>

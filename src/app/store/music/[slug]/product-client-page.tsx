@@ -108,12 +108,12 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
     <div className="container py-12 md:py-24 bg-background">
       <BackButton />
       <div className="grid md:grid-cols-2 gap-8 lg:gap-16 items-start">
-        <div className="relative aspect-square rounded-none overflow-hidden border-2 border-black/5 bg-black/5">
+        <div className="relative aspect-square rounded-none overflow-hidden border-2 border-black/5 bg-black/5 flex items-center justify-center">
           <Image
             src={imageUrl}
             alt={imageDescription}
             fill
-            className="object-contain p-8 transition-transform duration-700 hover:scale-105"
+            className="object-contain p-12 md:p-20 transition-transform duration-700 hover:scale-105"
             sizes="(max-width: 768px) 100vw, 50vw"
             priority
           />
