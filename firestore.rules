@@ -36,9 +36,13 @@ service cloud.firestore {
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // Explicitly allow admin access to all paths
+    // Public read for all assets
     match /{allPaths=**} {
       allow read: if true;
+    }
+    
+    // Explicit write access for admin on all paths
+    match /{allPaths=**} {
       allow write: if request.auth != null && (
         request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2' || 
         request.auth.token.email == 'verse3records@gmail.com'
@@ -47,16 +51,7 @@ service firebase.storage {
     
     // Public demo submissions
     match /demoSubmissions/{allPaths=**} {
-      allow read, write: if true;
-    }
-    
-    // Product assets (Music/Merch)
-    match /products/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null && (
-        request.auth.uid == 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2' || 
-        request.auth.token.email == 'verse3records@gmail.com'
-      );
+      allow write: if true;
     }
   }
 }

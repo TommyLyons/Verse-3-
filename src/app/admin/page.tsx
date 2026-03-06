@@ -212,7 +212,7 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
         defaultValues: {
             name: '',
             description: '',
-            price: initialType === 'merch' ? '£' : '£2.00',
+            price: initialType === 'merch' ? '£25.00' : '£2.00',
             type: initialType,
             brand: 'Verse 3 Merch',
             slug: '',
@@ -278,7 +278,7 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
 
             // 1. Handle Image Upload
             if (values.imageFile && values.imageFile.length > 0) {
-                setCurrentStep('Uploading Product Image...');
+                setCurrentStep('Uploading Image...');
                 const imgFile = values.imageFile[0] as File;
                 const imgPath = `products/images/${Date.now()}_${imgFile.name.replace(/\s+/g, '_')}`;
                 finalImageUrl = await handleFileUpload(imgFile, imgPath);
@@ -286,7 +286,7 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
 
             // 2. Handle Audio Upload for Single
             if (values.type === 'music' && !values.isAlbum && values.audioFile && values.audioFile.length > 0) {
-                setCurrentStep('Uploading Main Audio File...');
+                setCurrentStep('Uploading Audio...');
                 const audFile = values.audioFile[0] as File;
                 const audPath = `products/audio/${Date.now()}_${audFile.name.replace(/\s+/g, '_')}`;
                 finalDownloadUrl = await handleFileUpload(audFile, audPath);
@@ -306,30 +306,28 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                 }
             }
 
-            const productsCollection = collection(firestore, 'products');
-            const productData: any = { 
-                ...values, 
+            // 4. Build sanitized object (NO File objects allowed in Firestore)
+            const productData = {
+                name: values.name,
+                slug: values.slug,
+                description: values.description,
+                price: values.price,
+                type: values.type,
+                brand: values.brand,
                 imageUrl: finalImageUrl,
                 downloadUrl: finalDownloadUrl,
+                digital: !!values.digital,
+                isAlbum: !!values.isAlbum,
                 tracks: finalTracks,
                 revolutLink: 'https://checkout.stripe.com/',
-                createdAt: serverTimestamp()
+                createdAt: serverTimestamp(),
+                sizes: values.sizes ? values.sizes.split(',').map(s => s.trim().toUpperCase()) : []
             };
 
-            // Deep clean up to ensure no non-serializable objects remain
-            const sanitizedData = JSON.parse(JSON.stringify(productData));
-            delete sanitizedData.audioFile;
-            delete sanitizedData.imageFile;
+            const productsCollection = collection(firestore, 'products');
+            addDocumentNonBlocking(productsCollection, productData);
             
-            // Fix sizes array
-            if (typeof values.sizes === 'string' && values.sizes.trim()) {
-                sanitizedData.sizes = values.sizes.split(',').map((s: string) => s.trim().toUpperCase());
-            } else {
-                sanitizedData.sizes = [];
-            }
-
-            addDocumentNonBlocking(productsCollection, sanitizedData);
-            toast({ title: 'Success!', description: `${values.name} added to library.` });
+            toast({ title: 'Success!', description: `${values.name} published.` });
             onFinished();
             form.reset();
         } catch (error: any) {
@@ -337,7 +335,7 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
             toast({ 
               variant: 'destructive', 
               title: 'Upload Failed', 
-              description: error.message || 'There was a problem processing your upload. Check your connection.' 
+              description: error.message || 'There was a problem processing your upload.' 
             });
         } finally {
             setIsSubmitting(false);
