@@ -3,14 +3,15 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser, useFirestore, useCollection, addDocumentNonBlocking } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { collection, serverTimestamp } from 'firebase/firestore';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BarChart, Terminal, FileAudio, FileImage, PlusCircle, Mail, Users, RefreshCcw, ExternalLink, Settings2, Package, Music, PieChart } from 'lucide-react';
+import { BarChart, Terminal, FileAudio, FileImage, PlusCircle, Mail, Users, RefreshCcw, ExternalLink, Settings2, Package, Music, PieChart, UploadCloud } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   Dialog,
@@ -29,6 +30,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -36,6 +38,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { getProducts } from '@/ai/flows/get-products-flow';
 import { type Product } from '@/lib/schemas';
+import { Progress } from '@/components/ui/progress';
 import {
   Accordion,
   AccordionContent,
@@ -180,10 +183,12 @@ const productFormSchema = z.object({
   type: z.enum(['merch', 'music']),
   brand: z.enum(['Verse 3 Merch', 'Crude City']),
   slug: z.string().min(3, "Slug is required.").refine(s => !s.includes(' '), "Slug cannot contain spaces."),
-  imageUrl: z.string().url("Please enter a valid image URL."),
+  imageUrl: z.string().optional(),
   digital: z.boolean().optional(),
   downloadUrl: z.string().optional(),
   sizes: z.string().optional(),
+  audioFile: z.any().optional(),
+  imageFile: z.any().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -191,7 +196,9 @@ type ProductFormValues = z.infer<typeof productFormSchema>;
 const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
     const { toast } = useToast();
     const firestore = useFirestore();
+    const storage = getStorage();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
     const form = useForm<ProductFormValues>({
         resolver: zodResolver(productFormSchema),
@@ -211,31 +218,87 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
 
     const productType = form.watch('type');
 
+    const handleFileUpload = (file: File, path: string): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const storageRef = ref(storage, path);
+            const uploadTask = uploadBytesResumable(storageRef, file);
+
+            uploadTask.on(
+                'state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    setUploadProgress(progress);
+                },
+                (error) => {
+                    console.error('Upload failed:', error);
+                    reject(error);
+                },
+                async () => {
+                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                    resolve(downloadURL);
+                }
+            );
+        });
+    };
+
     const onSubmit = async (values: ProductFormValues) => {
         if (!firestore) return;
         setIsSubmitting(true);
+        setUploadProgress(0);
+
         try {
+            let finalImageUrl = values.imageUrl || '';
+            let finalDownloadUrl = values.downloadUrl || '';
+
+            // Handle Image Upload
+            if (values.imageFile && values.imageFile.length > 0) {
+                const imgFile = values.imageFile[0] as File;
+                const imgPath = `products/images/${Date.now()}_${imgFile.name}`;
+                finalImageUrl = await handleFileUpload(imgFile, imgPath);
+            }
+
+            // Handle Audio Upload for Music
+            if (values.type === 'music' && values.audioFile && values.audioFile.length > 0) {
+                const audFile = values.audioFile[0] as File;
+                const audPath = `products/audio/${Date.now()}_${audFile.name}`;
+                finalDownloadUrl = await handleFileUpload(audFile, audPath);
+            }
+
             const productsCollection = collection(firestore, 'products');
-            const productData: any = { ...values, revolutLink: 'https://checkout.stripe.com/' };
+            const productData: any = { 
+                ...values, 
+                imageUrl: finalImageUrl,
+                downloadUrl: finalDownloadUrl,
+                revolutLink: 'https://checkout.stripe.com/',
+                createdAt: serverTimestamp()
+            };
+
+            // Clean up file objects from firestore data
+            delete productData.audioFile;
+            delete productData.imageFile;
+
             if (productData.sizes && typeof productData.sizes === 'string') {
                 productData.sizes = productData.sizes.split(',').map((s: string) => s.trim().toUpperCase());
-            } else {
+            } else if (!productData.sizes) {
                 productData.sizes = [];
             }
+
             addDocumentNonBlocking(productsCollection, productData);
             toast({ title: 'Product Added!', description: `${values.name} added to store.` });
             onFinished();
             form.reset();
         } catch (error) {
+            console.error(error);
             toast({ variant: 'destructive', title: 'Error', description: 'Failed to add product.' });
         } finally {
             setIsSubmitting(false);
+            setUploadProgress(null);
         }
     };
 
     return (
          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-h-[70vh] overflow-y-auto px-1 custom-scrollbar">
                 <FormField control={form.control} name="name" render={({ field }) => (
                     <FormItem>
                         <FormLabel>Product Name</FormLabel>
@@ -284,7 +347,7 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                                 </FormControl>
                                 <SelectContent>
                                     <SelectItem value="merch">Merch</SelectItem>
-                                    <SelectItem value="music">Music</SelectItem>
+                                    <SelectItem value="music">Music Track</SelectItem>
                                 </SelectContent>
                             </Select>
                             <FormMessage />
@@ -308,28 +371,57 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                         <FormMessage />
                     </FormItem>
                 )} />
+
                 {productType === 'merch' && (
                      <FormField control={form.control} name="sizes" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Sizes (S, M, L...)</FormLabel>
+                            <FormLabel>Sizes (e.g. S, M, L, XL)</FormLabel>
                             <FormControl>
                                 <Input {...field} />
                             </FormControl>
+                            <FormDescription>Comma separated list.</FormDescription>
                             <FormMessage />
                         </FormItem>
                     )} />
                 )}
-                 <FormField control={form.control} name="imageUrl" render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Image URL</FormLabel>
-                        <FormControl>
-                            <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                    </FormItem>
-                )} />
-                <Button type="submit" disabled={isSubmitting} className="w-full">
-                   {isSubmitting ? 'Adding...' : 'Add Product'}
+
+                <div className="border-t pt-4 space-y-4">
+                    <FormField control={form.control} name="imageFile" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Cover Image / Product Photo</FormLabel>
+                            <FormControl>
+                                <Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files)} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )} />
+
+                    {productType === 'music' && (
+                        <FormField control={form.control} name="audioFile" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Audio File (MP3/WAV)</FormLabel>
+                                <FormControl>
+                                    <Input type="file" accept="audio/*" onChange={(e) => field.onChange(e.target.files)} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        ) } />
+                    )}
+                </div>
+
+                {isSubmitting && uploadProgress !== null && (
+                    <div className='space-y-2 py-2'>
+                        <div className="flex justify-between text-xs font-bold uppercase italic">
+                            <span>Uploading Files...</span>
+                            <span>{Math.round(uploadProgress)}%</span>
+                        </div>
+                        <Progress value={uploadProgress} className="h-2" />
+                    </div>
+                )}
+
+                <Button type="submit" disabled={isSubmitting} className="w-full h-12 bg-black text-chart-1 font-bold">
+                   {isSubmitting ? 'Uploading & Saving...' : 'Add Product'}
+                   {!isSubmitting && <UploadCloud className="ml-2 h-4 w-4" />}
                 </Button>
             </form>
          </Form>
@@ -384,9 +476,9 @@ const ProductManagement = () => {
                                 <PlusCircle className="mr-2 h-4 w-4" /> Add Product
                             </Button>
                         </DialogTrigger>
-                        <DialogContent>
+                        <DialogContent className="sm:max-w-xl">
                             <DialogHeader>
-                                <DialogTitle>Add Product</DialogTitle>
+                                <DialogTitle className="font-headline text-2xl uppercase italic">Add New Store Item</DialogTitle>
                             </DialogHeader>
                             <AddProductForm onFinished={() => setIsAddDialogOpen(false)} />
                         </DialogContent>
