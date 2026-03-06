@@ -5,24 +5,47 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useCart } from '@/context/cart-context';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, ShoppingBag, ArrowRight, RefreshCcw } from 'lucide-react';
+import { useUser, useFirestore, addDocumentNonBlocking } from '@/firebase';
+import { collection, serverTimestamp } from 'firebase/firestore';
 
 function ReturnContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { clearCart } = useCart();
+  const { cart, clearCart } = useCart();
+  const { user } = useUser();
+  const firestore = useFirestore();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+  const [processed, setProcessed] = useState(false);
 
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
-    if (sessionId) {
-      // In a real app, you might want to verify the session status here
-      // via another server action, but for now we'll assume success if we got here.
+    if (sessionId && !processed) {
+      // 1. Identify digital products and save them to the user's profile if they are logged in
+      if (user && firestore && cart.length > 0) {
+          const digitalItems = cart.filter(item => item.digital);
+          if (digitalItems.length > 0) {
+              digitalItems.forEach(item => {
+                  const purchaseRef = collection(firestore, 'users', user.uid, 'purchasedProducts');
+                  addDocumentNonBlocking(purchaseRef, {
+                      productId: String(item.id),
+                      productName: item.name,
+                      downloadUrl: item.downloadUrl || '',
+                      imageUrl: item.imageUrl || '',
+                      purchasedAt: serverTimestamp(),
+                  });
+              });
+          }
+      }
+
       setStatus('success');
+      setProcessed(true);
       clearCart();
+    } else if (sessionId) {
+        setStatus('success');
     } else {
       setStatus('error');
     }
-  }, [searchParams, clearCart]);
+  }, [searchParams, cart, user, firestore, clearCart, processed]);
 
   if (status === 'loading') {
     return (
@@ -69,7 +92,7 @@ function ReturnContent() {
             <ShoppingBag className="ml-2 h-5 w-5" />
         </Button>
         <Button onClick={() => router.push('/profile')} size="lg" variant="outline" className="flex-1 h-16 border-2 border-black font-headline text-xl uppercase italic rounded-none hover:bg-black/5">
-            View Order
+            My Library
             <ArrowRight className="ml-2 h-5 w-5" />
         </Button>
       </div>
