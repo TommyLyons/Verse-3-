@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -6,7 +5,7 @@ import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Eye, Instagram, Send, ShoppingBag } from 'lucide-react';
 import { getAllProducts, type Product } from '@/lib/products';
 import { Skeleton } from '@/components/ui/skeleton';
