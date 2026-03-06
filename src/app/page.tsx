@@ -126,7 +126,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Restored to 34172f3 Clean Layout */}
+      {/* Hero Section - Clean layout with small professional buttons */}
       <section className="relative w-full h-[80vh] flex flex-col items-center justify-center bg-white overflow-hidden">
         <div className="absolute inset-0 z-0">
           <video
@@ -147,7 +147,7 @@ export default function Home() {
       </section>
 
       {/* Our Vision - Clean Section */}
-      <section className="py-20 bg-white border-b">
+      <section className="py-20 bg-white">
           <div className="container max-w-4xl mx-auto px-4 text-center">
               <h2 className="font-headline text-4xl font-bold text-black uppercase italic tracking-tight">Our Vision</h2>
               <div className="h-1 w-20 bg-chart-1 mx-auto mt-2 mb-6" />
@@ -157,7 +157,7 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image */}
+      {/* Impact Image - Placed exactly above Choose Your Vibe */}
       {vibeHero && (
         <section className="w-full bg-black py-4">
           <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto">
@@ -231,7 +231,7 @@ export default function Home() {
                                                     src={item.imageUrl || ''}
                                                     alt={item.name}
                                                     fill
-                                                    className="object-contain p-12 transition-transform duration-500 group-hover:scale-105"
+                                                    className="object-contain p-14 transition-transform duration-500 group-hover:scale-105"
                                                     sizes="(max-width: 640px) 100vw, 25vw"
                                                 />
                                             </div>
@@ -256,7 +256,7 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Latest Music Carousel - Strict Music Filtering */}
+       {/* Latest Music Carousel - Correct Filtering */}
        <section className="py-24 bg-secondary/30">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
@@ -289,7 +289,7 @@ export default function Home() {
                                                     src={item.imageUrl || ''}
                                                     alt={item.name}
                                                     fill
-                                                    className="object-contain p-12 transition-transform duration-500 group-hover:scale-105"
+                                                    className="object-contain p-14 transition-transform duration-500 group-hover:scale-105"
                                                     sizes="(max-width: 640px) 100vw, 25vw"
                                                 />
                                             </div>
@@ -314,7 +314,7 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Social Section - Clean Restored Version */}
+       {/* Social Section - Clean and Streamlined */}
        <section className="py-24 bg-black text-white relative overflow-hidden">
           <div className="container relative z-10 max-w-5xl mx-auto px-4 text-center">
             <div className="mb-8 flex justify-center">
