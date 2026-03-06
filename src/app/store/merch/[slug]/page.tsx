@@ -11,7 +11,12 @@ export default async function MerchPage({ params }: { params: Promise<{ slug: st
   
   // Fetch fresh products and strictly find by slug and type
   const allProducts = await getAllProducts();
-  const product = allProducts.find(p => p.slug === slug && p.type === 'merch');
+  
+  // Implement case-insensitive lookup for consistency across the store
+  const product = allProducts.find(p => 
+    p.slug.toLowerCase() === slug.toLowerCase() && 
+    p.type === 'merch'
+  );
   
   if (!product) {
     notFound();

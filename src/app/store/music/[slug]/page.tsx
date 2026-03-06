@@ -11,7 +11,12 @@ export default async function MusicPage({ params }: { params: Promise<{ slug: st
   
   // Fetch fresh products and strictly find by slug and type
   const allProducts = await getAllProducts();
-  const product = allProducts.find(p => p.slug === slug && p.type === 'music');
+  
+  // Implement case-insensitive lookup to fix "Unstoppable" vs "unstoppable" routing issues
+  const product = allProducts.find(p => 
+    p.slug.toLowerCase() === slug.toLowerCase() && 
+    p.type === 'music'
+  );
   
   if (!product) {
     notFound();
