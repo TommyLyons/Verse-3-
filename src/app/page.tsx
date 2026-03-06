@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -52,12 +51,10 @@ export default function Home() {
     fetchProducts();
   }, []);
   
-  // Strict filtering for Merch
   const merchProducts = React.useMemo(() => {
     return allProducts.filter(p => p.type === 'merch').slice(0, 8);
   }, [allProducts]);
 
-  // Strict filtering for Music
   const musicProducts = React.useMemo(() => {
     return allProducts.filter(p => p.type === 'music').slice(0, 8);
   }, [allProducts]);
@@ -126,7 +123,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Clean layout with small professional buttons */}
+      {/* Hero Section */}
       <section className="relative w-full h-[80vh] flex flex-col items-center justify-center bg-white overflow-hidden">
         <div className="absolute inset-0 z-0">
           <video
@@ -146,7 +143,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Our Vision - Clean Section */}
+      {/* Our Vision */}
       <section className="py-20 bg-white">
           <div className="container max-w-4xl mx-auto px-4 text-center">
               <h2 className="font-headline text-4xl font-bold text-black uppercase italic tracking-tight">Our Vision</h2>
@@ -157,7 +154,7 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image - Placed exactly above Choose Your Vibe */}
+      {/* Impact Image above Vibe Selector */}
       {vibeHero && (
         <section className="w-full bg-black py-4">
           <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto">
@@ -173,7 +170,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* Choose Your Vibe - Refined Button Sizes */}
+      {/* Choose Your Vibe */}
       <section className="py-12 bg-black text-white">
           <div className="container max-w-7xl mx-auto px-4">
             <div className="text-center mb-8">
@@ -198,7 +195,7 @@ export default function Home() {
           </div>
        </section>
 
-       {/* Featured Merch Carousel - Boutique Scale */}
+       {/* Featured Merch Carousel */}
        <section className="py-24 bg-white">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
@@ -256,7 +253,7 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Latest Music Carousel - Correct Filtering */}
+       {/* Latest Music Carousel */}
        <section className="py-24 bg-secondary/30">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
@@ -314,7 +311,7 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Social Section - Clean and Streamlined */}
+       {/* Social Section */}
        <section className="py-24 bg-black text-white relative overflow-hidden">
           <div className="container relative z-10 max-w-5xl mx-auto px-4 text-center">
             <div className="mb-8 flex justify-center">
@@ -332,7 +329,7 @@ export default function Home() {
           </div>
        </section>
 
-       {/* Newsletter Section - Refined */}
+       {/* Newsletter Section */}
        <section className="py-24 bg-chart-1 border-t border-black/10">
           <div className="container max-w-4xl mx-auto px-4 text-center">
                 <h2 className="font-headline text-5xl font-bold text-black uppercase italic tracking-tighter mb-2 leading-none">

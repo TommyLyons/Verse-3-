@@ -21,8 +21,13 @@ export const getAllProducts = async (): Promise<Product[]> => {
         const snapshot = await getDocs(productsCol);
         
         dbProducts = snapshot.docs.map(doc => {
-            const data = doc.data() as Product;
-            return { ...data, id: doc.id };
+            const data = doc.data() as any;
+            // Convert Firestore Timestamps to ISO strings to avoid serialization errors
+            const serialized = { ...data };
+            if (serialized.createdAt && typeof serialized.createdAt.toDate === 'function') {
+                serialized.createdAt = serialized.createdAt.toDate().toISOString();
+            }
+            return { ...serialized, id: doc.id } as Product;
         });
     } catch (error) {
         console.warn("Warning: Could not fetch products from Firestore during build.");
