@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -40,7 +41,7 @@ const ProductGrid = ({ products, isLoading, type, onProductClick }: { products: 
     if (products.length === 0) {
         return (
             <div className="text-center py-16 border-2 border-dashed rounded-lg">
-                <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">No {type} products found for this brand/region.</p>
+                <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">No products found in this region.</p>
             </div>
         );
     }
@@ -52,7 +53,7 @@ const ProductGrid = ({ products, isLoading, type, onProductClick }: { products: 
                     <CardContent className="p-0">
                         <div 
                           onClick={() => onProductClick?.(item)}
-                          className="cursor-pointer block aspect-square relative bg-secondary rounded-lg overflow-hidden"
+                          className="cursor-pointer block aspect-square relative bg-secondary rounded-lg overflow-hidden border-2 border-black/5"
                         >
                             <Image
                                 src={item.imageUrl || 'https://picsum.photos/seed/placeholder/600/600'}
@@ -66,14 +67,14 @@ const ProductGrid = ({ products, isLoading, type, onProductClick }: { products: 
                     <div className="mt-4 flex justify-between items-center px-1">
                         <div>
                             <p className="font-bold text-black uppercase text-sm leading-tight">{item.name}</p>
-                            <p className="text-sm font-bold text-primary italic">{item.price}</p>
+                            <p className="text-sm font-bold text-chart-1 bg-black px-2 py-0.5 inline-block italic mt-1">{item.price}</p>
                         </div>
                         <Button 
                           size="sm" 
                           onClick={() => onProductClick?.(item)}
-                          className="bg-black text-chart-1 font-bold hover:bg-black/80"
+                          className="bg-black text-chart-1 font-bold hover:bg-black/80 rounded-none h-10 w-10 p-0"
                         >
-                            {item.digital ? <DownloadCloud className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
+                            {item.digital ? <DownloadCloud className="h-5 w-5"/> : <Eye className="h-5 w-5"/>}
                         </Button>
                     </div>
                 </Card>
@@ -177,26 +178,28 @@ function StoreContent() {
     ).sort((a, b) => a.name.localeCompare(b.name)),
   [allProducts, region]);
 
+  const regionLabel = region === 'UK' ? 'United Kingdom' : 'Europe';
+
   return (
     <>
       <div className="text-center mb-12">
-        <h1 className="font-headline text-4xl md:text-5xl font-bold text-black uppercase tracking-wider italic">Store</h1>
-        <p className="text-muted-foreground mt-2">Merchandise, vinyls, and more.</p>
+        <h1 className="font-headline text-5xl md:text-7xl font-bold text-black uppercase tracking-tighter italic">V3 <span className="text-chart-1">STORE</span></h1>
+        <p className="text-muted-foreground mt-2 font-bold uppercase tracking-widest text-xs">Official Merchandise & Music</p>
        </div>
 
-       <div className="mb-12 flex flex-col items-center gap-8">
-         <div className="flex w-full max-w-md gap-2">
+       <div className="mb-16 flex flex-col items-center gap-8">
+         <div className="flex w-full max-w-md gap-2 p-1 bg-black/5 rounded-none border-2 border-black/10">
             <Button 
                 onClick={() => handleBrandSwitch('Verse 3')}
-                variant={activeBrand === 'Verse 3' ? 'default' : 'outline'}
-                className={`flex-1 h-14 font-headline text-xl uppercase italic rounded-none border-2 border-black transition-all ${activeBrand === 'Verse 3' ? 'bg-black text-chart-1' : 'bg-transparent text-black hover:bg-black/5'}`}
+                variant={activeBrand === 'Verse 3' ? 'default' : 'ghost'}
+                className={`flex-1 h-12 font-headline text-xl uppercase italic rounded-none transition-all ${activeBrand === 'Verse 3' ? 'bg-black text-chart-1' : 'text-black hover:bg-black/5'}`}
             >
                 Verse 3
             </Button>
             <Button 
                 onClick={() => handleBrandSwitch('Crude City')}
-                variant={activeBrand === 'Crude City' ? 'default' : 'outline'}
-                className={`flex-1 h-14 font-headline text-xl uppercase italic rounded-none border-2 border-black transition-all ${activeBrand === 'Crude City' ? 'bg-black text-chart-1' : 'bg-transparent text-black hover:bg-black/5'}`}
+                variant={activeBrand === 'Crude City' ? 'default' : 'ghost'}
+                className={`flex-1 h-12 font-headline text-xl uppercase italic rounded-none transition-all ${activeBrand === 'Crude City' ? 'bg-black text-chart-1' : 'text-black hover:bg-black/5'}`}
             >
                 Crude City
             </Button>
@@ -204,14 +207,14 @@ function StoreContent() {
 
          <div className="max-w-xs w-full">
             <div className="flex items-center justify-center gap-2 mb-2">
-                <Globe className="h-4 w-4 text-black"/>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Region Selection</span>
+                <Globe className="h-4 w-4 text-chart-1"/>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Select Region</span>
             </div>
             <Select value={region} onValueChange={(value) => setRegion(value as 'UK' | 'EU')}>
-              <SelectTrigger className="border-black bg-white text-black h-12 focus:ring-black rounded-none border-2 font-bold uppercase text-xs">
+              <SelectTrigger className="border-2 border-black bg-white text-black h-12 focus:ring-black rounded-none font-bold uppercase text-xs">
                   <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-none border-2 border-black">
                   <SelectItem value="UK">United Kingdom (GBP)</SelectItem>
                   <SelectItem value="EU">European Union (EUR)</SelectItem>
               </SelectContent>
@@ -222,23 +225,35 @@ function StoreContent() {
        {activeBrand === 'Verse 3' ? (
          <>
            <section className="mb-20">
-                <h2 className="font-headline text-3xl font-bold text-black mb-8 uppercase italic border-b-2 border-black pb-2">V3 Merch {region}</h2>
+                <div className="flex items-center justify-between mb-8 border-b-4 border-black pb-2">
+                    <h2 className="font-headline text-4xl font-bold text-black uppercase italic tracking-tighter">V3 Merch <span className="text-chart-1">{regionLabel}</span></h2>
+                    <span className="hidden sm:block text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Premium Streetwear</span>
+                </div>
                 <ProductGrid products={verse3Merch} isLoading={isLoading} type="merch" onProductClick={handleProductClick} />
            </section>
            
            <section className="mb-20">
-                <h2 className="font-headline text-3xl font-bold text-black mb-8 uppercase italic border-b-2 border-black pb-2">Digital Downloads</h2>
+                <div className="flex items-center justify-between mb-8 border-b-4 border-black pb-2">
+                    <h2 className="font-headline text-4xl font-bold text-black uppercase italic tracking-tighter">Digital <span className="text-chart-1">Downloads</span></h2>
+                    <span className="hidden sm:block text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Instant Access</span>
+                </div>
                 <ProductGrid products={digitalMusic} isLoading={isLoading} type="music" onProductClick={handleProductClick} />
            </section>
 
            <section>
-                <h2 className="font-headline text-3xl font-bold text-black mb-8 uppercase italic border-b-2 border-black pb-2">Physical Music</h2>
+                <div className="flex items-center justify-between mb-8 border-b-4 border-black pb-2">
+                    <h2 className="font-headline text-4xl font-bold text-black uppercase italic tracking-tighter">Physical <span className="text-chart-1">Music</span></h2>
+                    <span className="hidden sm:block text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Vinyl & CDs</span>
+                </div>
                 <ProductGrid products={physicalMusic} isLoading={isLoading} type="music" onProductClick={handleProductClick} />
            </section>
          </>
        ) : (
          <section className="mb-20">
-            <h2 className="font-headline text-3xl font-bold text-black mb-8 uppercase italic border-b-2 border-black pb-2">Crude City {region}</h2>
+            <div className="flex items-center justify-between mb-8 border-b-4 border-black pb-2">
+                <h2 className="font-headline text-4xl font-bold text-black uppercase italic tracking-tighter">Crude City <span className="text-chart-1">{regionLabel}</span></h2>
+                <span className="hidden sm:block text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Raw Culture</span>
+            </div>
             <ProductGrid products={crudeCityMerch} isLoading={isLoading} type="merch" onProductClick={handleProductClick} />
          </section>
        )}

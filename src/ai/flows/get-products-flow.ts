@@ -2,8 +2,8 @@
 'use server';
 /**
  * @fileOverview A flow for fetching product information from Printful with accurate retail pricing, shipping integration, and regional currency enforcement.
- * Shipping costs are incorporated into the retail price (£5/€6 buffer) for a "Free Shipping" model.
- * Prices are rounded to the nearest multiple of 5 (e.g., 64 -> 65, 61 -> 60).
+ * - UK Region: GBP (£), £5 shipping buffer, rounded to nearest 5.
+ * - EU Region: EUR (€), €6 shipping buffer, rounded to nearest 5.
  */
 
 import {ai} from '@/ai/genkit';
@@ -53,9 +53,10 @@ const getProductsFlow = ai.defineFlow(
         const storesData = await storesResponse.json();
         const allStores = storesData.result || [];
 
+        // Filter stores by brand name
         const matchingStores = allStores.filter((store: any) => {
             const name = store.name.toLowerCase();
-            const isV3 = name.includes('v3') || name.includes('verse') || name.includes('three') || name.includes('records') || name.includes('v-1') || name.includes('v-2') || name.includes('v-3');
+            const isV3 = name.includes('v3') || name.includes('verse') || name.includes('three');
             const isCrude = name.includes('crude');
             
             if (brand === 'Verse 3 Merch') return isV3 && !isCrude;
@@ -71,13 +72,18 @@ const getProductsFlow = ai.defineFlow(
             const storeId = store.id;
             const storeNameUpper = store.name.toUpperCase();
             
+            // Determine Region
             const isUKStore = storeNameUpper.includes('UK') || 
                             storeNameUpper.includes('UNITED KINGDOM') ||
                             storeNameUpper.includes('GBP');
+            
+            const isEUStore = storeNameUpper.includes('EUROPE') || 
+                            storeNameUpper.includes('EU') ||
+                            storeNameUpper.includes('EUR') ||
+                            !isUKStore; // Default to EU if not UK
 
             const region = isUKStore ? 'UK' : 'EU';
             const currencySymbol = isUKStore ? '£' : '€';
-            
             const shippingBuffer = isUKStore ? 5.00 : 6.00;
 
             const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
@@ -113,13 +119,13 @@ const getProductsFlow = ai.defineFlow(
                     }
 
                     if (retailPrice > 0) {
-                        // Apply shipping buffer before rounding
+                        // 1. Add Shipping Buffer
                         retailPrice += shippingBuffer;
-                        // Round to nearest multiple of 5 as requested (e.g., 64 -> 65, 61 -> 60)
+                        // 2. Round to nearest multiple of 5 (64 -> 65, 61 -> 60)
                         retailPrice = Math.round(retailPrice / 5) * 5;
                     }
 
-                    const formattedPrice = retailPrice === 0 ? 'N/A' : `${currencySymbol}${retailPrice % 1 === 0 ? retailPrice.toFixed(0) : retailPrice.toFixed(2)}`;
+                    const formattedPrice = retailPrice === 0 ? 'N/A' : `${currencySymbol}${retailPrice.toFixed(0)}`;
                     const slug = syncProduct.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
 
                     return {
@@ -127,7 +133,7 @@ const getProductsFlow = ai.defineFlow(
                         name: syncProduct.name,
                         slug: slug,
                         price: formattedPrice,
-                        description: syncProduct.description || `Official ${brand} merchandise. Premium quality craftsmanship. Free shipping included.`,
+                        description: syncProduct.description || `Official ${brand} merchandise. Premium quality. Free shipping included.`,
                         imageUrl: syncProduct.thumbnail_url,
                         revolutLink: 'https://checkout.stripe.com/',
                         type: 'merch',
