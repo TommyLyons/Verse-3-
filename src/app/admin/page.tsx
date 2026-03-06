@@ -448,7 +448,6 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                             <FormControl>
                                 <Input placeholder="Paste image link from Storage backend..." {...field} />
                             </FormControl>
-                            <FormDescription className="text-[10px] uppercase font-bold tracking-tighter italic">Paste the "Download URL" from your Storage console.</FormDescription>
                             <FormMessage />
                             {currentImageUrl && (
                                 <div className="mt-2 h-32 w-32 relative border-2 border-chart-1 rounded overflow-hidden">
