@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BarChart, Terminal, FileAudio, FileImage, PlusCircle, Mail, Users, RefreshCcw, ExternalLink, Settings2, Package, Music, PieChart, UploadCloud } from 'lucide-react';
+import { BarChart, Terminal, FileAudio, FileImage, PlusCircle, Mail, Users, RefreshCcw, ExternalLink, Settings2, Package, Music, PieChart, UploadCloud, Disc } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   Dialog,
@@ -44,7 +44,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@/accordion";
 
 const adminEmail = 'verse3records@gmail.com';
 const adminUid = 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2';
@@ -193,7 +193,7 @@ const productFormSchema = z.object({
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
 
-const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
+const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, initialType: 'merch' | 'music' }) => {
     const { toast } = useToast();
     const firestore = useFirestore();
     const storage = getStorage();
@@ -205,12 +205,12 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
         defaultValues: {
             name: '',
             description: '',
-            price: '€',
-            type: 'merch',
+            price: initialType === 'merch' ? '£' : '£2.00',
+            type: initialType,
             brand: 'Verse 3 Merch',
             slug: '',
             imageUrl: '',
-            digital: false,
+            digital: initialType === 'music',
             downloadUrl: '',
             sizes: ''
         },
@@ -284,7 +284,7 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
             }
 
             addDocumentNonBlocking(productsCollection, productData);
-            toast({ title: 'Product Added!', description: `${values.name} added to store.` });
+            toast({ title: 'Success!', description: `${values.name} added to ${values.type} library.` });
             onFinished();
             form.reset();
         } catch (error) {
@@ -301,18 +301,18 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-h-[70vh] overflow-y-auto px-1 custom-scrollbar">
                 <FormField control={form.control} name="name" render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Product Name</FormLabel>
+                        <FormLabel>{productType === 'music' ? 'Track Title' : 'Product Name'}</FormLabel>
                         <FormControl>
-                            <Input placeholder="e.g., Hoodie" {...field} />
+                            <Input placeholder={productType === 'music' ? "e.g., Quiet Steps" : "e.g., Hoodie"} {...field} />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
                 )} />
                 <FormField control={form.control} name="slug" render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Slug</FormLabel>
+                        <FormLabel>URL Slug (Unique)</FormLabel>
                         <FormControl>
-                            <Input placeholder="e.g., hoodie" {...field} />
+                            <Input placeholder="e.g., quiet-steps" {...field} />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -331,14 +331,14 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                         <FormItem>
                             <FormLabel>Price</FormLabel>
                             <FormControl>
-                                <Input placeholder="€35.00" {...field} />
+                                <Input placeholder="£2.00" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
                     )} />
-                    <FormField control={form.control} name="type" render={({ field }) => (
+                    <FormField control={form.control} name="brand" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Type</FormLabel>
+                            <FormLabel>Brand / Label</FormLabel>
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                 <FormControl>
                                     <SelectTrigger>
@@ -346,31 +346,14 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                    <SelectItem value="merch">Merch</SelectItem>
-                                    <SelectItem value="music">Music Track</SelectItem>
+                                    <SelectItem value="Verse 3 Merch">Verse 3</SelectItem>
+                                    <SelectItem value="Crude City">Crude City</SelectItem>
                                 </SelectContent>
                             </Select>
                             <FormMessage />
                         </FormItem>
                     )} />
                 </div>
-                 <FormField control={form.control} name="brand" render={({ field }) => (
-                    <FormItem>
-                        <FormLabel>Brand</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                                <SelectTrigger>
-                                    <SelectValue />
-                                </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                                <SelectItem value="Verse 3 Merch">Verse 3 Merch</SelectItem>
-                                <SelectItem value="Crude City">Crude City</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <FormMessage />
-                    </FormItem>
-                )} />
 
                 {productType === 'merch' && (
                      <FormField control={form.control} name="sizes" render={({ field }) => (
@@ -388,7 +371,7 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                 <div className="border-t pt-4 space-y-4">
                     <FormField control={form.control} name="imageFile" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Cover Image / Product Photo</FormLabel>
+                            <FormLabel>{productType === 'music' ? 'Cover Art' : 'Product Photo'}</FormLabel>
                             <FormControl>
                                 <Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files)} />
                             </FormControl>
@@ -412,7 +395,7 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                 {isSubmitting && uploadProgress !== null && (
                     <div className='space-y-2 py-2'>
                         <div className="flex justify-between text-xs font-bold uppercase italic">
-                            <span>Uploading Files...</span>
+                            <span>Uploading Content...</span>
                             <span>{Math.round(uploadProgress)}%</span>
                         </div>
                         <Progress value={uploadProgress} className="h-2" />
@@ -420,7 +403,7 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
                 )}
 
                 <Button type="submit" disabled={isSubmitting} className="w-full h-12 bg-black text-chart-1 font-bold">
-                   {isSubmitting ? 'Uploading & Saving...' : 'Add Product'}
+                   {isSubmitting ? 'Processing...' : (productType === 'music' ? 'Upload Track' : 'Add Item')}
                    {!isSubmitting && <UploadCloud className="ml-2 h-4 w-4" />}
                 </Button>
             </form>
@@ -428,35 +411,15 @@ const AddProductForm = ({ onFinished }: { onFinished: () => void }) => {
     );
 };
 
-const ProductManagement = () => {
-    const firestore = useFirestore();
-    const productsQuery = useMemo(() => firestore ? collection(firestore, 'products') : null, [firestore]);
-    const { data: dbProducts, isLoading: isDbLoading, error: dbError } = useCollection(productsQuery);
-    const [printfulProducts, setPrintfulProducts] = useState<Product[]>([]);
-    const [isPrintfulLoading, setIsPrintfulLoading] = useState(false);
+const MerchManagement = ({ dbProducts, printfulProducts, isLoading }: { dbProducts: any[], printfulProducts: any[], isLoading: boolean }) => {
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
-    const loadPrintfulData = async () => {
-        setIsPrintfulLoading(true);
-        try {
-            const v3 = await getProducts('Verse 3 Merch');
-            const crude = await getProducts('Crude City');
-            setPrintfulProducts([...v3, ...crude]);
-        } catch (err) {
-            console.error("Failed to fetch Printful products:", err);
-        } finally {
-            setIsPrintfulLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        loadPrintfulData();
-    }, []);
-
-    const allProducts = useMemo(() => {
-        const combined = [...(dbProducts || [])];
+    const merchOnly = useMemo(() => {
+        const dbMerch = dbProducts.filter(p => p.type === 'merch');
+        const printfulMerch = printfulProducts;
+        const combined = [...dbMerch];
         const slugs = new Set(combined.map(p => p.slug));
-        printfulProducts.forEach(p => {
+        printfulMerch.forEach(p => {
             if (!slugs.has(p.slug)) combined.push(p);
         });
         return combined.sort((a, b) => a.name.localeCompare(b.name));
@@ -466,51 +429,104 @@ const ProductManagement = () => {
         <Card className="border-none shadow-none bg-transparent">
             <CardContent className="pt-0">
                 <div className="flex justify-end gap-2 mb-6">
-                    <Button variant="outline" size="sm" onClick={loadPrintfulData} disabled={isPrintfulLoading}>
-                        <RefreshCcw className={`mr-2 h-4 w-4 ${isPrintfulLoading ? 'animate-spin' : ''}`} />
-                        Sync Printful
-                    </Button>
                     <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
                         <DialogTrigger asChild>
                             <Button size="sm">
-                                <PlusCircle className="mr-2 h-4 w-4" /> Add Product
+                                <PlusCircle className="mr-2 h-4 w-4" /> Add Merch
                             </Button>
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-xl">
                             <DialogHeader>
-                                <DialogTitle className="font-headline text-2xl uppercase italic">Add New Store Item</DialogTitle>
+                                <DialogTitle className="font-headline text-2xl uppercase italic">Add Merch Item</DialogTitle>
                             </DialogHeader>
-                            <AddProductForm onFinished={() => setIsAddDialogOpen(false)} />
+                            <AddProductForm initialType="merch" onFinished={() => setIsAddDialogOpen(false)} />
                         </DialogContent>
                     </Dialog>
                 </div>
 
-                {(isDbLoading || isPrintfulLoading) && <div className="py-4 space-y-2"><Skeleton className="h-10 w-full"/><Skeleton className="h-10 w-full"/><Skeleton className="h-10 w-full"/></div>}
-                {dbError && <p className="text-destructive">Error loading Firestore products.</p>}
-                {!isDbLoading && !isPrintfulLoading && allProducts.length > 0 && (
+                {isLoading && <div className="py-4 space-y-2"><Skeleton className="h-10 w-full"/><Skeleton className="h-10 w-full"/></div>}
+                {!isLoading && merchOnly.length > 0 && (
                      <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Name</TableHead>
+                                <TableHead>Item Name</TableHead>
                                 <TableHead>Brand</TableHead>
                                 <TableHead>Source</TableHead>
-                                <TableHead>Type</TableHead>
                                 <TableHead>Price</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {allProducts.map((p: any) => (
+                            {merchOnly.map((p: any) => (
                                 <TableRow key={p.id || p.slug}>
                                     <TableCell className="font-bold">{p.name}</TableCell>
                                     <TableCell><Badge variant="secondary">{p.brand}</Badge></TableCell>
                                     <TableCell>
                                         <Badge variant="outline" className="flex w-fit items-center gap-1">
-                                            {p.id && String(p.id).length > 10 ? 'Firestore' : 'Printful'}
-                                            {!p.id && <ExternalLink className="h-3 w-3" />}
+                                            {p.id && String(p.id).length > 10 ? 'Local' : 'Printful'}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell className="capitalize">{p.type}</TableCell>
                                     <TableCell>{p.price}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                )}
+            </CardContent>
+        </Card>
+    );
+};
+
+const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoading: boolean }) => {
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+
+    const musicOnly = useMemo(() => {
+        return dbProducts.filter(p => p.type === 'music').sort((a, b) => a.name.localeCompare(b.name));
+    }, [dbProducts]);
+
+    return (
+        <Card className="border-none shadow-none bg-transparent">
+            <CardContent className="pt-0">
+                <div className="flex justify-end gap-2 mb-6">
+                    <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button size="sm" className="bg-chart-1 text-black hover:bg-black hover:text-chart-1">
+                                <Disc className="mr-2 h-4 w-4" /> Upload New Track
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-xl">
+                            <DialogHeader>
+                                <DialogTitle className="font-headline text-2xl uppercase italic">Upload To Music Library</DialogTitle>
+                            </DialogHeader>
+                            <AddProductForm initialType="music" onFinished={() => setIsAddDialogOpen(false)} />
+                        </DialogContent>
+                    </Dialog>
+                </div>
+
+                {isLoading && <div className="py-4 space-y-2"><Skeleton className="h-10 w-full"/><Skeleton className="h-10 w-full"/></div>}
+                {!isLoading && musicOnly.length === 0 && <p className="text-center text-muted-foreground py-8">No tracks in library yet.</p>}
+                {!isLoading && musicOnly.length > 0 && (
+                     <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Track Title</TableHead>
+                                <TableHead>Price</TableHead>
+                                <TableHead className="text-right">Preview</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {musicOnly.map((p: any) => (
+                                <TableRow key={p.id || p.slug}>
+                                    <TableCell className="font-bold">{p.name}</TableCell>
+                                    <TableCell>{p.price}</TableCell>
+                                    <TableCell className="text-right">
+                                        {p.downloadUrl && (
+                                            <Button variant="ghost" size="sm" asChild>
+                                                <a href={p.downloadUrl} target="_blank" rel="noopener noreferrer">
+                                                    <FileAudio className="h-4 w-4" />
+                                                </a>
+                                            </Button>
+                                        )}
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -537,9 +553,31 @@ export default function AdminPage() {
     const router = useRouter();
     const isAdmin = user?.email === adminEmail || user?.uid === adminUid;
 
+    const firestore = useFirestore();
+    const productsQuery = useMemo(() => firestore ? collection(firestore, 'products') : null, [firestore]);
+    const { data: dbProducts, isLoading: isDbLoading } = useCollection(productsQuery);
+    
+    const [printfulProducts, setPrintfulProducts] = useState<Product[]>([]);
+    const [isPrintfulLoading, setIsPrintfulLoading] = useState(false);
+
+    const loadPrintfulData = async () => {
+        setIsPrintfulLoading(true);
+        try {
+            const v3 = await getProducts('Verse 3 Merch');
+            const crude = await getProducts('Crude City');
+            setPrintfulProducts([...v3, ...crude]);
+        } catch (err) {
+            console.error("Failed to fetch Printful products:", err);
+        } finally {
+            setIsPrintfulLoading(false);
+        }
+    };
+
     useEffect(() => {
         if (!isUserLoading && !isAdmin) {
             router.push('/');
+        } else if (isAdmin) {
+            loadPrintfulData();
         }
     }, [isAdmin, isUserLoading, router]);
 
@@ -556,24 +594,42 @@ export default function AdminPage() {
 
     return (
         <div className="container py-12 md:py-24 max-w-5xl mx-auto">
-            <div className="mb-12">
-                <div className="flex items-center gap-3 mb-2">
-                    <Settings2 className="h-8 w-8 text-chart-1" />
-                    <h1 className="font-headline text-4xl md:text-5xl font-bold uppercase tracking-tighter italic">Admin <span className="text-chart-1">Control</span></h1>
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+                <div>
+                    <div className="flex items-center gap-3 mb-2">
+                        <Settings2 className="h-8 w-8 text-chart-1" />
+                        <h1 className="font-headline text-4xl md:text-5xl font-bold uppercase tracking-tighter italic">Admin <span className="text-chart-1">Control</span></h1>
+                    </div>
+                    <p className="text-muted-foreground">Authenticated as: <span className="font-bold text-foreground">{user?.displayName || adminEmail}</span></p>
                 </div>
-                <p className="text-muted-foreground">Authenticated as: <span className="font-bold text-foreground">{user?.displayName || adminEmail}</span></p>
+                <Button variant="outline" size="sm" onClick={loadPrintfulData} disabled={isPrintfulLoading}>
+                    <RefreshCcw className={`mr-2 h-4 w-4 ${isPrintfulLoading ? 'animate-spin' : ''}`} />
+                    Sync Storefronts
+                </Button>
             </div>
 
-            <Accordion type="multiple" defaultValue={['products']} className="w-full space-y-4">
-                <AccordionItem value="products" className="border-2 border-black/5 rounded-lg overflow-hidden bg-white shadow-sm">
+            <Accordion type="multiple" defaultValue={['merch', 'music']} className="w-full space-y-4">
+                <AccordionItem value="merch" className="border-2 border-black/5 rounded-lg overflow-hidden bg-white shadow-sm">
                     <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-black/5 transition-colors">
                         <div className="flex items-center gap-3">
                             <Package className="h-6 w-6 text-chart-1" />
-                            <span className="font-headline text-2xl uppercase italic">Product Management</span>
+                            <span className="font-headline text-2xl uppercase italic">Merch Management</span>
                         </div>
                     </AccordionTrigger>
                     <AccordionContent className="pt-4">
-                        <ProductManagement />
+                        <MerchManagement dbProducts={dbProducts || []} printfulProducts={printfulProducts} isLoading={isDbLoading || isPrintfulLoading} />
+                    </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="music" className="border-2 border-black/5 rounded-lg overflow-hidden bg-white shadow-sm">
+                    <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-black/5 transition-colors">
+                        <div className="flex items-center gap-3">
+                            <Disc className="h-6 w-6 text-chart-1" />
+                            <span className="font-headline text-2xl uppercase italic">Music Library</span>
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pt-4">
+                        <MusicManagement dbProducts={dbProducts || []} isLoading={isDbLoading} />
                     </AccordionContent>
                 </AccordionItem>
 
