@@ -566,11 +566,18 @@ const MerchManagement = ({ dbProducts, printfulProducts, isLoading }: { dbProduc
     }, [dbProducts, printfulProducts]);
 
     const handleDelete = (id: any) => {
-        if (!firestore || !id) return;
+        if (!firestore) {
+            toast({ variant: 'destructive', title: 'Error', description: 'Database not connected.' });
+            return;
+        }
+        if (!id) {
+            toast({ variant: 'destructive', title: 'Error', description: 'Invalid product ID.' });
+            return;
+        }
         if (window.confirm('Are you sure you want to remove this item?')) {
             const docRef = doc(firestore, 'products', String(id));
             deleteDocumentNonBlocking(docRef);
-            toast({ title: 'Item Removed', description: 'Product has been deleted from your library.' });
+            toast({ title: 'Success', description: 'Item removed from library.' });
         }
     };
 
@@ -643,11 +650,18 @@ const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoadi
     }, [dbProducts]);
 
     const handleDelete = (id: any) => {
-        if (!firestore || !id) return;
+        if (!firestore) {
+            toast({ variant: 'destructive', title: 'Error', description: 'Database connection lost.' });
+            return;
+        }
+        if (!id) {
+            toast({ variant: 'destructive', title: 'Error', description: 'Could not identify product ID.' });
+            return;
+        }
         if (window.confirm('Are you sure you want to remove this track from the library?')) {
             const docRef = doc(firestore, 'products', String(id));
             deleteDocumentNonBlocking(docRef);
-            toast({ title: 'Track Removed', description: 'Music master has been deleted from your library.' });
+            toast({ title: 'Success', description: 'Track removed from library.' });
         }
     };
 
@@ -706,7 +720,15 @@ const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoadi
                                         </div>
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(p.id)}>
+                                        <Button 
+                                            variant="ghost" 
+                                            size="icon" 
+                                            className="text-destructive hover:bg-destructive/10" 
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                handleDelete(p.id);
+                                            }}
+                                        >
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
                                     </TableCell>
