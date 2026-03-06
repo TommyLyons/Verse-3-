@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser, useFirestore, useCollection, addDocumentNonBlocking } from '@/firebase';
+import { useUser, useFirestore, useCollection, addDocumentNonBlocking, useFirebaseApp } from '@/firebase';
 import { collection, serverTimestamp } from 'firebase/firestore';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { Card, CardContent } from '@/components/ui/card';
@@ -204,6 +204,7 @@ type ProductFormValues = z.infer<typeof productFormSchema>;
 const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, initialType: 'merch' | 'music' }) => {
     const { toast } = useToast();
     const firestore = useFirestore();
+    const firebaseApp = useFirebaseApp();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [uploadProgress, setUploadProgress] = useState<number | null>(null);
     const [currentStep, setCurrentStep] = useState<string>('');
@@ -238,27 +239,30 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
     const handleFileUpload = (file: File, path: string): Promise<string> => {
         return new Promise((resolve, reject) => {
             if (!file) return reject(new Error("No file selected"));
+            if (!firebaseApp) return reject(new Error("Firebase not initialized"));
             
-            const storage = getStorage();
+            const storage = getStorage(firebaseApp);
             const storageRef = ref(storage, path);
             const uploadTask = uploadBytesResumable(storageRef, file);
 
             uploadTask.on(
                 'state_changed',
                 (snapshot) => {
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    const progress = snapshot.totalBytes > 0 
+                        ? (snapshot.bytesTransferred / snapshot.totalBytes) * 100 
+                        : 0;
                     setUploadProgress(progress);
                 },
                 (error) => {
-                    console.error('Upload failed:', error);
-                    reject(error);
+                    console.error('Upload error detail:', error);
+                    reject(new Error(`Upload failed: ${error.message}`));
                 },
                 async () => {
                     try {
                       const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
                       resolve(downloadURL);
-                    } catch (e) {
-                      reject(e);
+                    } catch (e: any) {
+                      reject(new Error(`URL retrieval failed: ${e.message}`));
                     }
                 }
             );
@@ -278,6 +282,7 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
             setUploadedImageUrl(url);
             toast({ title: 'Artwork Uploaded', description: 'Cover image is ready.' });
         } catch (error: any) {
+            console.error('Instant upload error:', error);
             toast({ variant: 'destructive', title: 'Upload Failed', description: error.message });
         } finally {
             setUploadProgress(null);
@@ -521,7 +526,7 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                     )}
                 </div>
 
-                {(isSubmitting || uploadProgress !== null) && (
+                {(isSubmitting || (uploadProgress !== null && uploadProgress > 0)) && (
                     <div className='space-y-2 py-4 sticky bottom-0 bg-white border-t z-10'>
                         <div className="flex justify-between text-[10px] font-bold uppercase italic text-chart-1">
                             <span>{currentStep || 'Processing...'}</span>
