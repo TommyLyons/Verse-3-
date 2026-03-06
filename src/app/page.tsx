@@ -10,7 +10,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Eye, ChevronRight, Instagram, Send, ShoppingBag } from 'lucide-react';
 import { getAllProducts, type Product } from '@/lib/products';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, addDocumentNonBlocking } from '@/firebase';
 import { collection, serverTimestamp } from 'firebase/firestore';
@@ -53,35 +52,14 @@ export default function Home() {
     fetchProducts();
   }, []);
   
-  // Featured Merch specifically for EU V3 Store, prioritizing hoodies and bags
+  // Strict filtering for Merch
   const merchProducts = React.useMemo(() => {
-    const euV3Items = allProducts.filter(p => 
-      p.type === 'merch' && 
-      p.brand === 'Verse 3 Merch' && 
-      (p.availableRegions?.includes('EU') || !p.availableRegions)
-    );
-
-    // Prioritize bags and hoodies for the featured display
-    return [...euV3Items]
-      .sort((a, b) => {
-          const aPriority = (a.name.toLowerCase().includes('hoodie') || a.name.toLowerCase().includes('bag')) ? 0 : 1;
-          const bPriority = (b.name.toLowerCase().includes('hoodie') || b.name.toLowerCase().includes('bag')) ? 0 : 1;
-          if (aPriority !== bPriority) return aPriority - bPriority;
-          return a.name.localeCompare(b.name);
-      })
-      .slice(0, 8);
+    return allProducts.filter(p => p.type === 'merch').slice(0, 8);
   }, [allProducts]);
 
-  // Latest Music: Ordered by createdAt (newest first), includes digital releases
+  // Strict filtering for Music
   const musicProducts = React.useMemo(() => {
-    return allProducts
-      .filter(p => p.type === 'music')
-      .sort((a, b) => {
-        const timeA = a.createdAt?.seconds || 0;
-        const timeB = b.createdAt?.seconds || 0;
-        return timeB - timeA; // Newest first
-      })
-      .slice(0, 8);
+    return allProducts.filter(p => p.type === 'music').slice(0, 8);
   }, [allProducts]);
 
   const vibeHero = PlaceHolderImages.find(img => img.id === 'vibe-hero');
@@ -148,40 +126,41 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section */}
-      <section className="relative w-full h-[80vh] md:h-[90vh] flex flex-col items-center justify-center overflow-hidden bg-white">
-        <div className="absolute inset-0 z-0 flex items-center justify-center">
+      {/* Hero Section - Restored to 34172f3 Clean Layout */}
+      <section className="relative w-full h-[80vh] flex flex-col items-center justify-center bg-white overflow-hidden">
+        <div className="absolute inset-0 z-0">
           <video
             src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
             autoPlay loop muted playsInline
-            className="w-full h-full object-contain mix-blend-multiply scale-150 md:scale-100"
+            className="w-full h-full object-cover md:object-contain mix-blend-multiply"
           />
         </div>
         
-        <div className="absolute bottom-10 md:bottom-12 z-10 flex flex-row justify-center gap-4 px-6 w-full max-w-md mx-auto">
-          <Button asChild className="flex-1 bg-black text-chart-1 hover:bg-black/90 font-bold border-none shadow-xl h-12">
+        <div className="absolute bottom-12 z-10 flex gap-4 px-6 w-full max-w-sm mx-auto">
+          <Button asChild className="flex-1 bg-black text-chart-1 font-bold h-11 rounded-none uppercase italic tracking-wider shadow-lg">
             <Link href="/store">Shop Merch</Link>
           </Button>
-          <Button asChild className="flex-1 bg-black text-chart-1 hover:bg-black/90 font-bold border-none shadow-xl h-12">
+          <Button asChild className="flex-1 bg-black text-chart-1 font-bold h-11 rounded-none uppercase italic tracking-wider shadow-lg">
             <Link href="/music">Music</Link>
           </Button>
         </div>
       </section>
 
-      {/* Our Vision */}
-      <section className="py-16 md:py-24 bg-white border-y">
+      {/* Our Vision - Clean Section */}
+      <section className="py-20 bg-white border-b">
           <div className="container max-w-4xl mx-auto px-4 text-center">
-              <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl uppercase tracking-wider">Our Vision</h2>
-              <p className="mt-6 text-muted-foreground md:text-lg leading-relaxed">
-                  Our mission is to champion emerging talent and deliver emotionally powerful records that resonate. We believe that music is most powerful when crafted from real stories, and we are committed to fostering a community where artists can be vulnerable and authentic.
+              <h2 className="font-headline text-4xl font-bold text-black uppercase italic tracking-tight">Our Vision</h2>
+              <div className="h-1 w-20 bg-chart-1 mx-auto mt-2 mb-6" />
+              <p className="text-muted-foreground text-lg leading-relaxed font-medium">
+                  Our mission is to champion emerging talent and deliver emotionally powerful records that resonate. We believe that music is most powerful when crafted from real stories, and we are committed to fostering an authentic global community.
               </p>
           </div>
       </section>
 
-      {/* Impact Image Hero Section */}
+      {/* Impact Image */}
       {vibeHero && (
-        <section className="w-full bg-black flex items-center justify-center py-4">
-          <div className="relative w-full aspect-[16/9] md:aspect-[21/9] max-w-screen-2xl">
+        <section className="w-full bg-black py-4">
+          <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto">
             <Image
               src={vibeHero.imageUrl}
               alt={vibeHero.description}
@@ -194,51 +173,45 @@ export default function Home() {
         </section>
       )}
 
-      {/* Choose Your Vibe */}
-      <section className="w-full py-12 bg-black text-white">
+      {/* Choose Your Vibe - Refined Button Sizes */}
+      <section className="py-12 bg-black text-white">
           <div className="container max-w-7xl mx-auto px-4">
             <div className="text-center mb-8">
-              <h2 className="font-headline text-3xl font-bold uppercase tracking-[0.1em] italic text-chart-1">Choose Your Vibe</h2>
+              <h2 className="font-headline text-3xl font-bold uppercase italic text-chart-1 tracking-widest">Choose Your Vibe</h2>
             </div>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-4xl mx-auto">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-3xl mx-auto">
               <Button 
                 onClick={() => handleBrandClick('Verse 3')}
-                size="lg"
-                className="flex-1 h-20 bg-white text-black hover:bg-chart-1 font-headline text-2xl uppercase italic border-none rounded-none transition-all duration-300 transform hover:scale-105"
+                className="flex-1 h-14 bg-white text-black hover:bg-chart-1 font-headline text-xl uppercase italic rounded-none transition-all duration-300"
               >
-                <ShoppingBag className="mr-3 h-6 w-6" />
+                <ShoppingBag className="mr-2 h-5 w-5" />
                 V3 Merch
               </Button>
               <Button 
                 onClick={() => handleBrandClick('Crude City')}
-                size="lg"
-                className="flex-1 h-20 bg-chart-1 text-black hover:bg-white font-headline text-2xl uppercase italic border-none rounded-none transition-all duration-300 transform hover:scale-105"
+                className="flex-1 h-14 bg-chart-1 text-black hover:bg-white font-headline text-xl uppercase italic rounded-none transition-all duration-300"
               >
-                <ShoppingBag className="mr-3 h-6 w-6" />
+                <ShoppingBag className="mr-2 h-5 w-5" />
                 Crude City
               </Button>
             </div>
           </div>
        </section>
 
-       {/* Featured Merch Carousel */}
-       <section className="py-16 md:py-24 bg-white">
+       {/* Featured Merch Carousel - Boutique Scale */}
+       <section className="py-24 bg-white">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
-                    <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl uppercase tracking-wider">Featured Merch</h2>
-                    <p className="mt-2 text-muted-foreground">Premium gear from the V3 collection.</p>
+                    <h2 className="font-headline text-5xl font-bold text-black uppercase italic tracking-tighter">Featured <span className="text-chart-1">Merch</span></h2>
+                    <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mt-2">Premium V3 Collections</p>
                 </div>
                 
                 {isLoading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                         {[...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full" />)}
                     </div>
-                ) : merchProducts.length === 0 ? (
-                    <div className="text-center py-12 border-2 border-dashed rounded-lg">
-                        <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">Syncing collection...</p>
-                    </div>
                 ) : (
-                    <div className="relative">
+                    <div className="relative px-4 md:px-0">
                         <Carousel
                             opts={{
                                 align: "start",
@@ -249,30 +222,25 @@ export default function Home() {
                             <CarouselContent className="-ml-4">
                                 {merchProducts.map((item) => (
                                     <CarouselItem key={item.id} className="pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/4">
-                                        <Card className="overflow-hidden group flex flex-col border-none shadow-none bg-transparent">
-                                            <div 
-                                              onClick={() => handleProductClick(item)} 
-                                              className="cursor-pointer block aspect-square relative bg-secondary rounded-lg overflow-hidden"
-                                            >
+                                        <Card 
+                                          className="border-none shadow-none bg-transparent group cursor-pointer"
+                                          onClick={() => handleProductClick(item)}
+                                        >
+                                            <div className="aspect-square relative bg-secondary rounded-none overflow-hidden border-2 border-black/5">
                                                 <Image
                                                     src={item.imageUrl || ''}
                                                     alt={item.name}
                                                     fill
-                                                    className="object-contain p-6 transition-transform duration-500 group-hover:scale-105"
-                                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                                                    className="object-contain p-12 transition-transform duration-500 group-hover:scale-105"
+                                                    sizes="(max-width: 640px) 100vw, 25vw"
                                                 />
                                             </div>
                                             <div className="mt-4 flex justify-between items-center px-1">
                                                 <div>
-                                                    <p className="font-bold text-black uppercase">{item.name}</p>
-                                                    <p className="text-sm font-medium">{item.price}</p>
+                                                    <p className="font-bold text-black uppercase text-sm leading-tight">{item.name}</p>
+                                                    <p className="text-xs font-bold text-chart-1 bg-black px-2 py-0.5 inline-block mt-1 italic">{item.price}</p>
                                                 </div>
-                                                <Button 
-                                                  size="sm" 
-                                                  variant="secondary" 
-                                                  onClick={() => handleProductClick(item)}
-                                                  className="bg-black text-chart-1 hover:bg-black/90"
-                                                >
+                                                <Button size="sm" variant="outline" className="h-9 w-9 p-0 border-black rounded-none hover:bg-black hover:text-chart-1">
                                                     <Eye className="h-4 w-4"/>
                                                 </Button>
                                             </div>
@@ -280,39 +248,28 @@ export default function Home() {
                                     </CarouselItem>
                                 ))}
                             </CarouselContent>
-                            <div className="hidden lg:block">
-                                <CarouselPrevious className="-left-12" />
-                                <CarouselNext className="-right-12" />
-                            </div>
+                            <CarouselPrevious className="-left-12 hidden lg:flex border-black text-black" />
+                            <CarouselNext className="-right-12 hidden lg:flex border-black text-black" />
                         </Carousel>
-                        
-                        <div className="flex lg:hidden items-center justify-center mt-8 gap-2 text-black font-bold animate-pulse">
-                          <span className="text-[10px] uppercase tracking-[0.2em]">Swipe to explore</span>
-                          <ChevronRight className="h-3 w-3" />
-                        </div>
                     </div>
                 )}
             </div>
        </section>
 
-       {/* Latest Music Carousel - Dynamic and Sorted */}
-       <section className="py-16 md:py-24 bg-secondary">
+       {/* Latest Music Carousel - Strict Music Filtering */}
+       <section className="py-24 bg-secondary/30">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
-                    <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl uppercase tracking-wider">Latest Music</h2>
-                    <p className="mt-2 text-muted-foreground">New releases from the Verse3 family.</p>
+                    <h2 className="font-headline text-5xl font-bold text-black uppercase italic tracking-tighter">Latest <span className="text-chart-1">Music</span></h2>
+                    <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mt-2">Authorized Audio Masters</p>
                 </div>
 
                 {isLoading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                         {[...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full" />)}
                     </div>
-                ) : musicProducts.length === 0 ? (
-                  <div className="text-center py-12 border-2 border-dashed rounded-lg">
-                      <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">No music released yet.</p>
-                  </div>
                 ) : (
-                    <div className="relative">
+                    <div className="relative px-4 md:px-0">
                         <Carousel
                             opts={{
                                 align: "start",
@@ -323,30 +280,25 @@ export default function Home() {
                             <CarouselContent className="-ml-4">
                                 {musicProducts.map((item) => (
                                     <CarouselItem key={item.id} className="pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/4">
-                                        <Card className="overflow-hidden group flex flex-col border-none shadow-none bg-transparent">
-                                            <div 
-                                              onClick={() => handleProductClick(item)}
-                                              className="cursor-pointer block aspect-square relative rounded-lg overflow-hidden bg-white shadow-sm"
-                                            >
+                                        <Card 
+                                          className="border-none shadow-none bg-transparent group cursor-pointer"
+                                          onClick={() => handleProductClick(item)}
+                                        >
+                                            <div className="aspect-square relative bg-white rounded-none overflow-hidden shadow-sm border-2 border-black/5">
                                                 <Image
                                                     src={item.imageUrl || ''}
                                                     alt={item.name}
                                                     fill
-                                                    className="object-contain p-6 transition-transform duration-500 group-hover:scale-105"
-                                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                                                    className="object-contain p-12 transition-transform duration-500 group-hover:scale-105"
+                                                    sizes="(max-width: 640px) 100vw, 25vw"
                                                 />
                                             </div>
                                             <div className="mt-4 flex justify-between items-center px-1">
                                                 <div>
-                                                    <p className="font-bold text-black uppercase">{item.name}</p>
-                                                    <p className="text-sm font-medium">{item.price}</p>
+                                                    <p className="font-bold text-black uppercase text-sm leading-tight">{item.name}</p>
+                                                    <p className="text-xs font-bold text-chart-1 bg-black px-2 py-0.5 inline-block mt-1 italic">{item.price}</p>
                                                 </div>
-                                                <Button 
-                                                  size="sm" 
-                                                  variant="secondary" 
-                                                  onClick={() => handleProductClick(item)}
-                                                  className="bg-black text-chart-1 hover:bg-black/90"
-                                                >
+                                                <Button size="sm" variant="outline" className="h-9 w-9 p-0 border-black rounded-none hover:bg-black hover:text-chart-1">
                                                     <Eye className="h-4 w-4"/>
                                                 </Button>
                                             </div>
@@ -354,86 +306,49 @@ export default function Home() {
                                     </CarouselItem>
                                 ))}
                             </CarouselContent>
-                            <div className="hidden lg:block">
-                                <CarouselPrevious className="-left-12" />
-                                <CarouselNext className="-right-12" />
-                            </div>
+                            <CarouselPrevious className="-left-12 hidden lg:flex border-black text-black" />
+                            <CarouselNext className="-right-12 hidden lg:flex border-black text-black" />
                         </Carousel>
-                        
-                        <div className="flex lg:hidden items-center justify-center mt-8 gap-2 text-black font-bold animate-pulse">
-                          <span className="text-[10px] uppercase tracking-[0.2em]">Swipe to explore</span>
-                          <ChevronRight className="h-3 w-3" />
-                        </div>
                     </div>
                 )}
-
-                <div className="text-center mt-12">
-                    <Button asChild size="lg" className="bg-black text-chart-1 font-bold">
-                        <Link href="/store?brand=v3">View Music Store</Link>
-                    </Button>
-                </div>
             </div>
        </section>
 
-       {/* Instagram Section */}
-       <section className="relative py-10 md:py-16 bg-black overflow-hidden group">
-          <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] border-[40px] border-chart-1/10 rounded-full animate-spin" style={{ animationDuration: '60s' }} />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] border-[20px] border-chart-1/5 rounded-full animate-spin" style={{ animationDuration: '45s', animationDirection: 'reverse' }} />
-          </div>
-
-          <div className="absolute -bottom-6 -right-6 md:-bottom-12 md:-right-12 select-none opacity-10">
-            <h3 className="font-headline text-[6rem] md:text-[10rem] text-chart-1 leading-none">V3</h3>
-          </div>
-          
-          <div className="container relative z-10 max-w-7xl mx-auto px-4">
-            <div className="max-w-5xl mx-auto flex flex-col items-center">
-                <div className="mb-6 relative">
-                    <div className="absolute inset-0 bg-chart-1 blur-[60px] opacity-20 rounded-full animate-pulse"></div>
-                    <div className="relative h-16 w-16 md:h-20 md:w-20 bg-chart-1 flex items-center justify-center rounded-xl rotate-12 group-hover:rotate-0 transition-all duration-700 shadow-[0_0_30px_rgba(255,255,255,0.1)]">
-                        <Instagram className="h-8 w-8 md:h-10 md:w-10 text-black" />
-                    </div>
-                </div>
-
-                <div className="text-center space-y-3">
-                    <h2 className="font-headline text-4xl md:text-6xl font-bold text-white uppercase tracking-tighter italic">
-                        JOIN THE <span className="text-chart-1">JOURNEY</span>
-                    </h2>
-                    <p className="text-sm md:text-lg text-white/60 max-w-xl mx-auto font-medium leading-tight">
-                        We don't just release music; we build culture. <br className="hidden md:block" /> 
-                        Get the raw, unfiltered view inside Verse3.
-                    </p>
-                </div>
-
-                <div className="mt-8 w-full max-w-xs md:max-w-sm">
-                    <Button asChild size="lg" className="w-full h-12 md:h-14 bg-chart-1 text-black hover:bg-white transition-all duration-500 font-bold text-lg md:text-xl uppercase italic tracking-tighter border-none rounded-none shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1">
-                        <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">
-                            Follow @verse3records
-                        </a>
-                    </Button>
+       {/* Social Section - Clean Restored Version */}
+       <section className="py-24 bg-black text-white relative overflow-hidden">
+          <div className="container relative z-10 max-w-5xl mx-auto px-4 text-center">
+            <div className="mb-8 flex justify-center">
+                <div className="h-16 w-16 bg-chart-1 rounded-none flex items-center justify-center text-black rotate-12 group-hover:rotate-0 transition-transform duration-500">
+                    <Instagram className="h-8 w-8" />
                 </div>
             </div>
+            <h2 className="font-headline text-5xl md:text-7xl font-bold uppercase italic tracking-tighter mb-4">
+                JOIN THE <span className="text-chart-1">JOURNEY</span>
+            </h2>
+            <p className="text-white/60 text-lg mb-10 font-medium max-w-xl mx-auto">Get the raw, unfiltered view inside Verse3. Behind the scenes, new drops, and culture.</p>
+            <Button asChild size="lg" className="h-14 px-12 bg-chart-1 text-black hover:bg-white font-bold text-xl uppercase italic rounded-none shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]">
+                <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">@verse3records</a>
+            </Button>
           </div>
        </section>
 
-       {/* Newsletter Section */}
-       <section className="py-16 md:py-20 bg-chart-1 border-y border-black/10">
-          <div className="container max-w-7xl mx-auto px-4">
-            <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
-                <h2 className="font-headline text-4xl md:text-6xl font-bold text-black uppercase tracking-tighter italic leading-none mb-2">
-                    Join The V3 Family
+       {/* Newsletter Section - Refined */}
+       <section className="py-24 bg-chart-1 border-t border-black/10">
+          <div className="container max-w-4xl mx-auto px-4 text-center">
+                <h2 className="font-headline text-5xl font-bold text-black uppercase italic tracking-tighter mb-2 leading-none">
+                    Join The Family
                 </h2>
                 <p className="text-black/80 font-bold uppercase tracking-[0.2em] text-[10px] md:text-xs mb-8">
-                    Join For Pre Releases, Discounts, News & More
+                    Authorized Access to Pre-Releases & Inner Circle News
                 </p>
-                <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2 w-full max-w-md">
+                <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
                     <input 
                         type="email" 
                         placeholder="EMAIL ADDRESS" 
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="h-12 bg-white/30 border-black/20 text-black placeholder:text-black/40 font-bold rounded-none focus-visible:ring-black/20 px-4 flex-grow outline-none"
+                        className="h-12 bg-white/40 border-black/10 text-black placeholder:text-black/40 font-bold rounded-none px-4 flex-grow outline-none focus:bg-white/60 transition-colors"
                     />
                     <Button 
                         type="submit" 
@@ -445,7 +360,6 @@ export default function Home() {
                     </Button>
                 </form>
             </div>
-          </div>
        </section>
 
        <AgeGate 
