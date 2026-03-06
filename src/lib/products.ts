@@ -22,7 +22,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
         
         dbProducts = snapshot.docs.map(doc => {
             const data = doc.data() as any;
-            // Convert Firestore Timestamps to ISO strings to avoid serialization errors
+            // Convert Firestore Timestamps to ISO strings to avoid Next.js serialization errors
             const serialized = { ...data };
             if (serialized.createdAt && typeof serialized.createdAt.toDate === 'function') {
                 serialized.createdAt = serialized.createdAt.toDate().toISOString();
@@ -84,7 +84,8 @@ export const getAllProducts = async (): Promise<Product[]> => {
 export const getProductBySlug = async (slug: string): Promise<Product | undefined> => {
     try {
         const allProducts = await getAllProducts();
-        return allProducts.find(p => p.slug === slug);
+        // Use case-insensitive lookup for URL safety
+        return allProducts.find(p => p.slug.toLowerCase() === slug.toLowerCase());
     } catch (error) {
         console.error("Error in getProductBySlug:", error);
         return undefined;

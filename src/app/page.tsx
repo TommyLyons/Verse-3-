@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -138,7 +137,7 @@ export default function Home() {
             <Link href="/store">Shop Merch</Link>
           </Button>
           <Button asChild className="flex-1 bg-black text-chart-1 font-bold h-11 rounded-none uppercase italic tracking-wider shadow-lg hover:bg-chart-1 hover:text-black transition-all">
-            <Link href="/music">Music</Link>
+            <Link href="/music">Music Masters</Link>
           </Button>
         </div>
       </section>
@@ -154,7 +153,7 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image precisely above Choice section */}
+      {/* Impact Image above Choice section */}
       {vibeHero && (
         <section className="w-full bg-black py-4">
           <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto">

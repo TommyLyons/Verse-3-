@@ -1,4 +1,3 @@
-
 import { getAllProducts } from '@/lib/products';
 import { notFound } from 'next/navigation';
 import { ProductClientPage } from './product-client-page';
@@ -12,7 +11,7 @@ export default async function MerchPage({ params }: { params: Promise<{ slug: st
   // Fetch fresh products and strictly find by slug and type
   const allProducts = await getAllProducts();
   
-  // Implement case-insensitive lookup for consistency across the store
+  // Implement strict case-insensitive lookup for consistency across the store
   const product = allProducts.find(p => 
     p.slug.toLowerCase() === slug.toLowerCase() && 
     p.type === 'merch'
