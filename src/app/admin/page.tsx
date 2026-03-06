@@ -280,24 +280,31 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
             let finalDownloadUrl = values.downloadUrl || '';
             const finalTracks: any[] = [];
 
-            // 1. Handle Audio Upload for Single
-            if (values.type === 'music' && !values.isAlbum && values.audioFile && values.audioFile.length > 0) {
-                setCurrentStep('Uploading Audio...');
-                const audFile = values.audioFile[0] as File;
-                const audPath = `products/audio/${Date.now()}_${audFile.name.replace(/\s+/g, '_')}`;
-                finalDownloadUrl = await handleFileUpload(audFile, audPath);
+            // 1. Handle Audio for Single (Prioritize URL)
+            if (values.type === 'music' && !values.isAlbum) {
+                if (!finalDownloadUrl && values.audioFile && values.audioFile.length > 0) {
+                    setCurrentStep('Uploading Audio...');
+                    const audFile = values.audioFile[0] as File;
+                    const audPath = `products/audio/${Date.now()}_${audFile.name.replace(/\s+/g, '_')}`;
+                    finalDownloadUrl = await handleFileUpload(audFile, audPath);
+                }
             }
 
-            // 2. Handle Album Tracks Upload
+            // 2. Handle Album Tracks (Prioritize pasted URL per track)
             if (values.type === 'music' && values.isAlbum && values.tracks && values.tracks.length > 0) {
                 for (let i = 0; i < values.tracks.length; i++) {
                     const track = values.tracks[i];
-                    if (track.audioFile && track.audioFile.length > 0) {
+                    let trackAudioUrl = track.audioUrl || '';
+
+                    if (!trackAudioUrl && track.audioFile && track.audioFile.length > 0) {
                         setCurrentStep(`Uploading Track ${i + 1}/${values.tracks.length}: ${track.title}...`);
                         const tFile = track.audioFile[0] as File;
                         const tPath = `products/audio/${Date.now()}_${tFile.name.replace(/\s+/g, '_')}`;
-                        const tUrl = await handleFileUpload(tFile, tPath);
-                        finalTracks.push({ title: track.title, audioUrl: tUrl });
+                        trackAudioUrl = await handleFileUpload(tFile, tPath);
+                    }
+
+                    if (trackAudioUrl) {
+                        finalTracks.push({ title: track.title, audioUrl: trackAudioUrl });
                     }
                 }
             }
@@ -441,7 +448,7 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                             <FormControl>
                                 <Input placeholder="Paste image link from Storage backend..." {...field} />
                             </FormControl>
-                            <FormDescription className="text-[10px] uppercase font-bold tracking-tighter">Paste the "Download URL" from your Storage console.</FormDescription>
+                            <FormDescription className="text-[10px] uppercase font-bold tracking-tighter italic">Paste the "Download URL" from your Storage console.</FormDescription>
                             <FormMessage />
                             {currentImageUrl && (
                                 <div className="mt-2 h-32 w-32 relative border-2 border-chart-1 rounded overflow-hidden">
@@ -452,22 +459,35 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                     )} />
 
                     {productType === 'music' && !isAlbum && (
-                        <FormField control={form.control} name="audioFile" render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Audio File (MP3/WAV)</FormLabel>
-                                <FormControl>
-                                    <Input type="file" accept="audio/*" onChange={(e) => field.onChange(e.target.files)} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        ) } />
+                        <div className="space-y-4">
+                            <FormField control={form.control} name="downloadUrl" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel className="flex items-center gap-2">
+                                        <LinkIcon className="h-4 w-4" /> Single Audio URL (Paste here)
+                                    </FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Paste audio link from Storage..." {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={form.control} name="audioFile" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>OR Upload Audio File (MP3/WAV)</FormLabel>
+                                    <FormControl>
+                                        <Input type="file" accept="audio/*" onChange={(e) => field.onChange(e.target.files)} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            ) } />
+                        </div>
                     )}
 
                     {productType === 'music' && isAlbum && (
                         <div className="space-y-4">
                             <FormLabel className="flex justify-between items-center">
                                 Tracklist
-                                <Button type="button" variant="outline" size="sm" onClick={() => append({ title: '', audioFile: null })}>
+                                <Button type="button" variant="outline" size="sm" onClick={() => append({ title: '', audioFile: null, audioUrl: '' })}>
                                     <Plus className="mr-2 h-3 w-3" /> Add Track
                                 </Button>
                             </FormLabel>
@@ -478,16 +498,27 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                                     </Button>
                                     <FormField control={form.control} name={`tracks.${index}.title`} render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="text-xs">Track {index + 1} Title</FormLabel>
+                                            <FormLabel className="text-xs font-bold uppercase">Track {index + 1} Title</FormLabel>
                                             <FormControl>
                                                 <Input placeholder="e.g., Intro" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )} />
+                                    <FormField control={form.control} name={`tracks.${index}.audioUrl`} render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1">
+                                                <LinkIcon className="h-3 w-3" /> Track Audio URL (Paste link)
+                                            </FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Paste link from backend..." {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )} />
                                     <FormField control={form.control} name={`tracks.${index}.audioFile`} render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="text-xs">Audio File</FormLabel>
+                                            <FormLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">OR Choose File</FormLabel>
                                             <FormControl>
                                                 <Input type="file" accept="audio/*" onChange={(e) => field.onChange(e.target.files)} />
                                             </FormControl>
