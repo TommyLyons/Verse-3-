@@ -565,10 +565,10 @@ const MerchManagement = ({ dbProducts, printfulProducts, isLoading }: { dbProduc
         return combined.sort((a, b) => a.name.localeCompare(b.name));
     }, [dbProducts, printfulProducts]);
 
-    const handleDelete = (id: string) => {
-        if (!firestore) return;
+    const handleDelete = (id: any) => {
+        if (!firestore || !id) return;
         if (window.confirm('Are you sure you want to remove this item?')) {
-            const docRef = doc(firestore, 'products', id);
+            const docRef = doc(firestore, 'products', String(id));
             deleteDocumentNonBlocking(docRef);
             toast({ title: 'Item Removed', description: 'Product has been deleted from your library.' });
         }
@@ -642,10 +642,10 @@ const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoadi
         return dbProducts.filter(p => p.type === 'music').sort((a, b) => a.name.localeCompare(b.name));
     }, [dbProducts]);
 
-    const handleDelete = (id: string) => {
-        if (!firestore) return;
+    const handleDelete = (id: any) => {
+        if (!firestore || !id) return;
         if (window.confirm('Are you sure you want to remove this track from the library?')) {
-            const docRef = doc(firestore, 'products', id);
+            const docRef = doc(firestore, 'products', String(id));
             deleteDocumentNonBlocking(docRef);
             toast({ title: 'Track Removed', description: 'Music master has been deleted from your library.' });
         }

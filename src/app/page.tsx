@@ -297,7 +297,7 @@ export default function Home() {
             <Instagram className="h-12 w-12 mx-auto text-chart-1 mb-6" />
             <h2 className="font-headline text-5xl md:text-7xl font-bold uppercase italic tracking-tighter mb-4">Join The <span className="text-chart-1">Journey</span></h2>
             <p className="text-white/60 mb-10 font-medium max-w-xl mx-auto">Behind the scenes, new drops, and culture. No filters.</p>
-            <Button asChild size="lg" className="h-12 px-12 bg-chart-1 text-black hover:bg-white font-bold text-xl uppercase italic rounded-none">
+            <Button asChild size="lg" className="h-14 px-12 bg-chart-1 text-black hover:bg-white font-bold text-xl uppercase italic rounded-none">
                 <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">@verse3records</a>
             </Button>
           </div>
