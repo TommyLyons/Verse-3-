@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser, useFirestore, useCollection, addDocumentNonBlocking, useFirebaseApp } from '@/firebase';
-import { collection, serverTimestamp } from 'firebase/firestore';
+import { useUser, useFirestore, useCollection, addDocumentNonBlocking, deleteDocumentNonBlocking, useFirebaseApp } from '@/firebase';
+import { collection, serverTimestamp, doc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -551,6 +551,8 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
 
 const MerchManagement = ({ dbProducts, printfulProducts, isLoading }: { dbProducts: any[], printfulProducts: any[], isLoading: boolean }) => {
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+    const firestore = useFirestore();
+    const { toast } = useToast();
 
     const merchOnly = useMemo(() => {
         const dbMerch = dbProducts.filter(p => p.type === 'merch');
@@ -562,6 +564,15 @@ const MerchManagement = ({ dbProducts, printfulProducts, isLoading }: { dbProduc
         });
         return combined.sort((a, b) => a.name.localeCompare(b.name));
     }, [dbProducts, printfulProducts]);
+
+    const handleDelete = (id: string) => {
+        if (!firestore) return;
+        if (window.confirm('Are you sure you want to remove this item?')) {
+            const docRef = doc(firestore, 'products', id);
+            deleteDocumentNonBlocking(docRef);
+            toast({ title: 'Item Removed', description: 'Product has been deleted from your library.' });
+        }
+    };
 
     return (
         <Card className="border-none shadow-none bg-transparent">
@@ -591,6 +602,7 @@ const MerchManagement = ({ dbProducts, printfulProducts, isLoading }: { dbProduc
                                 <TableHead>Brand</TableHead>
                                 <TableHead>Source</TableHead>
                                 <TableHead>Price</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -604,6 +616,13 @@ const MerchManagement = ({ dbProducts, printfulProducts, isLoading }: { dbProduc
                                         </Badge>
                                     </TableCell>
                                     <TableCell>{p.price}</TableCell>
+                                    <TableCell className="text-right">
+                                        {p.id && String(p.id).length > 10 && (
+                                            <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(p.id)}>
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        )}
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -616,10 +635,21 @@ const MerchManagement = ({ dbProducts, printfulProducts, isLoading }: { dbProduc
 
 const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoading: boolean }) => {
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+    const firestore = useFirestore();
+    const { toast } = useToast();
 
     const musicOnly = useMemo(() => {
         return dbProducts.filter(p => p.type === 'music').sort((a, b) => a.name.localeCompare(b.name));
     }, [dbProducts]);
+
+    const handleDelete = (id: string) => {
+        if (!firestore) return;
+        if (window.confirm('Are you sure you want to remove this track from the library?')) {
+            const docRef = doc(firestore, 'products', id);
+            deleteDocumentNonBlocking(docRef);
+            toast({ title: 'Track Removed', description: 'Music master has been deleted from your library.' });
+        }
+    };
 
     return (
         <Card className="border-none shadow-none bg-transparent">
@@ -650,6 +680,7 @@ const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoadi
                                 <TableHead>Type</TableHead>
                                 <TableHead>Price</TableHead>
                                 <TableHead className="text-right">Content</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -673,6 +704,11 @@ const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoadi
                                                 <Badge className="bg-chart-1 text-black">{p.tracks.length} Tracks</Badge>
                                             )}
                                         </div>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(p.id)}>
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
                                     </TableCell>
                                 </TableRow>
                             ))}

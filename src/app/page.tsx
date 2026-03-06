@@ -153,7 +153,7 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image above Choice section */}
+      {/* Impact Image precisely above Choice section per 34172f3 */}
       {vibeHero && (
         <section className="w-full bg-black py-4">
           <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto">
@@ -177,14 +177,14 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-3xl mx-auto">
               <Button 
                 onClick={() => handleBrandClick('Verse 3')}
-                className="flex-1 h-12 bg-white text-black hover:bg-chart-1 font-headline text-xl uppercase italic rounded-none transition-all duration-300"
+                className="flex-1 h-14 bg-white text-black hover:bg-chart-1 font-headline text-xl uppercase italic rounded-none transition-all duration-300"
               >
                 <ShoppingBag className="mr-2 h-5 w-5" />
                 V3 Merch
               </Button>
               <Button 
                 onClick={() => handleBrandClick('Crude City')}
-                className="flex-1 h-12 bg-chart-1 text-black hover:bg-white font-headline text-xl uppercase italic rounded-none transition-all duration-300"
+                className="flex-1 h-14 bg-chart-1 text-black hover:bg-white font-headline text-xl uppercase italic rounded-none transition-all duration-300"
               >
                 <ShoppingBag className="mr-2 h-5 w-5" />
                 Crude City
@@ -242,7 +242,7 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Latest Music Carousel */}
+       {/* Latest Music Carousel - Strict Music Only Filtering */}
        <section className="py-24 bg-secondary/30">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
