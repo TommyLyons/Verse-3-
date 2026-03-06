@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -71,7 +72,17 @@ export default function Home() {
       .slice(0, 8);
   }, [allProducts]);
 
-  const musicProducts = allProducts.filter(p => p.type === 'music' && !p.digital).slice(0, 8);
+  // Latest Music: Ordered by createdAt (newest first), includes digital releases
+  const musicProducts = React.useMemo(() => {
+    return allProducts
+      .filter(p => p.type === 'music')
+      .sort((a, b) => {
+        const timeA = a.createdAt?.seconds || 0;
+        const timeB = b.createdAt?.seconds || 0;
+        return timeB - timeA; // Newest first
+      })
+      .slice(0, 8);
+  }, [allProducts]);
 
   const vibeHero = PlaceHolderImages.find(img => img.id === 'vibe-hero');
 
@@ -167,7 +178,7 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image Hero Section - Full width container with object-contain to avoid cropping */}
+      {/* Impact Image Hero Section */}
       {vibeHero && (
         <section className="w-full bg-black flex items-center justify-center py-4">
           <div className="relative w-full aspect-[16/9] md:aspect-[21/9] max-w-screen-2xl">
@@ -183,7 +194,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* Choose Your Vibe - FULL WIDTH */}
+      {/* Choose Your Vibe */}
       <section className="w-full py-12 bg-black text-white">
           <div className="container max-w-7xl mx-auto px-4">
             <div className="text-center mb-8">
@@ -284,18 +295,22 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Latest Music Carousel */}
+       {/* Latest Music Carousel - Dynamic and Sorted */}
        <section className="py-16 md:py-24 bg-secondary">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
                     <h2 className="font-headline text-3xl font-bold text-black sm:text-4xl uppercase tracking-wider">Latest Music</h2>
-                    <p className="mt-2 text-muted-foreground">Vinyl, posters, and more from our artists.</p>
+                    <p className="mt-2 text-muted-foreground">New releases from the Verse3 family.</p>
                 </div>
 
                 {isLoading ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                         {[...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full" />)}
                     </div>
+                ) : musicProducts.length === 0 ? (
+                  <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                      <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">No music released yet.</p>
+                  </div>
                 ) : (
                     <div className="relative">
                         <Carousel
@@ -354,7 +369,7 @@ export default function Home() {
 
                 <div className="text-center mt-12">
                     <Button asChild size="lg" className="bg-black text-chart-1 font-bold">
-                        <Link href="/store/music">View All Music</Link>
+                        <Link href="/store?brand=v3">View Music Store</Link>
                     </Button>
                 </div>
             </div>
@@ -396,21 +411,6 @@ export default function Home() {
                             Follow @verse3records
                         </a>
                     </Button>
-                    
-                    <div className="mt-6 flex justify-center gap-6 md:gap-10">
-                         <div className="flex flex-col items-center">
-                            <span className="text-chart-1 font-headline text-lg">LATEST</span>
-                            <span className="text-white/40 text-[8px] uppercase tracking-widest">Releases</span>
-                         </div>
-                         <div className="flex flex-col items-center">
-                            <span className="text-chart-1 font-headline text-lg">BEHIND</span>
-                            <span className="text-white/40 text-[8px] uppercase tracking-widest">The Scenes</span>
-                         </div>
-                         <div className="flex flex-col items-center">
-                            <span className="text-chart-1 font-headline text-lg">DIRECT</span>
-                            <span className="text-white/40 text-[8px] uppercase tracking-widest">Connect</span>
-                         </div>
-                    </div>
                 </div>
             </div>
           </div>

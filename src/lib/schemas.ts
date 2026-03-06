@@ -26,5 +26,6 @@ export const ProductSchema = z.object({
   downloadUrl: z.string().url().optional(),
   availableRegions: z.array(z.enum(['UK', 'EU'])).optional(),
   sizes: z.array(z.string()).optional(),
+  createdAt: z.any().optional(), // Added to handle Firestore Timestamps for sorting
 });
 export type Product = z.infer<typeof ProductSchema>;
