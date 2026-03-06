@@ -1,3 +1,4 @@
+
 import { getAllProducts } from '@/lib/products';
 import { notFound } from 'next/navigation';
 import { ProductClientPage } from './product-client-page';
@@ -10,7 +11,7 @@ export default async function MerchPage({ params }: { params: Promise<{ slug: st
   const allProducts = await getAllProducts();
   
   // Strict matching to prevent incorrect product display
-  const product = allProducts.find(p => p.slug === slug);
+  const product = allProducts.find(p => p.slug === slug && p.type === 'merch');
   
   if (!product) {
     notFound();
