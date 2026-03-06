@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
@@ -237,6 +236,8 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
 
     const handleFileUpload = (file: File, path: string): Promise<string> => {
         return new Promise((resolve, reject) => {
+            if (!file) return reject(new Error("No file selected"));
+            
             const storageRef = ref(storage, path);
             const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -251,8 +252,12 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                     reject(error);
                 },
                 async () => {
-                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                    resolve(downloadURL);
+                    try {
+                      const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                      resolve(downloadURL);
+                    } catch (e) {
+                      reject(e);
+                    }
                 }
             );
         });
@@ -308,26 +313,34 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                 createdAt: serverTimestamp()
             };
 
-            // Clean up file objects from firestore data
-            delete productData.audioFile;
-            delete productData.imageFile;
-            if (productData.tracks) {
-                productData.tracks = productData.tracks.map((t: any) => ({ title: t.title, audioUrl: t.audioUrl }));
+            // Deep clean up to ensure no File objects or circular references remain
+            const sanitizedData = JSON.parse(JSON.stringify(productData));
+            delete sanitizedData.audioFile;
+            delete sanitizedData.imageFile;
+            if (sanitizedData.tracks) {
+              sanitizedData.tracks = sanitizedData.tracks.map((t: any) => ({ 
+                title: t.title, 
+                audioUrl: t.audioUrl 
+              }));
             }
 
-            if (productData.sizes && typeof productData.sizes === 'string') {
-                productData.sizes = productData.sizes.split(',').map((s: string) => s.trim().toUpperCase());
-            } else if (!productData.sizes) {
-                productData.sizes = [];
+            if (sanitizedData.sizes && typeof sanitizedData.sizes === 'string') {
+                sanitizedData.sizes = sanitizedData.sizes.split(',').map((s: string) => s.trim().toUpperCase());
+            } else if (!sanitizedData.sizes) {
+                sanitizedData.sizes = [];
             }
 
-            addDocumentNonBlocking(productsCollection, productData);
-            toast({ title: 'Success!', description: `${values.name} added to ${values.type} library.` });
+            addDocumentNonBlocking(productsCollection, sanitizedData);
+            toast({ title: 'Success!', description: `${values.name} added to library.` });
             onFinished();
             form.reset();
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            toast({ variant: 'destructive', title: 'Error', description: 'Failed to add product.' });
+            toast({ 
+              variant: 'destructive', 
+              title: 'Upload Error', 
+              description: error.message || 'Failed to process product library.' 
+            });
         } finally {
             setIsSubmitting(false);
             setUploadProgress(null);
