@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BarChart, Terminal, FileAudio, FileImage, PlusCircle, Mail, Users, RefreshCcw, ExternalLink, Settings2, Package, Music, PieChart, UploadCloud, Disc, Trash2, Plus } from 'lucide-react';
+import { BarChart, Terminal, FileAudio, FileImage, PlusCircle, Mail, Users, RefreshCcw, ExternalLink, Settings2, Package, Music, PieChart, UploadCloud, Disc, Trash2, Plus, CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   Dialog,
@@ -46,6 +46,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import Image from 'next/image';
 
 const adminEmail = 'verse3records@gmail.com';
 const adminUid = 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2';
@@ -206,6 +207,7 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [uploadProgress, setUploadProgress] = useState<number | null>(null);
     const [currentStep, setCurrentStep] = useState<string>('');
+    const [uploadedImageUrl, setUploadedImageUrl] = useState<string>('');
 
     const form = useForm<ProductFormValues>({
         resolver: zodResolver(productFormSchema),
@@ -263,6 +265,26 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
         });
     };
 
+    const handleInstantImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setCurrentStep('Uploading Artwork...');
+        setUploadProgress(0);
+        
+        try {
+            const imgPath = `products/images/${Date.now()}_${file.name.replace(/\s+/g, '_')}`;
+            const url = await handleFileUpload(file, imgPath);
+            setUploadedImageUrl(url);
+            toast({ title: 'Artwork Uploaded', description: 'Cover image is ready.' });
+        } catch (error: any) {
+            toast({ variant: 'destructive', title: 'Upload Failed', description: error.message });
+        } finally {
+            setUploadProgress(null);
+            setCurrentStep('');
+        }
+    };
+
     const onSubmit = async (values: ProductFormValues) => {
         if (!firestore) {
             toast({ variant: 'destructive', title: 'Error', description: 'Database connection not ready.' });
@@ -272,19 +294,11 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
         setUploadProgress(0);
 
         try {
-            let finalImageUrl = values.imageUrl || '';
+            let finalImageUrl = uploadedImageUrl || values.imageUrl || '';
             let finalDownloadUrl = values.downloadUrl || '';
             const finalTracks: any[] = [];
 
-            // 1. Handle Image Upload
-            if (values.imageFile && values.imageFile.length > 0) {
-                setCurrentStep('Uploading Image...');
-                const imgFile = values.imageFile[0] as File;
-                const imgPath = `products/images/${Date.now()}_${imgFile.name.replace(/\s+/g, '_')}`;
-                finalImageUrl = await handleFileUpload(imgFile, imgPath);
-            }
-
-            // 2. Handle Audio Upload for Single
+            // 1. Handle Audio Upload for Single
             if (values.type === 'music' && !values.isAlbum && values.audioFile && values.audioFile.length > 0) {
                 setCurrentStep('Uploading Audio...');
                 const audFile = values.audioFile[0] as File;
@@ -292,7 +306,7 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                 finalDownloadUrl = await handleFileUpload(audFile, audPath);
             }
 
-            // 3. Handle Album Tracks Upload
+            // 2. Handle Album Tracks Upload
             if (values.type === 'music' && values.isAlbum && values.tracks && values.tracks.length > 0) {
                 for (let i = 0; i < values.tracks.length; i++) {
                     const track = values.tracks[i];
@@ -306,7 +320,7 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                 }
             }
 
-            // 4. Build sanitized object (NO File objects allowed in Firestore)
+            // 3. Build sanitized object
             const productData = {
                 name: values.name,
                 slug: values.slug,
@@ -330,12 +344,13 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
             toast({ title: 'Success!', description: `${values.name} published.` });
             onFinished();
             form.reset();
+            setUploadedImageUrl('');
         } catch (error: any) {
             console.error('Submission Error:', error);
             toast({ 
               variant: 'destructive', 
-              title: 'Upload Failed', 
-              description: error.message || 'There was a problem processing your upload.' 
+              title: 'Publish Failed', 
+              description: error.message || 'There was a problem processing your library upload.' 
             });
         } finally {
             setIsSubmitting(false);
@@ -436,15 +451,26 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                 )}
 
                 <div className="border-t pt-4 space-y-4">
-                    <FormField control={form.control} name="imageFile" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>{productType === 'music' ? 'Cover Art' : 'Product Photo'}</FormLabel>
-                            <FormControl>
-                                <Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files)} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )} />
+                    <div className="space-y-2">
+                        <FormLabel>{productType === 'music' ? 'Cover Art' : 'Product Photo'}</FormLabel>
+                        <div className="flex items-center gap-4">
+                            <Input 
+                                type="file" 
+                                accept="image/*" 
+                                onChange={handleInstantImageUpload} 
+                                className="flex-grow"
+                            />
+                            {uploadedImageUrl && (
+                                <div className="h-10 w-10 relative border rounded overflow-hidden flex-shrink-0">
+                                    <Image src={uploadedImageUrl} alt="Preview" fill className="object-cover" />
+                                    <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center">
+                                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        {uploadedImageUrl && <p className="text-[10px] text-green-600 font-bold uppercase tracking-widest">Image Uploaded Successfully</p>}
+                    </div>
 
                     {productType === 'music' && !isAlbum && (
                         <FormField control={form.control} name="audioFile" render={({ field }) => (
@@ -495,18 +521,18 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                     )}
                 </div>
 
-                {isSubmitting && uploadProgress !== null && (
+                {(isSubmitting || uploadProgress !== null) && (
                     <div className='space-y-2 py-4 sticky bottom-0 bg-white border-t z-10'>
                         <div className="flex justify-between text-[10px] font-bold uppercase italic text-chart-1">
-                            <span>{currentStep}</span>
-                            <span>{Math.round(uploadProgress)}%</span>
+                            <span>{currentStep || 'Processing...'}</span>
+                            <span>{uploadProgress !== null ? Math.round(uploadProgress) : '0'}%</span>
                         </div>
-                        <Progress value={uploadProgress} className="h-1" />
+                        <Progress value={uploadProgress || 0} className="h-1" />
                     </div>
                 )}
 
-                <Button type="submit" disabled={isSubmitting} className="w-full h-12 bg-black text-chart-1 font-bold">
-                   {isSubmitting ? 'Processing Library...' : (productType === 'music' ? (isAlbum ? 'Publish Album' : 'Upload Track') : 'Add Item')}
+                <Button type="submit" disabled={isSubmitting || !!currentStep} className="w-full h-12 bg-black text-chart-1 font-bold">
+                   {isSubmitting ? 'Finalizing Library Entry...' : (productType === 'music' ? (isAlbum ? 'Publish Album' : 'Upload Track') : 'Add Item')}
                    {!isSubmitting && <UploadCloud className="ml-2 h-4 w-4" />}
                 </Button>
             </form>
