@@ -44,7 +44,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/accordion";
+} from "@/components/ui/accordion";
 
 const adminEmail = 'verse3records@gmail.com';
 const adminUid = 'I47i5ZR5aAPOMVgQnTYQm2UB3Ym2';
