@@ -6,7 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Eye, ChevronRight, Instagram, Send, ShoppingBag } from 'lucide-react';
+import { Eye, Instagram, Send, ShoppingBag } from 'lucide-react';
 import { getAllProducts, type Product } from '@/lib/products';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -104,19 +104,13 @@ export default function Home() {
     if (!email || !firestore) return;
 
     setIsSubmitting(true);
-    
     const subscriptionsCol = collection(firestore, 'newsletterSubscriptions');
-    
     addDocumentNonBlocking(subscriptionsCol, {
       email: email,
       subscribedAt: serverTimestamp(),
     });
 
-    toast({
-      title: "Welcome to the V3 Family!",
-      description: "You've been added to our exclusive list.",
-    });
-    
+    toast({ title: "Welcome to the V3 Family!", description: "You've been added to our exclusive list." });
     setEmail('');
     setIsSubmitting(false);
   };
@@ -132,7 +126,6 @@ export default function Home() {
             className="w-full h-full object-cover md:object-contain mix-blend-multiply"
           />
         </div>
-        
         <div className="absolute bottom-12 z-10 flex gap-4 px-6 w-full max-w-sm mx-auto">
           <Button asChild className="flex-1 bg-black text-chart-1 font-bold h-11 rounded-none uppercase italic tracking-wider shadow-lg">
             <Link href="/store">Shop Merch</Link>
@@ -143,13 +136,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Our Vision */}
-      <section className="py-20 bg-white">
+      {/* Vision Section */}
+      <section className="py-20 bg-white border-b border-black/5">
           <div className="container max-w-4xl mx-auto px-4 text-center">
               <h2 className="font-headline text-4xl font-bold text-black uppercase italic tracking-tight">Our Vision</h2>
               <div className="h-1 w-20 bg-chart-1 mx-auto mt-2 mb-6" />
               <p className="text-muted-foreground text-lg leading-relaxed font-medium">
-                  Our mission is to champion emerging talent and deliver emotionally powerful records that resonate. We believe that music is most powerful when crafted from real stories, and we are committed to fostering an authentic global community.
+                  Championing emerging talent and delivering emotionally powerful records. Real stories, authentic global community.
               </p>
           </div>
       </section>
@@ -164,7 +157,6 @@ export default function Home() {
               fill
               className="object-contain"
               priority
-              data-ai-hint={vibeHero.imageHint}
             />
           </div>
         </section>
@@ -209,20 +201,11 @@ export default function Home() {
                     </div>
                 ) : (
                     <div className="relative px-4 md:px-0">
-                        <Carousel
-                            opts={{
-                                align: "start",
-                                loop: true,
-                            }}
-                            className="w-full"
-                        >
+                        <Carousel opts={{ align: "start", loop: true }} className="w-full">
                             <CarouselContent className="-ml-4">
                                 {merchProducts.map((item) => (
                                     <CarouselItem key={item.id} className="pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/4">
-                                        <Card 
-                                          className="border-none shadow-none bg-transparent group cursor-pointer"
-                                          onClick={() => handleProductClick(item)}
-                                        >
+                                        <Card className="border-none shadow-none bg-transparent group cursor-pointer" onClick={() => handleProductClick(item)}>
                                             <div className="aspect-square relative bg-secondary rounded-none overflow-hidden border-2 border-black/5">
                                                 <Image
                                                     src={item.imageUrl || ''}
@@ -267,20 +250,11 @@ export default function Home() {
                     </div>
                 ) : (
                     <div className="relative px-4 md:px-0">
-                        <Carousel
-                            opts={{
-                                align: "start",
-                                loop: true,
-                            }}
-                            className="w-full"
-                        >
+                        <Carousel opts={{ align: "start", loop: true }} className="w-full">
                             <CarouselContent className="-ml-4">
                                 {musicProducts.map((item) => (
                                     <CarouselItem key={item.id} className="pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/4">
-                                        <Card 
-                                          className="border-none shadow-none bg-transparent group cursor-pointer"
-                                          onClick={() => handleProductClick(item)}
-                                        >
+                                        <Card className="border-none shadow-none bg-transparent group cursor-pointer" onClick={() => handleProductClick(item)}>
                                             <div className="aspect-square relative bg-white rounded-none overflow-hidden shadow-sm border-2 border-black/5">
                                                 <Image
                                                     src={item.imageUrl || ''}
@@ -312,32 +286,21 @@ export default function Home() {
        </section>
 
        {/* Social Section */}
-       <section className="py-24 bg-black text-white relative overflow-hidden">
-          <div className="container relative z-10 max-w-5xl mx-auto px-4 text-center">
-            <div className="mb-8 flex justify-center">
-                <div className="h-16 w-16 bg-chart-1 rounded-none flex items-center justify-center text-black rotate-12 group-hover:rotate-0 transition-transform duration-500">
-                    <Instagram className="h-8 w-8" />
-                </div>
-            </div>
-            <h2 className="font-headline text-5xl md:text-7xl font-bold uppercase italic tracking-tighter mb-4">
-                JOIN THE <span className="text-chart-1">JOURNEY</span>
-            </h2>
-            <p className="text-white/60 text-lg mb-10 font-medium max-w-xl mx-auto">Get the raw, unfiltered view inside Verse3. Behind the scenes, new drops, and culture.</p>
-            <Button asChild size="lg" className="h-14 px-12 bg-chart-1 text-black hover:bg-white font-bold text-xl uppercase italic rounded-none shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]">
+       <section className="py-24 bg-black text-white text-center">
+          <div className="container max-w-5xl mx-auto px-4">
+            <Instagram className="h-12 w-12 mx-auto text-chart-1 mb-6" />
+            <h2 className="font-headline text-5xl md:text-7xl font-bold uppercase italic tracking-tighter mb-4">Join The <span className="text-chart-1">Journey</span></h2>
+            <p className="text-white/60 mb-10 font-medium max-w-xl mx-auto">Behind the scenes, new drops, and culture. No filters.</p>
+            <Button asChild size="lg" className="h-14 px-12 bg-chart-1 text-black hover:bg-white font-bold text-xl uppercase italic rounded-none">
                 <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">@verse3records</a>
             </Button>
           </div>
        </section>
 
        {/* Newsletter Section */}
-       <section className="py-24 bg-chart-1 border-t border-black/10">
+       <section className="py-24 bg-chart-1">
           <div className="container max-w-4xl mx-auto px-4 text-center">
-                <h2 className="font-headline text-5xl font-bold text-black uppercase italic tracking-tighter mb-2 leading-none">
-                    Join The Family
-                </h2>
-                <p className="text-black/80 font-bold uppercase tracking-[0.2em] text-[10px] md:text-xs mb-8">
-                    Authorized Access to Pre-Releases & Inner Circle News
-                </p>
+                <h2 className="font-headline text-5xl font-bold text-black uppercase italic tracking-tighter mb-8">Join The Family</h2>
                 <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
                     <input 
                         type="email" 
@@ -347,11 +310,7 @@ export default function Home() {
                         required
                         className="h-12 bg-white/40 border-black/10 text-black placeholder:text-black/40 font-bold rounded-none px-4 flex-grow outline-none focus:bg-white/60 transition-colors"
                     />
-                    <Button 
-                        type="submit" 
-                        disabled={isSubmitting}
-                        className="h-12 bg-black text-chart-1 hover:bg-black/90 font-bold px-10 rounded-none uppercase italic transition-transform active:scale-95"
-                    >
+                    <Button type="submit" disabled={isSubmitting} className="h-12 bg-black text-chart-1 hover:bg-black/90 font-bold px-10 rounded-none uppercase italic">
                         {isSubmitting ? 'Joining...' : 'Subscribe'}
                         <Send className="ml-2 h-4 w-4" />
                     </Button>
@@ -359,11 +318,7 @@ export default function Home() {
             </div>
        </section>
 
-       <AgeGate 
-         isOpen={isAgeGateOpen} 
-         onConfirm={onAgeConfirm} 
-         onCancel={onAgeCancel} 
-       />
+       <AgeGate isOpen={isAgeGateOpen} onConfirm={onAgeConfirm} onCancel={onAgeCancel} />
     </div>
   );
 }
