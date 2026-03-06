@@ -203,7 +203,6 @@ type ProductFormValues = z.infer<typeof productFormSchema>;
 const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, initialType: 'merch' | 'music' }) => {
     const { toast } = useToast();
     const firestore = useFirestore();
-    const storage = getStorage();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [uploadProgress, setUploadProgress] = useState<number | null>(null);
     const [currentStep, setCurrentStep] = useState<string>('');
@@ -238,6 +237,7 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
         return new Promise((resolve, reject) => {
             if (!file) return reject(new Error("No file selected"));
             
+            const storage = getStorage();
             const storageRef = ref(storage, path);
             const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -264,7 +264,10 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
     };
 
     const onSubmit = async (values: ProductFormValues) => {
-        if (!firestore) return;
+        if (!firestore) {
+            toast({ variant: 'destructive', title: 'Error', description: 'Database connection not ready.' });
+            return;
+        }
         setIsSubmitting(true);
         setUploadProgress(0);
 
@@ -277,26 +280,26 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
             if (values.imageFile && values.imageFile.length > 0) {
                 setCurrentStep('Uploading Product Image...');
                 const imgFile = values.imageFile[0] as File;
-                const imgPath = `products/images/${Date.now()}_${imgFile.name}`;
+                const imgPath = `products/images/${Date.now()}_${imgFile.name.replace(/\s+/g, '_')}`;
                 finalImageUrl = await handleFileUpload(imgFile, imgPath);
             }
 
             // 2. Handle Audio Upload for Single
             if (values.type === 'music' && !values.isAlbum && values.audioFile && values.audioFile.length > 0) {
-                setCurrentStep('Uploading Audio...');
+                setCurrentStep('Uploading Main Audio File...');
                 const audFile = values.audioFile[0] as File;
-                const audPath = `products/audio/${Date.now()}_${audFile.name}`;
+                const audPath = `products/audio/${Date.now()}_${audFile.name.replace(/\s+/g, '_')}`;
                 finalDownloadUrl = await handleFileUpload(audFile, audPath);
             }
 
             // 3. Handle Album Tracks Upload
-            if (values.type === 'music' && values.isAlbum && values.tracks) {
+            if (values.type === 'music' && values.isAlbum && values.tracks && values.tracks.length > 0) {
                 for (let i = 0; i < values.tracks.length; i++) {
                     const track = values.tracks[i];
                     if (track.audioFile && track.audioFile.length > 0) {
-                        setCurrentStep(`Uploading Track ${i + 1}: ${track.title}...`);
+                        setCurrentStep(`Uploading Track ${i + 1}/${values.tracks.length}: ${track.title}...`);
                         const tFile = track.audioFile[0] as File;
-                        const tPath = `products/audio/${Date.now()}_${tFile.name}`;
+                        const tPath = `products/audio/${Date.now()}_${tFile.name.replace(/\s+/g, '_')}`;
                         const tUrl = await handleFileUpload(tFile, tPath);
                         finalTracks.push({ title: track.title, audioUrl: tUrl });
                     }
@@ -313,20 +316,15 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                 createdAt: serverTimestamp()
             };
 
-            // Deep clean up to ensure no File objects or circular references remain
+            // Deep clean up to ensure no non-serializable objects remain
             const sanitizedData = JSON.parse(JSON.stringify(productData));
             delete sanitizedData.audioFile;
             delete sanitizedData.imageFile;
-            if (sanitizedData.tracks) {
-              sanitizedData.tracks = sanitizedData.tracks.map((t: any) => ({ 
-                title: t.title, 
-                audioUrl: t.audioUrl 
-              }));
-            }
-
-            if (sanitizedData.sizes && typeof sanitizedData.sizes === 'string') {
-                sanitizedData.sizes = sanitizedData.sizes.split(',').map((s: string) => s.trim().toUpperCase());
-            } else if (!sanitizedData.sizes) {
+            
+            // Fix sizes array
+            if (typeof values.sizes === 'string' && values.sizes.trim()) {
+                sanitizedData.sizes = values.sizes.split(',').map((s: string) => s.trim().toUpperCase());
+            } else {
                 sanitizedData.sizes = [];
             }
 
@@ -335,11 +333,11 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
             onFinished();
             form.reset();
         } catch (error: any) {
-            console.error(error);
+            console.error('Submission Error:', error);
             toast({ 
               variant: 'destructive', 
-              title: 'Upload Error', 
-              description: error.message || 'Failed to process product library.' 
+              title: 'Upload Failed', 
+              description: error.message || 'There was a problem processing your upload. Check your connection.' 
             });
         } finally {
             setIsSubmitting(false);
@@ -500,7 +498,7 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                 </div>
 
                 {isSubmitting && uploadProgress !== null && (
-                    <div className='space-y-2 py-4 sticky bottom-0 bg-white border-t'>
+                    <div className='space-y-2 py-4 sticky bottom-0 bg-white border-t z-10'>
                         <div className="flex justify-between text-[10px] font-bold uppercase italic text-chart-1">
                             <span>{currentStep}</span>
                             <span>{Math.round(uploadProgress)}%</span>
