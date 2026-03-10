@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useState, useMemo } from 'react';
@@ -280,7 +281,6 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
             let finalDownloadUrl = values.downloadUrl || '';
             const finalTracks: any[] = [];
 
-            // 1. Handle Audio for Single (Prioritize URL)
             if (values.type === 'music' && !values.isAlbum) {
                 if (!finalDownloadUrl && values.audioFile && values.audioFile.length > 0) {
                     setCurrentStep('Uploading Audio...');
@@ -290,7 +290,6 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                 }
             }
 
-            // 2. Handle Album Tracks (Prioritize pasted URL per track)
             if (values.type === 'music' && values.isAlbum && values.tracks && values.tracks.length > 0) {
                 for (let i = 0; i < values.tracks.length; i++) {
                     const track = values.tracks[i];
@@ -309,7 +308,6 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                 }
             }
 
-            // 3. Build sanitized object
             const productData = {
                 name: values.name,
                 slug: values.slug,
@@ -625,7 +623,8 @@ const MerchManagement = ({ dbProducts, printfulProducts, isLoading }: { dbProduc
                                     <TableCell>{p.price}</TableCell>
                                     <TableCell className="text-right">
                                         {p.id && String(p.id).length > 10 && (
-                                            <Button variant="ghost" size="icon" className="text-destructive" onClick={(e) => {
+                                            <Button type="button" variant="ghost" size="icon" className="text-destructive" onClick={(e) => {
+                                                e.preventDefault();
                                                 e.stopPropagation();
                                                 handleDelete(p.id);
                                             }}>
@@ -662,9 +661,13 @@ const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoadi
             return;
         }
         if (window.confirm('Are you sure you want to remove this track from the library?')) {
-            const docRef = doc(firestore, 'products', String(id));
-            deleteDocumentNonBlocking(docRef);
-            toast({ title: 'Success', description: 'Track removed from library.' });
+            try {
+                const docRef = doc(firestore, 'products', String(id));
+                deleteDocumentNonBlocking(docRef);
+                toast({ title: 'Success', description: 'Track removed from library.' });
+            } catch (err: any) {
+                toast({ variant: 'destructive', title: 'Delete Failed', description: err.message });
+            }
         }
     };
 
@@ -724,10 +727,12 @@ const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoadi
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <Button 
+                                            type="button"
                                             variant="ghost" 
                                             size="icon" 
                                             className="text-destructive hover:bg-destructive/10" 
                                             onClick={(e) => {
+                                                e.preventDefault();
                                                 e.stopPropagation();
                                                 handleDelete(p.id);
                                             }}
