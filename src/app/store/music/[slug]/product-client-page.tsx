@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -39,7 +38,6 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
     if (!audio) return;
 
     const handleTimeUpdate = () => {
-      // 30 second preview logic
       const duration = 30;
       if (audio.duration && audio.currentTime >= duration) {
         audio.pause();
@@ -113,7 +111,7 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
             src={imageUrl}
             alt={imageDescription}
             fill
-            className="object-contain p-12 md:p-20 transition-transform duration-700 hover:scale-105"
+            className="object-contain p-4 transition-transform duration-700 hover:scale-105"
             sizes="(max-width: 768px) 100vw, 50vw"
             priority
           />
@@ -231,7 +229,7 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
                             src={item.imageUrl || ''}
                             alt={item.name}
                             fill
-                            className="object-contain p-6 transition-transform duration-500 group-hover:scale-105"
+                            className="object-contain p-2 transition-transform duration-500 group-hover:scale-105"
                             sizes="(max-width: 640px) 100vw, 50vw"
                         />
                         </Link>

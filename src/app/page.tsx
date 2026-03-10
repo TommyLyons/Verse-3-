@@ -57,7 +57,6 @@ export default function Home() {
     fetchProducts();
   }, []);
   
-  // Featured Merch: V3 Merch only
   const merchProducts = React.useMemo(() => {
     return allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch').slice(0, 8);
   }, [allProducts]);
@@ -125,13 +124,13 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section */}
-      <section className="relative w-full h-[80vh] flex flex-col items-center justify-center bg-white overflow-hidden">
+      {/* Hero Section - Optimized for high impact visibility */}
+      <section className="relative w-full h-[80vh] flex flex-col items-center justify-center bg-black overflow-hidden">
         <div className="absolute inset-0 z-0">
           <video
             src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
             autoPlay loop muted playsInline
-            className="w-full h-full object-cover mix-blend-multiply"
+            className="w-full h-full object-cover opacity-90"
           />
         </div>
         <div className="absolute bottom-12 z-10 flex gap-4 px-6 w-full max-w-sm mx-auto">
@@ -195,7 +194,7 @@ export default function Home() {
           </div>
        </section>
 
-       {/* Featured Merch Carousel with Autoplay */}
+       {/* Featured Merch Carousel with Autoplay - Images "Fitted" */}
        <section className="py-24 bg-white">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
@@ -211,7 +210,7 @@ export default function Home() {
                     <div className="relative px-4 md:px-0">
                         <Carousel 
                           opts={{ align: "start", loop: true }} 
-                          plugins={[Autoplay({ delay: 4000, stopOnInteraction: true })]}
+                          plugins={[Autoplay({ delay: 3500, stopOnInteraction: false })]}
                           className="w-full"
                         >
                             <CarouselContent className="-ml-4">
@@ -223,7 +222,7 @@ export default function Home() {
                                                     src={item.imageUrl || ''}
                                                     alt={item.name}
                                                     fill
-                                                    className="object-contain p-4 transition-transform duration-500 group-hover:scale-105"
+                                                    className="object-contain p-2 transition-transform duration-500 group-hover:scale-105"
                                                     sizes="(max-width: 640px) 100vw, 25vw"
                                                 />
                                             </div>
@@ -248,7 +247,7 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Latest Music Carousel with Autoplay */}
+       {/* Latest Music Carousel with Autoplay - Images "Fitted" */}
        <section className="py-24 bg-secondary/30">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
@@ -264,7 +263,7 @@ export default function Home() {
                     <div className="relative px-4 md:px-0">
                         <Carousel 
                           opts={{ align: "start", loop: true }} 
-                          plugins={[Autoplay({ delay: 5000, stopOnInteraction: true })]}
+                          plugins={[Autoplay({ delay: 4500, stopOnInteraction: false })]}
                           className="w-full"
                         >
                             <CarouselContent className="-ml-4">
@@ -276,7 +275,7 @@ export default function Home() {
                                                     src={item.imageUrl || ''}
                                                     alt={item.name}
                                                     fill
-                                                    className="object-contain p-4 transition-transform duration-500 group-hover:scale-105"
+                                                    className="object-contain p-2 transition-transform duration-500 group-hover:scale-105"
                                                     sizes="(max-width: 640px) 100vw, 25vw"
                                                 />
                                             </div>

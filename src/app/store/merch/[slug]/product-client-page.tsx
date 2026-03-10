@@ -77,7 +77,6 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
         });
         return;
     }
-    // Instant direct checkout flow
     clearCart();
     addToCart(product, quantity, selectedSize);
     router.push('/checkout');
@@ -97,7 +96,7 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
             src={imageUrl}
             alt={imageDescription}
             fill
-            className="object-contain p-4 md:p-8 transition-transform duration-700 hover:scale-110"
+            className="object-contain p-2 transition-transform duration-700 hover:scale-110"
             sizes="(max-width: 768px) 100vw, 50vw"
             priority
           />
@@ -233,7 +232,7 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
                               src={item.imageUrl || ''}
                               alt={item.name}
                               fill
-                              className="object-contain p-4 transition-transform duration-700 group-hover:scale-110"
+                              className="object-contain p-2 transition-transform duration-700 group-hover:scale-110"
                               sizes="(max-width: 640px) 100vw, 50vw"
                           />
                         </Link>

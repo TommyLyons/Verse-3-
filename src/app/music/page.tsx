@@ -26,7 +26,6 @@ export default function MusicPage() {
             setIsLoading(true);
             try {
                 const products = await getAllProducts();
-                // Filter for downloadable (digital) music
                 const musicOnly = products.filter(p => p.type === 'music' && p.digital);
                 setTracks(musicOnly);
             } catch (err) {
@@ -75,7 +74,7 @@ export default function MusicPage() {
                                             src={track.imageUrl || ''}
                                             alt={track.name}
                                             fill
-                                            className="object-contain p-14 transition-transform duration-700 group-hover:scale-105"
+                                            className="object-contain p-4 transition-transform duration-700 group-hover:scale-105"
                                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
@@ -114,7 +113,6 @@ export default function MusicPage() {
                 </div>
             )}
 
-            {/* Hot Links Section */}
             <section className="py-24">
                 <div className="max-w-5xl mx-auto">
                     <div className="text-center mb-12">
