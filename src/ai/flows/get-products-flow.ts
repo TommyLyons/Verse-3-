@@ -1,7 +1,6 @@
-
 'use server';
 /**
- * @fileOverview A flow for fetching product information from Printful with accurate retail pricing, shipping integration, and regional currency enforcement.
+ * @fileOverview A flow for fetching product information from all connected Printful stores with accurate retail pricing and shipping integration.
  * - UK Region: GBP (£), £5 shipping buffer, rounded to nearest 5.
  * - EU Region: EUR (€), €6 shipping buffer, rounded to nearest 5.
  */
@@ -53,11 +52,11 @@ const getProductsFlow = ai.defineFlow(
         const storesData = await storesResponse.json();
         const allStores = storesData.result || [];
 
-        // Filter stores by brand name
+        // Broaden store filtering to ensure we capture all relevant stores
         const matchingStores = allStores.filter((store: any) => {
             const name = store.name.toLowerCase();
-            const isV3 = name.includes('v3') || name.includes('verse') || name.includes('three');
-            const isCrude = name.includes('crude');
+            const isV3 = name.includes('v3') || name.includes('verse') || name.includes('three') || name.includes('records');
+            const isCrude = name.includes('crude') || name.includes('city');
             
             if (brand === 'Verse 3 Merch') return isV3 && !isCrude;
             if (brand === 'Crude City') return isCrude;
@@ -72,20 +71,16 @@ const getProductsFlow = ai.defineFlow(
             const storeId = store.id;
             const storeNameUpper = store.name.toUpperCase();
             
-            // Determine Region
+            // Determine Region for pricing
             const isUKStore = storeNameUpper.includes('UK') || 
                             storeNameUpper.includes('UNITED KINGDOM') ||
                             storeNameUpper.includes('GBP');
             
-            const isEUStore = storeNameUpper.includes('EUROPE') || 
-                            storeNameUpper.includes('EU') ||
-                            storeNameUpper.includes('EUR') ||
-                            !isUKStore; // Default to EU if not UK
-
             const region = isUKStore ? 'UK' : 'EU';
             const currencySymbol = isUKStore ? '£' : '€';
             const shippingBuffer = isUKStore ? 5.00 : 6.00;
 
+            // Fetch products with a high limit to capture "new merch"
             const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
             if (!productsResponse.ok) continue;
 
@@ -121,7 +116,7 @@ const getProductsFlow = ai.defineFlow(
                     if (retailPrice > 0) {
                         // 1. Add Shipping Buffer
                         retailPrice += shippingBuffer;
-                        // 2. Round to nearest multiple of 5 (64 -> 65, 61 -> 60)
+                        // 2. Round to nearest multiple of 5
                         retailPrice = Math.round(retailPrice / 5) * 5;
                     }
 

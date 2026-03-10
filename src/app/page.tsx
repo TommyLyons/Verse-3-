@@ -56,7 +56,7 @@ export default function Home() {
     fetchProducts();
   }, []);
   
-  // Strict filter for V3 Merch only per request
+  // Featured Merch: V3 Merch only as requested
   const merchProducts = React.useMemo(() => {
     return allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch').slice(0, 8);
   }, [allProducts]);
@@ -243,7 +243,7 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Latest Music Carousel - Strict Music Only Filtering */}
+       {/* Latest Music Carousel */}
        <section className="py-24 bg-secondary/30">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
