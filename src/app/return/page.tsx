@@ -24,34 +24,7 @@ function ReturnContent() {
       const digitalItems = cart.filter(item => item.digital);
       setPurchasedDigitalItems(digitalItems);
 
-      // 1. Trigger automatic download for each digital item (Audio + Artwork)
-      digitalItems.forEach(item => {
-        // Download Audio
-        if (item.downloadUrl) {
-          const audioLink = document.createElement('a');
-          audioLink.href = item.downloadUrl;
-          audioLink.download = `${item.name}.mp3`;
-          audioLink.target = '_blank';
-          document.body.appendChild(audioLink);
-          audioLink.click();
-          document.body.removeChild(audioLink);
-        }
-        
-        // Download Artwork
-        if (item.imageUrl) {
-          setTimeout(() => {
-            const imgLink = document.createElement('a');
-            imgLink.href = item.imageUrl!;
-            imgLink.download = `${item.name}-Artwork.jpg`;
-            imgLink.target = '_blank';
-            document.body.appendChild(imgLink);
-            imgLink.click();
-            document.body.removeChild(imgLink);
-          }, 500); // Small stagger to avoid browser blocking multiple downloads
-        }
-      });
-
-      // 2. Save to user collection if logged in
+      // Save to user collection if logged in to build their permanent library
       if (user && firestore && digitalItems.length > 0) {
           digitalItems.forEach(item => {
               const purchaseRef = collection(firestore, 'users', user.uid, 'purchasedProducts');
@@ -74,7 +47,7 @@ function ReturnContent() {
 
       setStatus('success');
       setProcessed(true);
-      // We clear the cart AFTER grabbing digital items
+      // Clear the cart after extracting digital items for display
       clearCart();
     } else if (sessionId) {
         setStatus('success');
@@ -118,15 +91,15 @@ function ReturnContent() {
         ORDER <span className="text-chart-1">CONFIRMED</span>
       </h1>
       
-      <p className="text-muted-foreground text-lg md:text-xl max-w-xl mx-auto mb-10">
-        Welcome to the family. Your gear is being prepared and your digital masters should be downloading now.
+      <p className="text-muted-foreground text-lg md:text-xl max-w-xl mx-auto mb-10 font-medium">
+        Welcome to the family. Your order has been processed successfully. You can download your digital content below.
       </p>
 
       {purchasedDigitalItems.length > 0 && (
-          <div className="w-full max-w-2xl bg-black/5 p-8 border-2 border-black/10 mb-10 space-y-6">
+          <div className="w-full max-w-2xl bg-black/5 p-8 border-2 border-black/10 mb-10 space-y-6 rounded-none">
               <div className="text-center space-y-1">
                 <p className="font-bold uppercase tracking-widest text-xs text-black">Digital Library Access</p>
-                <p className="text-[10px] text-muted-foreground uppercase font-bold">Manual Download Links Provided Below</p>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold">Authorized Audio Masters & Artwork</p>
               </div>
               
               <div className="space-y-4">
@@ -138,16 +111,16 @@ function ReturnContent() {
                           </div>
                           <div className="flex gap-2 w-full sm:w-auto">
                               {item.downloadUrl && (
-                                <Button asChild size="sm" className="flex-1 bg-black text-chart-1 font-bold h-10 rounded-none uppercase italic text-xs">
-                                    <a href={item.downloadUrl} download>
+                                <Button asChild size="sm" className="flex-1 bg-black text-chart-1 font-bold h-10 rounded-none uppercase italic text-xs hover:bg-black/90">
+                                    <a href={item.downloadUrl} download={`${item.name}.mp3`}>
                                         <DownloadCloud className="mr-2 h-4 w-4" />
                                         Audio
                                     </a>
                                 </Button>
                               )}
                               {item.imageUrl && (
-                                <Button asChild size="sm" variant="outline" className="flex-1 border-2 border-black font-bold h-10 rounded-none uppercase italic text-xs">
-                                    <a href={item.imageUrl} download>
+                                <Button asChild size="sm" variant="outline" className="flex-1 border-2 border-black font-bold h-10 rounded-none uppercase italic text-xs hover:bg-black/5">
+                                    <a href={item.imageUrl} download={`${item.name}-Artwork.jpg`}>
                                         <FileImage className="mr-2 h-4 w-4" />
                                         Artwork
                                     </a>
