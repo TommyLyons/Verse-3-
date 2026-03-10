@@ -15,6 +15,7 @@ import { useFirestore, addDocumentNonBlocking } from '@/firebase';
 import { collection, serverTimestamp } from 'firebase/firestore';
 import { AgeGate } from '@/components/age-gate';
 import { useRouter } from 'next/navigation';
+import Autoplay from 'embla-carousel-autoplay';
 import {
   Carousel,
   CarouselContent,
@@ -209,7 +210,11 @@ export default function Home() {
                     </div>
                 ) : (
                     <div className="relative px-4 md:px-0">
-                        <Carousel opts={{ align: "start", loop: true }} className="w-full">
+                        <Carousel 
+                          opts={{ align: "start", loop: true }} 
+                          plugins={[Autoplay({ delay: 4000, stopOnInteraction: true })]}
+                          className="w-full"
+                        >
                             <CarouselContent className="-ml-4">
                                 {merchProducts.map((item) => (
                                     <CarouselItem key={item.id} className="pl-4 basis-[70%] sm:basis-1/2 lg:basis-1/4">
