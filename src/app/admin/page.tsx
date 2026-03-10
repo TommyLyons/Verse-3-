@@ -677,13 +677,21 @@ const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoadi
         e.preventDefault();
         e.stopPropagation();
 
-        if (!firestore || !id) return;
+        if (!firestore || !id) {
+            console.error("Delete failed: No firestore instance or missing ID", { id });
+            return;
+        }
         
-        const confirmed = window.confirm('Are you sure you want to permanently remove this track from the V3 Music Library?');
+        const confirmed = window.confirm('Permanently remove this record from the V3 Music Library? This cannot be undone.');
         if (confirmed) {
-            const docRef = doc(firestore, 'products', String(id));
-            deleteDocumentNonBlocking(docRef);
-            toast({ title: 'Success', description: 'Track removed from library.' });
+            try {
+                const docRef = doc(firestore, 'products', String(id));
+                deleteDocumentNonBlocking(docRef);
+                toast({ title: 'Record Removed', description: 'The track has been deleted from the store and inventory.' });
+            } catch (err) {
+                console.error("Firestore Delete Operation Error:", err);
+                toast({ variant: 'destructive', title: 'Delete Failed', description: 'Could not remove the item from the database.' });
+            }
         }
     };
 
