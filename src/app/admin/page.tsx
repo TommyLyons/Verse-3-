@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser, useFirestore, useCollection, addDocumentNonBlocking, deleteDocumentNonBlocking, useFirebaseApp } from '@/firebase';
+import { useUser, useFirestore, useCollection, addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking, useFirebaseApp } from '@/firebase';
 import { collection, serverTimestamp, doc } from 'firebase/firestore';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BarChart, Terminal, FileAudio, FileImage, PlusCircle, Mail, Users, RefreshCcw, ExternalLink, Settings2, Package, Music, PieChart, UploadCloud, Disc, Trash2, Plus, CheckCircle2, Link as LinkIcon, Edit3 } from 'lucide-react';
+import { BarChart, Terminal, FileAudio, FileImage, PlusCircle, Mail, Users, RefreshCcw, Settings2, Package, Music, PieChart, UploadCloud, Disc, Trash2, Plus, Edit3, Link as LinkIcon, Headphones } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   Dialog,
@@ -201,7 +201,7 @@ const productFormSchema = z.object({
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
 
-const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, initialType: 'merch' | 'music' }) => {
+const ProductForm = ({ onFinished, initialType, initialData }: { onFinished: () => void, initialType: 'merch' | 'music', initialData?: any }) => {
     const { toast } = useToast();
     const firestore = useFirestore();
     const firebaseApp = useFirebaseApp();
@@ -211,7 +211,10 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
 
     const form = useForm<ProductFormValues>({
         resolver: zodResolver(productFormSchema),
-        defaultValues: {
+        defaultValues: initialData ? {
+            ...initialData,
+            sizes: initialData.sizes?.join(', ') || '',
+        } : {
             name: '',
             description: '',
             price: initialType === 'merch' ? '£25.00' : '£2.00',
@@ -282,7 +285,7 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
             const finalTracks: any[] = [];
 
             if (values.type === 'music' && !values.isAlbum) {
-                if (!finalDownloadUrl && values.audioFile && values.audioFile.length > 0) {
+                if (values.audioFile && values.audioFile.length > 0) {
                     setCurrentStep('Uploading Audio...');
                     const audFile = values.audioFile[0] as File;
                     const audPath = `products/audio/${Date.now()}_${audFile.name.replace(/\s+/g, '_')}`;
@@ -295,7 +298,7 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                     const track = values.tracks[i];
                     let trackAudioUrl = track.audioUrl || '';
 
-                    if (!trackAudioUrl && track.audioFile && track.audioFile.length > 0) {
+                    if (track.audioFile && track.audioFile.length > 0) {
                         setCurrentStep(`Uploading Track ${i + 1}/${values.tracks.length}: ${track.title}...`);
                         const tFile = track.audioFile[0] as File;
                         const tPath = `products/audio/${Date.now()}_${tFile.name.replace(/\s+/g, '_')}`;
@@ -321,22 +324,30 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                 isAlbum: !!values.isAlbum,
                 tracks: finalTracks,
                 revolutLink: 'https://checkout.stripe.com/',
-                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
                 sizes: values.sizes ? values.sizes.split(',').map(s => s.trim().toUpperCase()) : []
             };
 
-            const productsCollection = collection(firestore, 'products');
-            addDocumentNonBlocking(productsCollection, productData);
+            if (initialData?.id) {
+                const docRef = doc(firestore, 'products', String(initialData.id));
+                updateDocumentNonBlocking(docRef, productData);
+                toast({ title: 'Updated!', description: `${values.name} library entry updated.` });
+            } else {
+                const productsCollection = collection(firestore, 'products');
+                addDocumentNonBlocking(productsCollection, {
+                    ...productData,
+                    createdAt: serverTimestamp()
+                });
+                toast({ title: 'Success!', description: `${values.name} published.` });
+            }
             
-            toast({ title: 'Success!', description: `${values.name} published.` });
             onFinished();
-            form.reset();
         } catch (error: any) {
             console.error('Submission Error:', error);
             toast({ 
               variant: 'destructive', 
-              title: 'Publish Failed', 
-              description: error.message || 'There was a problem processing your library upload.' 
+              title: 'Processing Failed', 
+              description: error.message || 'There was a problem processing your library update.' 
             });
         } finally {
             setIsSubmitting(false);
@@ -539,7 +550,7 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
                 )}
 
                 <Button type="submit" disabled={isSubmitting || !!currentStep} className="w-full h-12 bg-black text-chart-1 font-bold">
-                   {isSubmitting ? 'Finalizing Library Entry...' : (productType === 'music' ? (isAlbum ? 'Publish Album' : 'Upload Track') : 'Add Item')}
+                   {isSubmitting ? 'Finalizing Entry...' : (initialData ? 'Update Library' : (productType === 'music' ? (isAlbum ? 'Publish Album' : 'Upload Track') : 'Add Item'))}
                    {!isSubmitting && <UploadCloud className="ml-2 h-4 w-4" />}
                 </Button>
             </form>
@@ -549,6 +560,7 @@ const AddProductForm = ({ onFinished, initialType }: { onFinished: () => void, i
 
 const MerchManagement = ({ dbProducts, printfulProducts, isLoading }: { dbProducts: any[], printfulProducts: any[], isLoading: boolean }) => {
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+    const [editingProduct, setEditingProduct] = useState<any>(null);
     const firestore = useFirestore();
     const { toast } = useToast();
 
@@ -564,18 +576,11 @@ const MerchManagement = ({ dbProducts, printfulProducts, isLoading }: { dbProduc
     }, [dbProducts, printfulProducts]);
 
     const handleDelete = (id: any) => {
-        if (!firestore) {
-            toast({ variant: 'destructive', title: 'Error', description: 'Database not connected.' });
-            return;
-        }
-        if (!id) {
-            toast({ variant: 'destructive', title: 'Error', description: 'Invalid product ID.' });
-            return;
-        }
+        if (!firestore) return;
         if (window.confirm('Are you sure you want to remove this item?')) {
             const docRef = doc(firestore, 'products', String(id));
             deleteDocumentNonBlocking(docRef);
-            toast({ title: 'Success', description: 'Item removed from library.' });
+            toast({ title: 'Success', description: 'Item removed.' });
         }
     };
 
@@ -593,7 +598,7 @@ const MerchManagement = ({ dbProducts, printfulProducts, isLoading }: { dbProduc
                             <DialogHeader>
                                 <DialogTitle className="font-headline text-2xl uppercase italic">Add Merch Item</DialogTitle>
                             </DialogHeader>
-                            <AddProductForm initialType="merch" onFinished={() => setIsAddDialogOpen(false)} />
+                            <ProductForm initialType="merch" onFinished={() => setIsAddDialogOpen(false)} />
                         </DialogContent>
                     </Dialog>
                 </div>
@@ -616,20 +621,21 @@ const MerchManagement = ({ dbProducts, printfulProducts, isLoading }: { dbProduc
                                     <TableCell className="font-bold">{p.name}</TableCell>
                                     <TableCell><Badge variant="secondary">{p.brand}</Badge></TableCell>
                                     <TableCell>
-                                        <Badge variant="outline" className="flex w-fit items-center gap-1">
+                                        <Badge variant="outline">
                                             {p.id && String(p.id).length > 10 ? 'Local' : 'Printful'}
                                         </Badge>
                                     </TableCell>
                                     <TableCell>{p.price}</TableCell>
-                                    <TableCell className="text-right">
+                                    <TableCell className="text-right flex justify-end gap-1">
                                         {p.id && String(p.id).length > 10 && (
-                                            <Button type="button" variant="ghost" size="icon" className="text-destructive" onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                handleDelete(p.id);
-                                            }}>
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
+                                            <>
+                                                <Button size="icon" variant="ghost" onClick={() => setEditingProduct(p)}>
+                                                    <Edit3 className="h-4 w-4" />
+                                                </Button>
+                                                <Button size="icon" variant="ghost" className="text-destructive" onClick={() => handleDelete(p.id)}>
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </>
                                         )}
                                     </TableCell>
                                 </TableRow>
@@ -637,6 +643,21 @@ const MerchManagement = ({ dbProducts, printfulProducts, isLoading }: { dbProduc
                         </TableBody>
                     </Table>
                 )}
+                
+                <Dialog open={!!editingProduct} onOpenChange={(open) => !open && setEditingProduct(null)}>
+                    <DialogContent className="sm:max-w-xl">
+                        <DialogHeader>
+                            <DialogTitle className="font-headline text-2xl uppercase italic">Edit Merch</DialogTitle>
+                        </DialogHeader>
+                        {editingProduct && (
+                            <ProductForm 
+                                initialType="merch" 
+                                initialData={editingProduct} 
+                                onFinished={() => setEditingProduct(null)} 
+                            />
+                        )}
+                    </DialogContent>
+                </Dialog>
             </CardContent>
         </Card>
     );
@@ -644,6 +665,7 @@ const MerchManagement = ({ dbProducts, printfulProducts, isLoading }: { dbProduc
 
 const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoading: boolean }) => {
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+    const [editingProduct, setEditingProduct] = useState<any>(null);
     const firestore = useFirestore();
     const { toast } = useToast();
 
@@ -652,28 +674,16 @@ const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoadi
     }, [dbProducts]);
 
     const handleDelete = (e: React.MouseEvent, id: any) => {
-        // Stop event from bubbling up to Accordion or other parents
         e.preventDefault();
         e.stopPropagation();
 
-        if (!firestore) {
-            toast({ variant: 'destructive', title: 'Error', description: 'Database connection lost.' });
-            return;
-        }
-        if (!id) {
-            toast({ variant: 'destructive', title: 'Error', description: 'Could not identify product ID.' });
-            return;
-        }
+        if (!firestore || !id) return;
         
         const confirmed = window.confirm('Are you sure you want to permanently remove this track from the V3 Music Library?');
         if (confirmed) {
-            try {
-                const docRef = doc(firestore, 'products', String(id));
-                deleteDocumentNonBlocking(docRef);
-                toast({ title: 'Success', description: 'Track removed from library.' });
-            } catch (err: any) {
-                toast({ variant: 'destructive', title: 'Delete Failed', description: err.message });
-            }
+            const docRef = doc(firestore, 'products', String(id));
+            deleteDocumentNonBlocking(docRef);
+            toast({ title: 'Success', description: 'Track removed from library.' });
         }
     };
 
@@ -691,7 +701,7 @@ const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoadi
                             <DialogHeader>
                                 <DialogTitle className="font-headline text-2xl uppercase italic">Upload To Music Library</DialogTitle>
                             </DialogHeader>
-                            <AddProductForm initialType="music" onFinished={() => setIsAddDialogOpen(false)} />
+                            <ProductForm initialType="music" onFinished={() => setIsAddDialogOpen(false)} />
                         </DialogContent>
                     </Dialog>
                 </div>
@@ -737,10 +747,10 @@ const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoadi
                                         <TableCell className="font-bold font-headline text-xl">{p.price}</TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-2">
-                                                {p.downloadUrl && (
+                                                {(p.downloadUrl || (p.tracks && p.tracks[0]?.audioUrl)) && (
                                                     <Button variant="ghost" size="icon" className="h-8 w-8 text-chart-1" asChild>
-                                                        <a href={p.downloadUrl} target="_blank" rel="noopener noreferrer">
-                                                            <FileAudio className="h-5 w-5" />
+                                                        <a href={p.downloadUrl || p.tracks[0].audioUrl} target="_blank" rel="noopener noreferrer">
+                                                            <Headphones className="h-5 w-5" />
                                                         </a>
                                                     </Button>
                                                 )}
@@ -756,7 +766,7 @@ const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoadi
                                                     variant="outline" 
                                                     size="icon" 
                                                     className="h-9 w-9 border-black/10 hover:bg-black hover:text-white transition-all rounded-none"
-                                                    onClick={() => toast({ title: "Feature Pending", description: "Editing will be available in the next update." })}
+                                                    onClick={() => setEditingProduct(p)}
                                                 >
                                                     <Edit3 className="h-4 w-4" />
                                                 </Button>
@@ -777,6 +787,21 @@ const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoadi
                         </Table>
                      </div>
                 )}
+                
+                <Dialog open={!!editingProduct} onOpenChange={(open) => !open && setEditingProduct(null)}>
+                    <DialogContent className="sm:max-w-xl">
+                        <DialogHeader>
+                            <DialogTitle className="font-headline text-2xl uppercase italic">Edit Music Library Entry</DialogTitle>
+                        </DialogHeader>
+                        {editingProduct && (
+                            <ProductForm 
+                                initialType="music" 
+                                initialData={editingProduct} 
+                                onFinished={() => setEditingProduct(null)} 
+                            />
+                        )}
+                    </DialogContent>
+                </Dialog>
             </CardContent>
         </Card>
     );
