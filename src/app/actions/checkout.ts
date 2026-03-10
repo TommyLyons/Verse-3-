@@ -5,15 +5,20 @@ import { stripe } from '@/lib/stripe';
 
 /**
  * Creates a Stripe Checkout Session with Embedded UI mode.
- * Includes precise metadata for automated Printful fulfillment and Digital Delivery.
+ * Includes robust origin detection and precise metadata for fulfillment.
  */
 export async function fetchClientSecret(cart: any[]) {
-  const origin = (await headers()).get('origin');
+  const headersList = await headers();
+  const host = headersList.get('host');
+  const proto = headersList.get('x-forwarded-proto') || 'http';
+  // Safer origin detection for local and production environments
+  const origin = headersList.get('origin') || `${proto}://${host}`;
+  
   const secretKey = process.env.STRIPE_SECRET_KEY;
 
   if (!secretKey || secretKey.startsWith('sk_live_PASTE')) {
-    console.error("STRIPE_SECRET_KEY is missing or invalid.");
-    throw new Error("Payment gateway is currently in maintenance. Please try again later.");
+    console.error("CRITICAL: STRIPE_SECRET_KEY is missing from environment variables.");
+    throw new Error("Payment system is currently in maintenance mode. Please try again later.");
   }
 
   if (!cart || cart.length === 0) {
@@ -22,12 +27,15 @@ export async function fetchClientSecret(cart: any[]) {
 
   try {
     const line_items = cart.map((item: any) => {
+      // Clean price string and convert to cents/pence
       const priceStr = item.price.replace(/[^0-9.]/g, '');
       const amount = Math.round(parseFloat(priceStr) * 100);
+      
+      // Auto-detect currency based on price symbol
       const currency = item.price.includes('£') ? 'gbp' : 'eur';
 
       if (isNaN(amount) || amount <= 0) {
-        throw new Error(`Invalid price detected for: ${item.name}`);
+        throw new Error(`Invalid price detected for item: ${item.name}`);
       }
 
       return {
@@ -59,15 +67,16 @@ export async function fetchClientSecret(cart: any[]) {
         allowed_countries: ['GB', 'IE', 'US', 'CA', 'FR', 'DE', 'ES', 'IT', 'AU', 'NZ'],
       },
       metadata: {
-        order_source: 'verse3_web_store_automated',
+        order_source: 'verse3_web_store_v2',
         has_digital: cart.some(i => i.digital) ? 'true' : 'false'
       },
+      // Ensure return_url is absolute and valid
       return_url: `${origin}/return?session_id={CHECKOUT_SESSION_ID}`,
     });
 
     return session.client_secret;
   } catch (error: any) {
-    console.error('Stripe Session Exception:', error);
+    console.error('Stripe Initialization Error:', error.message);
     throw new Error(error.message || 'Failed to initialize secure checkout session');
   }
 }

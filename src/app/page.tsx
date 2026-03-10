@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -125,7 +124,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Optimized for mobile visibility */}
+      {/* Hero Section - Optimized for mobile visibility and fitted image */}
       <section className="relative w-full h-[85dvh] flex flex-col items-center justify-center bg-black overflow-hidden">
         <div className="absolute inset-0 z-0 flex items-center justify-center px-[10%] md:px-0">
           <video
@@ -156,7 +155,7 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image - Fitted to screen with safe padding on mobile */}
+      {/* Impact Image - Positioned strictly above Brand Selector */}
       {vibeHero && (
         <section className="w-full bg-black py-4">
           <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto px-6 md:px-0">
@@ -196,7 +195,7 @@ export default function Home() {
           </div>
        </section>
 
-       {/* Featured Merch Carousel (V3 Only) - Fitted images */}
+       {/* Featured Merch Carousel (V3 Only) - Fitted images with Autoplay */}
        <section className="py-24 bg-white">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
@@ -249,7 +248,7 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Latest Music Carousel - Fitted images */}
+       {/* Latest Music Carousel - Fitted images with Autoplay */}
        <section className="py-24 bg-secondary/30">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
