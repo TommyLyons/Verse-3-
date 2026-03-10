@@ -58,11 +58,11 @@ export default function Home() {
   }, []);
   
   const merchProducts = React.useMemo(() => {
-    return allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch').slice(0, 8);
+    return allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch').slice(0, 12);
   }, [allProducts]);
 
   const musicProducts = React.useMemo(() => {
-    return allProducts.filter(p => p.type === 'music').slice(0, 8);
+    return allProducts.filter(p => p.type === 'music').slice(0, 12);
   }, [allProducts]);
 
   const vibeHero = PlaceHolderImages.find(img => img.id === 'vibe-hero');
@@ -124,7 +124,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Optimized with Dynamic Viewport Height for Mobile */}
+      {/* Hero Section - Dynamic Height for Mobile to avoid cutoff */}
       <section className="relative w-full h-[85dvh] flex flex-col items-center justify-center bg-black overflow-hidden">
         <div className="absolute inset-0 z-0">
           <video
@@ -133,7 +133,7 @@ export default function Home() {
             className="w-full h-full object-cover"
           />
         </div>
-        {/* Buttons positioned slightly higher to avoid mobile browser toolbars */}
+        {/* Buttons sitting slightly higher for better mobile ergonomics */}
         <div className="absolute bottom-20 z-10 flex gap-4 px-6 w-full max-w-sm mx-auto">
           <Button asChild className="flex-1 bg-black text-chart-1 font-bold h-11 rounded-none uppercase italic tracking-wider shadow-lg hover:bg-chart-1 hover:text-black transition-all">
             <Link href="/store">SHOP MERCH</Link>
@@ -155,7 +155,7 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image precisely above brand section */}
+      {/* Impact Image fitted to screen width */}
       {vibeHero && (
         <section className="w-full bg-black py-4">
           <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto">
@@ -195,7 +195,7 @@ export default function Home() {
           </div>
        </section>
 
-       {/* Featured Merch Carousel with Autoplay - Images "Fitted" */}
+       {/* Featured Merch Carousel (V3 Only) - Fitted images */}
        <section className="py-24 bg-white">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
@@ -248,7 +248,7 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Latest Music Carousel with Autoplay - Images "Fitted" */}
+       {/* Latest Music Carousel - Fitted images */}
        <section className="py-24 bg-secondary/30">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
