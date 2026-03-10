@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -124,13 +125,13 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Dynamic Height for Mobile to avoid cutoff */}
+      {/* Hero Section - Optimized for mobile visibility */}
       <section className="relative w-full h-[85dvh] flex flex-col items-center justify-center bg-black overflow-hidden">
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 flex items-center justify-center px-[10%] md:px-0">
           <video
             src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
             autoPlay loop muted playsInline
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain md:object-cover"
           />
         </div>
         {/* Buttons sitting slightly higher for better mobile ergonomics */}
@@ -155,10 +156,10 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image fitted to screen width */}
+      {/* Impact Image - Fitted to screen with safe padding on mobile */}
       {vibeHero && (
         <section className="w-full bg-black py-4">
-          <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto">
+          <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto px-6 md:px-0">
             <Image
               src={vibeHero.imageUrl}
               alt={vibeHero.description}
