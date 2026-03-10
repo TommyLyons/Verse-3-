@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -135,10 +136,10 @@ export default function Home() {
         </div>
         <div className="absolute bottom-12 z-10 flex gap-4 px-6 w-full max-w-sm mx-auto">
           <Button asChild className="flex-1 bg-black text-chart-1 font-bold h-11 rounded-none uppercase italic tracking-wider shadow-lg hover:bg-chart-1 hover:text-black transition-all">
-            <Link href="/store">Shop Merch</Link>
+            <Link href="/store">SHOP MERCH</Link>
           </Button>
           <Button asChild className="flex-1 bg-black text-chart-1 font-bold h-11 rounded-none uppercase italic tracking-wider shadow-lg hover:bg-chart-1 hover:text-black transition-all">
-            <Link href="/music">Shop Music</Link>
+            <Link href="/music">SHOP MUSIC</Link>
           </Button>
         </div>
       </section>
@@ -211,7 +212,7 @@ export default function Home() {
                         <Carousel opts={{ align: "start", loop: true }} className="w-full">
                             <CarouselContent className="-ml-4">
                                 {merchProducts.map((item) => (
-                                    <CarouselItem key={item.id} className="pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/4">
+                                    <CarouselItem key={item.id} className="pl-4 basis-[70%] sm:basis-1/2 lg:basis-1/4">
                                         <Card className="border-none shadow-none bg-transparent group cursor-pointer" onClick={() => handleProductClick(item)}>
                                             <div className="aspect-square relative bg-secondary rounded-none overflow-hidden border-2 border-black/5">
                                                 <Image
@@ -260,7 +261,7 @@ export default function Home() {
                         <Carousel opts={{ align: "start", loop: true }} className="w-full">
                             <CarouselContent className="-ml-4">
                                 {musicProducts.map((item) => (
-                                    <CarouselItem key={item.id} className="pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/4">
+                                    <CarouselItem key={item.id} className="pl-4 basis-[70%] sm:basis-1/2 lg:basis-1/4">
                                         <Card className="border-none shadow-none bg-transparent group cursor-pointer" onClick={() => handleProductClick(item)}>
                                             <div className="aspect-square relative bg-white rounded-none overflow-hidden shadow-sm border-2 border-black/5">
                                                 <Image
