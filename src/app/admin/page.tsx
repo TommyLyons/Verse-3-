@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BarChart, Terminal, FileAudio, FileImage, PlusCircle, Mail, Users, RefreshCcw, ExternalLink, Settings2, Package, Music, PieChart, UploadCloud, Disc, Trash2, Plus, CheckCircle2, Link as LinkIcon } from 'lucide-react';
+import { BarChart, Terminal, FileAudio, FileImage, PlusCircle, Mail, Users, RefreshCcw, ExternalLink, Settings2, Package, Music, PieChart, UploadCloud, Disc, Trash2, Plus, CheckCircle2, Link as LinkIcon, Edit3 } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   Dialog,
@@ -651,7 +651,11 @@ const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoadi
         return dbProducts.filter(p => p.type === 'music').sort((a, b) => a.name.localeCompare(b.name));
     }, [dbProducts]);
 
-    const handleDelete = (id: any) => {
+    const handleDelete = (e: React.MouseEvent, id: any) => {
+        // Stop event from bubbling up to Accordion or other parents
+        e.preventDefault();
+        e.stopPropagation();
+
         if (!firestore) {
             toast({ variant: 'destructive', title: 'Error', description: 'Database connection lost.' });
             return;
@@ -660,7 +664,9 @@ const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoadi
             toast({ variant: 'destructive', title: 'Error', description: 'Could not identify product ID.' });
             return;
         }
-        if (window.confirm('Are you sure you want to remove this track from the library?')) {
+        
+        const confirmed = window.confirm('Are you sure you want to permanently remove this track from the V3 Music Library?');
+        if (confirmed) {
             try {
                 const docRef = doc(firestore, 'products', String(id));
                 deleteDocumentNonBlocking(docRef);
@@ -691,59 +697,85 @@ const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoadi
                 </div>
 
                 {isLoading && <div className="py-4 space-y-2"><Skeleton className="h-10 w-full"/><Skeleton className="h-10 w-full"/></div>}
-                {!isLoading && musicOnly.length === 0 && <p className="text-center text-muted-foreground py-8">No tracks in library yet.</p>}
+                {!isLoading && musicOnly.length === 0 && (
+                    <div className="text-center py-16 border-2 border-dashed rounded-lg bg-black/5">
+                        <Disc className="h-12 w-12 mx-auto text-muted-foreground mb-4 opacity-20" />
+                        <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">No tracks in library yet.</p>
+                    </div>
+                )}
                 {!isLoading && musicOnly.length > 0 && (
-                     <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Title</TableHead>
-                                <TableHead>Type</TableHead>
-                                <TableHead>Price</TableHead>
-                                <TableHead className="text-right">Content</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {musicOnly.map((p: any) => (
-                                <TableRow key={p.id || p.slug}>
-                                    <TableCell className="font-bold">{p.name}</TableCell>
-                                    <TableCell>
-                                        <Badge variant="outline">{p.isAlbum ? 'Album/EP' : 'Single'}</Badge>
-                                    </TableCell>
-                                    <TableCell>{p.price}</TableCell>
-                                    <TableCell className="text-right">
-                                        <div className="flex justify-end gap-1">
-                                            {p.downloadUrl && (
-                                                <Button variant="ghost" size="sm" asChild>
-                                                    <a href={p.downloadUrl} target="_blank" rel="noopener noreferrer">
-                                                        <FileAudio className="h-4 w-4" />
-                                                    </a>
-                                                </Button>
-                                            )}
-                                            {p.tracks && p.tracks.length > 0 && (
-                                                <Badge className="bg-chart-1 text-black">{p.tracks.length} Tracks</Badge>
-                                            )}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <Button 
-                                            type="button"
-                                            variant="ghost" 
-                                            size="icon" 
-                                            className="text-destructive hover:bg-destructive/10" 
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                handleDelete(p.id);
-                                            }}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </TableCell>
+                     <div className="rounded-md border overflow-hidden">
+                        <Table>
+                            <TableHeader className="bg-black text-white">
+                                <TableRow className="hover:bg-black border-none">
+                                    <TableHead className="text-white font-headline tracking-wider">Title / Release</TableHead>
+                                    <TableHead className="text-white font-headline tracking-wider">Format</TableHead>
+                                    <TableHead className="text-white font-headline tracking-wider">Price</TableHead>
+                                    <TableHead className="text-white font-headline tracking-wider text-right">Preview</TableHead>
+                                    <TableHead className="text-white font-headline tracking-wider text-right">Actions</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody>
+                                {musicOnly.map((p: any) => (
+                                    <TableRow key={p.id || p.slug} className="group hover:bg-black/5">
+                                        <TableCell className="font-bold py-6">
+                                            <div className="flex items-center gap-4">
+                                                <div className="relative h-12 w-12 rounded bg-black/5 overflow-hidden border">
+                                                    {p.imageUrl && <Image src={p.imageUrl} alt="" fill className="object-cover" />}
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-lg uppercase italic font-headline">{p.name}</span>
+                                                    <span className="text-[10px] text-muted-foreground font-bold tracking-widest">{p.brand}</span>
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge variant="outline" className="rounded-none font-bold uppercase italic text-[10px]">
+                                                {p.isAlbum ? 'Album/EP' : 'Single'}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell className="font-bold font-headline text-xl">{p.price}</TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex justify-end gap-2">
+                                                {p.downloadUrl && (
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-chart-1" asChild>
+                                                        <a href={p.downloadUrl} target="_blank" rel="noopener noreferrer">
+                                                            <FileAudio className="h-5 w-5" />
+                                                        </a>
+                                                    </Button>
+                                                )}
+                                                {p.tracks && p.tracks.length > 0 && (
+                                                    <Badge className="bg-chart-1 text-black rounded-none px-2 font-bold">{p.tracks.length} TKS</Badge>
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex justify-end items-center gap-2">
+                                                <Button 
+                                                    type="button"
+                                                    variant="outline" 
+                                                    size="icon" 
+                                                    className="h-9 w-9 border-black/10 hover:bg-black hover:text-white transition-all rounded-none"
+                                                    onClick={() => toast({ title: "Feature Pending", description: "Editing will be available in the next update." })}
+                                                >
+                                                    <Edit3 className="h-4 w-4" />
+                                                </Button>
+                                                <Button 
+                                                    type="button"
+                                                    variant="destructive" 
+                                                    size="icon" 
+                                                    className="h-9 w-9 bg-red-600 hover:bg-red-700 text-white shadow-lg transition-all rounded-none" 
+                                                    onClick={(e) => handleDelete(e, p.id)}
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                     </div>
                 )}
             </CardContent>
         </Card>
