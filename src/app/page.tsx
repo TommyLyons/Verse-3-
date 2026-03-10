@@ -138,7 +138,7 @@ export default function Home() {
             <Link href="/store">Shop Merch</Link>
           </Button>
           <Button asChild className="flex-1 bg-black text-chart-1 font-bold h-11 rounded-none uppercase italic tracking-wider shadow-lg hover:bg-chart-1 hover:text-black transition-all">
-            <Link href="/music">Music Masters</Link>
+            <Link href="/music">Shop Music</Link>
           </Button>
         </div>
       </section>
