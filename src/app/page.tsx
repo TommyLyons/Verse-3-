@@ -124,16 +124,17 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Optimized for high impact visibility */}
-      <section className="relative w-full h-[80vh] flex flex-col items-center justify-center bg-black overflow-hidden">
+      {/* Hero Section - Optimized with Dynamic Viewport Height for Mobile */}
+      <section className="relative w-full h-[85dvh] flex flex-col items-center justify-center bg-black overflow-hidden">
         <div className="absolute inset-0 z-0">
           <video
             src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
             autoPlay loop muted playsInline
-            className="w-full h-full object-cover opacity-90"
+            className="w-full h-full object-cover"
           />
         </div>
-        <div className="absolute bottom-12 z-10 flex gap-4 px-6 w-full max-w-sm mx-auto">
+        {/* Buttons positioned slightly higher to avoid mobile browser toolbars */}
+        <div className="absolute bottom-20 z-10 flex gap-4 px-6 w-full max-w-sm mx-auto">
           <Button asChild className="flex-1 bg-black text-chart-1 font-bold h-11 rounded-none uppercase italic tracking-wider shadow-lg hover:bg-chart-1 hover:text-black transition-all">
             <Link href="/store">SHOP MERCH</Link>
           </Button>
