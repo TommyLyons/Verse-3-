@@ -625,7 +625,10 @@ const MerchManagement = ({ dbProducts, printfulProducts, isLoading }: { dbProduc
                                     <TableCell>{p.price}</TableCell>
                                     <TableCell className="text-right">
                                         {p.id && String(p.id).length > 10 && (
-                                            <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDelete(p.id)}>
+                                            <Button variant="ghost" size="icon" className="text-destructive" onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDelete(p.id);
+                                            }}>
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
                                         )}
@@ -725,7 +728,7 @@ const MusicManagement = ({ dbProducts, isLoading }: { dbProducts: any[], isLoadi
                                             size="icon" 
                                             className="text-destructive hover:bg-destructive/10" 
                                             onClick={(e) => {
-                                                e.preventDefault();
+                                                e.stopPropagation();
                                                 handleDelete(p.id);
                                             }}
                                         >

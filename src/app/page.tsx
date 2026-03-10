@@ -56,8 +56,9 @@ export default function Home() {
     fetchProducts();
   }, []);
   
+  // Strict filter for V3 Merch only per request
   const merchProducts = React.useMemo(() => {
-    return allProducts.filter(p => p.type === 'merch').slice(0, 8);
+    return allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch').slice(0, 8);
   }, [allProducts]);
 
   const musicProducts = React.useMemo(() => {
@@ -153,7 +154,7 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image precisely above Choice section per 34172f3 */}
+      {/* Impact Image precisely above Choice section */}
       {vibeHero && (
         <section className="w-full bg-black py-4">
           <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto">
