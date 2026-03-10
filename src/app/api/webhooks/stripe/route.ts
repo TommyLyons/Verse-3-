@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { getPrintfulApiKey } from '@/ai/flows/get-products-flow';
@@ -6,6 +5,7 @@ import { getPrintfulApiKey } from '@/ai/flows/get-products-flow';
 /**
  * Stripe Webhook Handler
  * Automates the creation of Printful orders upon successful payment.
+ * Ensures verified shipping details are passed to production immediately.
  */
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as any;
 
-    // Retrieve expanded session to get line items
+    // Retrieve expanded session to get line items and product metadata
     const expandedSession = await stripe.checkout.sessions.retrieve(session.id, {
       expand: ['line_items.data.price.product'],
     });
@@ -36,9 +36,9 @@ export async function POST(req: NextRequest) {
     try {
       await processPrintfulOrder(expandedSession);
     } catch (error) {
-      console.error('Failed to automate Printful order:', error);
-      // We return 200 to Stripe because we don't want them to keep retrying 
-      // if it's a logic error, but we log it for admin review.
+      console.error('Failed to automate Printful order fulfillment:', error);
+      // We return 200 to Stripe to prevent retries of logic errors, 
+      // but the error is logged for administrative review.
     }
   }
 
@@ -47,10 +47,10 @@ export async function POST(req: NextRequest) {
 
 async function processPrintfulOrder(session: any) {
   const apiKey = await getPrintfulApiKey();
-  if (!apiKey) throw new Error('Printful API Key missing');
+  if (!apiKey) throw new Error('Printful API Key missing or unauthorized');
 
   const shipping = session.shipping_details;
-  if (!shipping) throw new Error('No shipping details found in session');
+  if (!shipping) throw new Error('No shipping details found in checkout session');
 
   const lineItems = session.line_items.data;
   const printfulItems = [];
@@ -59,9 +59,9 @@ async function processPrintfulOrder(session: any) {
     const productData = item.price.product;
     const metadata = productData.metadata;
 
-    // Only process merch items that came from Printful
+    // Only process merch items that originated from a Printful store
     if (metadata.type === 'merch' && metadata.printful_id) {
-      // Fetch product variants from Printful to find the exact variant ID for the size
+      // Fetch product variants from Printful to resolve the exact sync_variant_id for the selected size
       const variantsResponse = await fetch(`https://api.printful.com/sync/products/${metadata.printful_id}`, {
         headers: { 'Authorization': `Bearer ${apiKey}` }
       });
@@ -70,7 +70,7 @@ async function processPrintfulOrder(session: any) {
         const data = await variantsResponse.json();
         const variants = data.result.sync_variants;
         
-        // Find variant matching the size (e.g., 'M', 'L')
+        // Find variant matching the customer's size choice (e.g., 'M', 'XL')
         const matchingVariant = variants.find((v: any) => 
           v.size?.toUpperCase() === metadata.size?.toUpperCase() || variants.length === 1
         );
@@ -85,30 +85,32 @@ async function processPrintfulOrder(session: any) {
     }
   }
 
+  // If no physical Printful items were found, skip order creation (might be digital only)
   if (printfulItems.length === 0) return;
 
-  // Create the order on Printful
+  // Build the production order payload
   const orderPayload = {
     recipient: {
       name: shipping.name,
       address1: shipping.address.line1,
-      address2: shipping.address.line2,
+      address2: shipping.address.line2 || '',
       city: shipping.address.city,
-      state_code: shipping.address.state,
+      state_code: shipping.address.state || '',
       country_code: shipping.address.country,
       zip: shipping.address.postal_code,
-      email: session.customer_details.email,
-      phone: session.customer_details.phone
+      email: session.customer_details?.email,
+      phone: session.customer_details?.phone || ''
     },
     items: printfulItems,
     retail_costs: {
         currency: session.currency.toUpperCase(),
         subtotal: (session.amount_total / 100).toFixed(2),
-        shipping: "0.00", // We incorporated shipping into retail price
+        shipping: "0.00", // Shipping is incorporated into our retail pricing
         total: (session.amount_total / 100).toFixed(2)
     }
   };
 
+  // Create and confirm the order on Printful immediately
   const response = await fetch('https://api.printful.com/orders?confirm=1', {
     method: 'POST',
     headers: {
@@ -120,6 +122,6 @@ async function processPrintfulOrder(session: any) {
 
   if (!response.ok) {
     const errorData = await response.json();
-    throw new Error(`Printful Order Creation Failed: ${JSON.stringify(errorData)}`);
+    throw new Error(`Printful Automation Failed: ${JSON.stringify(errorData)}`);
   }
 }

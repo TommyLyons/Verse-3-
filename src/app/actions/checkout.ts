@@ -1,4 +1,3 @@
-
 'use server';
 
 import { headers } from 'next/headers';
@@ -6,16 +5,15 @@ import { stripe } from '@/lib/stripe';
 
 /**
  * Creates a Stripe Checkout Session with Embedded UI mode.
- * Includes metadata for automated Printful fulfillment and digital processing.
+ * Includes precise metadata for automated Printful fulfillment.
  */
 export async function fetchClientSecret(cart: any[]) {
   const origin = (await headers()).get('origin');
-
   const secretKey = process.env.STRIPE_SECRET_KEY;
 
-  if (!secretKey || secretKey === 'sk_live_PASTE_YOUR_SECRET_KEY_HERE') {
+  if (!secretKey || secretKey.startsWith('sk_live_PASTE')) {
     console.error("STRIPE_SECRET_KEY is missing or invalid.");
-    throw new Error("Payment system is currently being configured. Please try again in a few minutes.");
+    throw new Error("Payment gateway is currently in maintenance. Please try again later.");
   }
 
   if (!cart || cart.length === 0) {
@@ -29,7 +27,7 @@ export async function fetchClientSecret(cart: any[]) {
       const currency = item.price.includes('£') ? 'gbp' : 'eur';
 
       if (isNaN(amount) || amount <= 0) {
-        throw new Error(`Invalid price for item: ${item.name}`);
+        throw new Error(`Invalid price detected for: ${item.name}`);
       }
 
       return {
@@ -61,14 +59,14 @@ export async function fetchClientSecret(cart: any[]) {
         allowed_countries: ['GB', 'IE', 'US', 'CA', 'FR', 'DE', 'ES', 'IT', 'AU', 'NZ'],
       },
       metadata: {
-        order_source: 'verse3_web_store'
+        order_source: 'verse3_web_store_automated'
       },
       return_url: `${origin}/return?session_id={CHECKOUT_SESSION_ID}`,
     });
 
     return session.client_secret;
   } catch (error: any) {
-    console.error('Stripe Session Error:', error);
-    throw new Error(error.message || 'Failed to create secure checkout session');
+    console.error('Stripe Session Exception:', error);
+    throw new Error(error.message || 'Failed to initialize secure checkout session');
   }
 }

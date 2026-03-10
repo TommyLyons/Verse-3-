@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -58,7 +57,7 @@ export default function Home() {
     fetchProducts();
   }, []);
   
-  // Featured Merch: V3 Merch only as requested
+  // Featured Merch: V3 Merch only
   const merchProducts = React.useMemo(() => {
     return allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch').slice(0, 8);
   }, [allProducts]);
@@ -156,7 +155,7 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image precisely above Choice section */}
+      {/* Impact Image precisely above brand section */}
       {vibeHero && (
         <section className="w-full bg-black py-4">
           <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto">
@@ -196,7 +195,7 @@ export default function Home() {
           </div>
        </section>
 
-       {/* Featured Merch Carousel */}
+       {/* Featured Merch Carousel with Autoplay */}
        <section className="py-24 bg-white">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
