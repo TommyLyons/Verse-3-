@@ -5,7 +5,7 @@ import { stripe } from '@/lib/stripe';
 
 /**
  * Creates a Stripe Checkout Session with Embedded UI mode.
- * Includes precise metadata for automated Printful fulfillment.
+ * Includes precise metadata for automated Printful fulfillment and Digital Delivery.
  */
 export async function fetchClientSecret(cart: any[]) {
   const origin = (await headers()).get('origin');
@@ -59,7 +59,8 @@ export async function fetchClientSecret(cart: any[]) {
         allowed_countries: ['GB', 'IE', 'US', 'CA', 'FR', 'DE', 'ES', 'IT', 'AU', 'NZ'],
       },
       metadata: {
-        order_source: 'verse3_web_store_automated'
+        order_source: 'verse3_web_store_automated',
+        has_digital: cart.some(i => i.digital) ? 'true' : 'false'
       },
       return_url: `${origin}/return?session_id={CHECKOUT_SESSION_ID}`,
     });

@@ -1,11 +1,10 @@
-
 'use client';
 
 import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useCart } from '@/context/cart-context';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, ShoppingBag, ArrowRight, RefreshCcw, DownloadCloud } from 'lucide-react';
+import { CheckCircle, ShoppingBag, ArrowRight, RefreshCcw, DownloadCloud, FileImage } from 'lucide-react';
 import { useUser, useFirestore, addDocumentNonBlocking } from '@/firebase';
 import { collection, serverTimestamp } from 'firebase/firestore';
 
@@ -25,16 +24,30 @@ function ReturnContent() {
       const digitalItems = cart.filter(item => item.digital);
       setPurchasedDigitalItems(digitalItems);
 
-      // 1. Trigger automatic download for each digital item
+      // 1. Trigger automatic download for each digital item (Audio + Artwork)
       digitalItems.forEach(item => {
+        // Download Audio
         if (item.downloadUrl) {
-          const link = document.createElement('a');
-          link.href = item.downloadUrl;
-          link.download = `${item.name}.mp3`;
-          link.target = '_blank';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
+          const audioLink = document.createElement('a');
+          audioLink.href = item.downloadUrl;
+          audioLink.download = `${item.name}.mp3`;
+          audioLink.target = '_blank';
+          document.body.appendChild(audioLink);
+          audioLink.click();
+          document.body.removeChild(audioLink);
+        }
+        
+        // Download Artwork
+        if (item.imageUrl) {
+          setTimeout(() => {
+            const imgLink = document.createElement('a');
+            imgLink.href = item.imageUrl!;
+            imgLink.download = `${item.name}-Artwork.jpg`;
+            imgLink.target = '_blank';
+            document.body.appendChild(imgLink);
+            imgLink.click();
+            document.body.removeChild(imgLink);
+          }, 500); // Small stagger to avoid browser blocking multiple downloads
         }
       });
 
@@ -61,6 +74,7 @@ function ReturnContent() {
 
       setStatus('success');
       setProcessed(true);
+      // We clear the cart AFTER grabbing digital items
       clearCart();
     } else if (sessionId) {
         setStatus('success');
@@ -109,19 +123,40 @@ function ReturnContent() {
       </p>
 
       {purchasedDigitalItems.length > 0 && (
-          <div className="w-full max-w-md bg-black/5 p-6 border-2 border-black/10 mb-10 space-y-4">
-              <p className="font-bold uppercase tracking-widest text-[10px] text-muted-foreground">Manual Download Links</p>
-              {purchasedDigitalItems.map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between border-b border-black/5 pb-2 last:border-0 last:pb-0">
-                      <span className="font-headline text-lg uppercase italic">{item.name}</span>
-                      <Button asChild size="sm" className="bg-chart-1 text-black font-bold h-9">
-                          <a href={item.downloadUrl} download>
-                              <DownloadCloud className="mr-2 h-4 w-4" />
-                              Get File
-                          </a>
-                      </Button>
-                  </div>
-              ))}
+          <div className="w-full max-w-2xl bg-black/5 p-8 border-2 border-black/10 mb-10 space-y-6">
+              <div className="text-center space-y-1">
+                <p className="font-bold uppercase tracking-widest text-xs text-black">Digital Library Access</p>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold">Manual Download Links Provided Below</p>
+              </div>
+              
+              <div className="space-y-4">
+                  {purchasedDigitalItems.map((item, idx) => (
+                      <div key={idx} className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-black/5 pb-4 last:border-0 last:pb-0">
+                          <div className="text-center sm:text-left">
+                              <span className="font-headline text-2xl uppercase italic block">{item.name}</span>
+                              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{item.brand || 'Verse3 Records'}</span>
+                          </div>
+                          <div className="flex gap-2 w-full sm:w-auto">
+                              {item.downloadUrl && (
+                                <Button asChild size="sm" className="flex-1 bg-black text-chart-1 font-bold h-10 rounded-none uppercase italic text-xs">
+                                    <a href={item.downloadUrl} download>
+                                        <DownloadCloud className="mr-2 h-4 w-4" />
+                                        Audio
+                                    </a>
+                                </Button>
+                              )}
+                              {item.imageUrl && (
+                                <Button asChild size="sm" variant="outline" className="flex-1 border-2 border-black font-bold h-10 rounded-none uppercase italic text-xs">
+                                    <a href={item.imageUrl} download>
+                                        <FileImage className="mr-2 h-4 w-4" />
+                                        Artwork
+                                    </a>
+                                </Button>
+                              )}
+                          </div>
+                      </div>
+                  ))}
+              </div>
           </div>
       )}
 

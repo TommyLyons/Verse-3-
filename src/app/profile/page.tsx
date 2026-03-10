@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser, useFirestore, useCollection } from '@/firebase';
@@ -8,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { BackButton } from '@/components/ui/back-button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import Image from 'next/image';
 import { DownloadCloud, Music, FileImage, Headphones, RefreshCcw, Disc } from 'lucide-react';
@@ -78,7 +78,6 @@ function PurchasedDownloads() {
                 </div>
 
                 <div className="space-y-3">
-                    {/* If it has multiple tracks, show them here */}
                     {purchase.tracks && purchase.tracks.length > 0 ? (
                         <div className="bg-black/5 p-4 rounded-none space-y-2">
                              <p className="text-[9px] font-bold uppercase tracking-widest mb-3 flex items-center gap-2">
@@ -87,11 +86,13 @@ function PurchasedDownloads() {
                              {purchase.tracks.map((track: any, idx: number) => (
                                 <div key={idx} className="flex items-center justify-between py-2 border-b border-black/5 last:border-0">
                                     <span className="text-xs font-bold uppercase italic">{track.title}</span>
-                                    <Button asChild size="sm" variant="ghost" className="h-8 rounded-none text-chart-1 font-bold">
-                                        <a href={track.downloadUrl} download={track.title} target="_blank" rel="noopener noreferrer">
-                                            <DownloadCloud className="h-4 w-4" />
-                                        </a>
-                                    </Button>
+                                    <div className="flex gap-2">
+                                        <Button asChild size="sm" variant="ghost" className="h-8 rounded-none text-chart-1 font-bold">
+                                            <a href={track.downloadUrl} download={track.title} target="_blank" rel="noopener noreferrer">
+                                                <DownloadCloud className="h-4 w-4" />
+                                            </a>
+                                        </Button>
+                                    </div>
                                 </div>
                              ))}
                         </div>
@@ -109,7 +110,7 @@ function PurchasedDownloads() {
                                 <Button asChild variant="outline" className="flex-1 border-2 border-black hover:bg-black/5 rounded-none font-bold uppercase italic h-12">
                                     <a href={purchase.imageUrl} download={`${purchase.productName}-Artwork`} target="_blank" rel="noopener noreferrer">
                                         <FileImage className="mr-2 h-4 w-4" />
-                                        Artwork
+                                        Download Artwork
                                     </a>
                                 </Button>
                             )}
@@ -164,7 +165,7 @@ export default function ProfilePage() {
           <CardHeader className="items-center text-center p-10">
             <Avatar className="h-40 w-40 mb-8 border-8 border-black/5 ring-4 ring-chart-1/10">
               <AvatarImage src={user?.photoURL ?? undefined} alt={user?.displayName ?? 'User'} />
-              <AvatarFallback className="bg-black text-chart-1 text-3xl font-bold">{getInitials(user?.displayName)}</AvatarFallback>
+              <AvatarFallback className="bg-white/10 text-white font-bold">{getInitials(user?.displayName)}</AvatarFallback>
             </Avatar>
             <CardTitle className="font-headline text-4xl uppercase italic tracking-tighter">{user?.displayName}</CardTitle>
             <CardDescription className="font-bold text-xs uppercase tracking-widest text-chart-1 mt-2">{user?.email}</CardDescription>
