@@ -5,20 +5,20 @@ import { stripe } from '@/lib/stripe';
 
 /**
  * Creates a Stripe Checkout Session with Embedded UI mode.
- * Includes robust origin detection and precise metadata for fulfillment.
+ * Robust origin detection ensures return_url compatibility.
+ * Strictly uses STRIPE_SECRET_KEY from environment.
  */
 export async function fetchClientSecret(cart: any[]) {
   const headersList = await headers();
   const host = headersList.get('host');
   const proto = headersList.get('x-forwarded-proto') || 'http';
-  // Safer origin detection for local and production environments
   const origin = headersList.get('origin') || `${proto}://${host}`;
   
   const secretKey = process.env.STRIPE_SECRET_KEY;
 
-  if (!secretKey || secretKey.startsWith('sk_live_PASTE')) {
-    console.error("CRITICAL: STRIPE_SECRET_KEY is missing from environment variables.");
-    throw new Error("Payment system is currently in maintenance mode. Please try again later.");
+  if (!secretKey) {
+    console.error("CRITICAL ERROR: STRIPE_SECRET_KEY is missing from environment variables.");
+    throw new Error("Payment gateway configuration error. Please contact the administrator.");
   }
 
   if (!cart || cart.length === 0) {
@@ -27,11 +27,11 @@ export async function fetchClientSecret(cart: any[]) {
 
   try {
     const line_items = cart.map((item: any) => {
-      // Clean price string and convert to cents/pence
+      // Clean price string (e.g., "£25.00" -> 25.00)
       const priceStr = item.price.replace(/[^0-9.]/g, '');
       const amount = Math.round(parseFloat(priceStr) * 100);
       
-      // Auto-detect currency based on price symbol
+      // Auto-detect currency
       const currency = item.price.includes('£') ? 'gbp' : 'eur';
 
       if (isNaN(amount) || amount <= 0) {
@@ -70,13 +70,12 @@ export async function fetchClientSecret(cart: any[]) {
         order_source: 'verse3_web_store_v2',
         has_digital: cart.some(i => i.digital) ? 'true' : 'false'
       },
-      // Ensure return_url is absolute and valid
       return_url: `${origin}/return?session_id={CHECKOUT_SESSION_ID}`,
     });
 
     return session.client_secret;
   } catch (error: any) {
-    console.error('Stripe Initialization Error:', error.message);
-    throw new Error(error.message || 'Failed to initialize secure checkout session');
+    console.error('Stripe Session Creation Error:', error.message);
+    throw new Error(error.message || 'Secure payment session could not be established.');
   }
 }
