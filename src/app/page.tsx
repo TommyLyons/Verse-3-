@@ -123,10 +123,10 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Optimized for mobile: centered 80% width for perfect fit */}
+      {/* Hero Section - Centered 80% width on mobile for perfect fitting */}
       <section className="relative w-full h-[85dvh] flex flex-col items-center justify-center bg-black overflow-hidden">
         <div className="absolute inset-0 z-0 flex items-center justify-center">
-          <div className="w-[80%] h-full md:w-full">
+          <div className="w-[80%] h-full md:w-full px-[5%] md:px-0">
             <video
               src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
               autoPlay loop muted playsInline
@@ -155,7 +155,7 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image (Version 34172f3 Restore) */}
+      {/* Impact Image */}
       {vibeHero && (
         <section className="w-full bg-black py-4">
           <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto px-6 md:px-0">
@@ -195,7 +195,7 @@ export default function Home() {
           </div>
        </section>
 
-       {/* Featured Merch Carousel (V3 Only) - Fitted images with zero padding */}
+       {/* Featured Merch Carousel (V3 Only) - Bold fitted images */}
        <section className="py-24 bg-white">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
@@ -216,7 +216,7 @@ export default function Home() {
                         >
                             <CarouselContent className="-ml-4">
                                 {merchProducts.map((item) => (
-                                    <CarouselItem key={item.id} className="pl-4 basis-[70%] sm:basis-1/2 lg:basis-1/4">
+                                    <CarouselItem key={item.id} className="pl-4 basis-[75%] sm:basis-1/2 lg:basis-1/4">
                                         <Card className="border-none shadow-none bg-transparent group cursor-pointer" onClick={() => handleProductClick(item)}>
                                             <div className="aspect-square relative bg-secondary rounded-none overflow-hidden border-2 border-black/5">
                                                 <Image
@@ -248,7 +248,7 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Latest Music Carousel - Fitted images with zero padding */}
+       {/* Latest Music Carousel - Bold fitted images */}
        <section className="py-24 bg-secondary/30">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
@@ -269,7 +269,7 @@ export default function Home() {
                         >
                             <CarouselContent className="-ml-4">
                                 {musicProducts.map((item) => (
-                                    <CarouselItem key={item.id} className="pl-4 basis-[70%] sm:basis-1/2 lg:basis-1/4">
+                                    <CarouselItem key={item.id} className="pl-4 basis-[75%] sm:basis-1/2 lg:basis-1/4">
                                         <Card className="border-none shadow-none bg-transparent group cursor-pointer" onClick={() => handleProductClick(item)}>
                                             <div className="aspect-square relative bg-white rounded-none overflow-hidden shadow-sm border-2 border-black/5">
                                                 <Image

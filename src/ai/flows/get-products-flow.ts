@@ -1,6 +1,8 @@
 'use server';
 /**
- * @fileOverview A flow for fetching product information from all connected Printful stores with accurate retail pricing and shipping integration.
+ * @fileOverview A flow for fetching product information from ALL connected Printful stores.
+ * - Exhaustive Sync: Removes store name filtering to ensure every product in the account is checked.
+ * - Brand Categorization: Products are assigned to brands based on their internal titles/tags.
  * - UK Region: GBP (£), £5 shipping buffer, rounded to nearest 5.
  * - EU Region: EUR (€), €6 shipping buffer, rounded to nearest 5.
  */
@@ -46,36 +48,18 @@ const getProductsFlow = ai.defineFlow(
     const headers = { 'Authorization': `Bearer ${apiKey}` };
 
     try {
+        // Fetch ALL stores in the account without filtering by name
         const storesResponse = await fetch('https://api.printful.com/stores', { headers });
         if (!storesResponse.ok) return [];
         
         const storesData = await storesResponse.json();
         const allStores = storesData.result || [];
 
-        // Broaden store filtering to ensure we capture all relevant stores across the entire account
-        const matchingStores = allStores.filter((store: any) => {
-            const name = store.name.toLowerCase();
-            const isV3 = name.includes('v3') || name.includes('verse') || name.includes('three') || name.includes('records');
-            const isCrude = name.includes('crude') || name.includes('city');
-            
-            // If the user hasn't named their store strictly, we still want to check it if it matches the brand context
-            if (brand === 'Verse 3 Merch') return isV3 && !isCrude;
-            if (brand === 'Crude City') return isCrude;
-            return false;
-        });
-
-        // Fallback: If no matching stores found by keyword, check if there's only one store in the account
-        // (This helps if they have a generic store name but want their products to show up)
-        let finalStores = matchingStores;
-        if (finalStores.length === 0 && allStores.length > 0) {
-           finalStores = allStores;
-        }
-
-        if (finalStores.length === 0) return [];
+        if (allStores.length === 0) return [];
 
         const allDetailedProducts: Product[] = [];
 
-        for (const store of finalStores) {
+        for (const store of allStores) {
             const storeId = store.id;
             const storeNameUpper = store.name.toUpperCase();
             
@@ -88,7 +72,7 @@ const getProductsFlow = ai.defineFlow(
             const currencySymbol = isUKStore ? '£' : '€';
             const shippingBuffer = isUKStore ? 5.00 : 6.00;
 
-            // Fetch products with a high limit (100) to ensure we capture all merch
+            // Fetch products with a high limit (100) to ensure we capture all merch in this store
             const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
             if (!productsResponse.ok) continue;
 
@@ -106,10 +90,14 @@ const getProductsFlow = ai.defineFlow(
 
                     if (!syncProduct || !syncProduct.name || !syncProduct.thumbnail_url) return null;
 
-                    // Filter products by brand in the final step if we are pulling from multiple stores
+                    // Brand Logic:
+                    // Verse 3: Default brand for items that don't match 'Crude' or 'City'
+                    // Crude City: Specifically items with 'Crude' or 'City' in the title
                     const prodName = syncProduct.name.toLowerCase();
-                    if (brand === 'Verse 3 Merch' && (prodName.includes('crude') || prodName.includes('city'))) return null;
-                    if (brand === 'Crude City' && !(prodName.includes('crude') || prodName.includes('city'))) return null;
+                    const isCrudeProduct = prodName.includes('crude') || prodName.includes('city');
+
+                    if (brand === 'Crude City' && !isCrudeProduct) return null;
+                    if (brand === 'Verse 3 Merch' && isCrudeProduct) return null;
 
                     const sizes = syncVariants 
                         ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
@@ -127,9 +115,8 @@ const getProductsFlow = ai.defineFlow(
                     }
 
                     if (retailPrice > 0) {
-                        // 1. Add Shipping Buffer
+                        // Add Shipping Buffer and round to nearest multiple of 5
                         retailPrice += shippingBuffer;
-                        // 2. Round to nearest multiple of 5 for that professional "boutique" look
                         retailPrice = Math.round(retailPrice / 5) * 5;
                     }
 
@@ -157,7 +144,7 @@ const getProductsFlow = ai.defineFlow(
             allDetailedProducts.push(...detailedProducts.filter((p): p is Product => p !== null));
         }
 
-        // Return sorted by name to keep the store consistent
+        // Return sorted by name for a consistent storefront appearance
         return allDetailedProducts.sort((a, b) => a.name.localeCompare(b.name));
     } catch (err) {
         return [];
