@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -19,6 +18,12 @@ import {
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter, useSearchParams } from 'next/navigation';
+
+/**
+ * Force dynamic rendering to prevent build-time failures when
+ * keys or database connections are unavailable in CI.
+ */
+export const dynamic = 'force-dynamic';
 
 const ProductGrid = ({ products, isLoading, onProductClick }: { products: any[], isLoading?: boolean, onProductClick?: (item: any) => void }) => {
     if (isLoading) {

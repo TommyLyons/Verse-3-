@@ -29,7 +29,7 @@ const getProductsFlow = ai.defineFlow(
     };
 
     try {
-        // Fetch all stores linked to the account
+        // Fetch all stores linked to the account to ensure exhaustive coverage
         const storesResponse = await fetch('https://api.printful.com/stores', { 
           headers,
           next: { revalidate: 300 } // Cache store list for 5 minutes
@@ -56,7 +56,7 @@ const getProductsFlow = ai.defineFlow(
                 const region = isUKStore ? 'UK' : 'EU';
                 const currencySymbol = isUKStore ? '£' : '€';
 
-                // Fetch up to 100 products per store
+                // Fetch up to 100 products per store to avoid truncation
                 const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&limit=100`, { headers });
                 if (!productsResponse.ok) continue;
 

@@ -1,4 +1,3 @@
-
 import Stripe from 'stripe';
 
 /**
@@ -9,7 +8,7 @@ export const getStripeClient = () => {
   const secretKey = (process.env.STRIPE_SECRET_KEY || '').trim();
 
   // If secret key is missing or is a placeholder during build/CI, 
-  // return a dummy client to prevent constructor errors.
+  // return a dummy client with a placeholder key to prevent constructor errors.
   const keyToUse = (secretKey && secretKey.length > 5 && !secretKey.includes('*'))
     ? secretKey
     : 'sk_test_51PlaceholderKeyForBuildStabilityOnly';

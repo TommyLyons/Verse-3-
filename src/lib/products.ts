@@ -1,4 +1,3 @@
-
 'use server';
 
 import { getProducts as getFlowProducts } from '@/ai/flows/get-products-flow';
@@ -63,6 +62,9 @@ function getServerFirestore() {
   }
 }
 
+/**
+ * Fetches all products from Firestore and Printful, then serializes them for Client Components.
+ */
 export const getAllProducts = async (): Promise<Product[]> => {
   let dbProducts: Product[] = [];
   let flowProducts: Product[] = [];
@@ -101,6 +103,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
 
   const sorted = Array.from(uniqueMap.values()).sort((a, b) => a.name.localeCompare(b.name));
   
+  // Deeply serialize the result to remove all non-plain objects like Timestamps
   return await serializeData(sorted);
 };
 
