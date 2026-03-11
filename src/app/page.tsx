@@ -123,7 +123,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Centered and 20% smaller on mobile (80% width) */}
+      {/* Hero Section - Centered and 20% smaller on mobile */}
       <section className="relative w-full h-[85dvh] flex flex-col items-center justify-center bg-black overflow-hidden px-4 md:px-0">
         <div className="relative w-full md:w-full h-full max-w-full md:max-w-none flex items-center justify-center">
             <div className="w-[80%] md:w-full h-full flex items-center justify-center">
@@ -155,7 +155,7 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image - Aspect preserved from high-impact version */}
+      {/* Impact Image */}
       {vibeHero && (
         <section className="w-full bg-black py-4">
           <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto">
@@ -195,7 +195,7 @@ export default function Home() {
           </div>
        </section>
 
-       {/* Featured Merch - Fitted visuals with zero padding */}
+       {/* Featured Merch - Fitted Visuals */}
        <section className="py-24 bg-white">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
@@ -248,7 +248,7 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Latest Music - Fitted visuals with zero padding */}
+       {/* Latest Music - Fitted Visuals */}
        <section className="py-24 bg-secondary/30">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">

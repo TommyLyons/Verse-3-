@@ -11,7 +11,6 @@ import {z} from 'genkit';
 import { ProductSchema, type Product } from '@/lib/schemas';
 
 export async function getPrintfulApiKey(): Promise<string | null> {
-    // Priority: Environment Variable
     if (process.env.PRINTFUL_API_KEY) {
         return process.env.PRINTFUL_API_KEY.trim();
     }
@@ -34,7 +33,7 @@ const getProductsFlow = ai.defineFlow(
     };
 
     try {
-        // Fetch all stores with a timeout safety
+        // Fetch all stores
         const storesResponse = await fetch('https://api.printful.com/stores', { headers });
         if (!storesResponse.ok) return [];
         
@@ -48,13 +47,13 @@ const getProductsFlow = ai.defineFlow(
             const storeId = store.id;
             const storeNameUpper = store.name.toUpperCase();
             
-            // Determine if the store is primarily Crude City or V3
+            // Determine default brand for this store
             const isCrudeStore = storeNameUpper.includes('CRUDE') || storeNameUpper.includes('CITY');
             const isUKStore = storeNameUpper.includes('UK') || storeNameUpper.includes('GBP');
             const region = isUKStore ? 'UK' : 'EU';
             const currencySymbol = isUKStore ? '£' : '€';
 
-            // Fetch products from this store (limit increased for thoroughness)
+            // Fetch products from this store
             const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
             if (!productsResponse.ok) continue;
 
@@ -69,14 +68,13 @@ const getProductsFlow = ai.defineFlow(
                         .replace(/[^\w-]+/g, '')
                         .trim();
 
-                    // Categorize product based on store type or item name
+                    // Categorize: Store name is the primary indicator, then item name
                     const isCrudeItem = isCrudeStore || prodName.includes('crude') || prodName.includes('city');
                     const targetBrand = isCrudeItem ? 'Crude City' : 'Verse 3 Merch';
 
                     if (targetBrand !== brand) continue;
 
                     if (!globalProductsMap.has(slug)) {
-                        // Fetch individual details for pricing and variants
                         const detailResponse = await fetch(`https://api.printful.com/sync/products/${item.id}?store_id=${storeId}`, { headers });
                         if (!detailResponse.ok) continue;
                         
@@ -98,7 +96,7 @@ const getProductsFlow = ai.defineFlow(
                             if (validPrices.length > 0) minPrice = Math.min(...validPrices);
                         }
 
-                        // Apply standard V3 retail logic (including shipping buffer and rounding)
+                        // V3 standard pricing logic (free shipping buffer included)
                         if (minPrice > 0) {
                             minPrice += isUKStore ? 5 : 6;
                             minPrice = Math.round(minPrice / 5) * 5;
@@ -120,9 +118,7 @@ const getProductsFlow = ai.defineFlow(
                             sizes: sizes.length > 0 ? sizes : undefined,
                         });
                     }
-                } catch (err) {
-                    continue; 
-                }
+                } catch (err) { continue; }
             }
         }
 

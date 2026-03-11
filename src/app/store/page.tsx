@@ -20,7 +20,7 @@ import React, { useState, useEffect, Suspense, useMemo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-const ProductGrid = ({ products, isLoading, type, onProductClick }: { products: any[], isLoading?: boolean, type: 'merch' | 'music', onProductClick?: (item: any) => void }) => {
+const ProductGrid = ({ products, isLoading, onProductClick }: { products: any[], isLoading?: boolean, onProductClick?: (item: any) => void }) => {
     if (isLoading) {
         return (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
@@ -56,7 +56,7 @@ const ProductGrid = ({ products, isLoading, type, onProductClick }: { products: 
                           className="cursor-pointer block aspect-square relative bg-secondary rounded-none overflow-hidden border-2 border-black/5"
                         >
                             <Image
-                                src={item.imageUrl || 'https://picsum.photos/seed/placeholder/600/600'}
+                                src={item.imageUrl || ''}
                                 alt={item.name}
                                 fill
                                 className="object-contain p-0 transition-transform duration-500 group-hover:scale-105"
@@ -233,7 +233,7 @@ function StoreContent() {
                     <h2 className="font-headline text-4xl font-bold text-black uppercase italic tracking-tighter">V3 Merch <span className="text-chart-1">{regionLabel}</span></h2>
                     <span className="hidden sm:block text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Premium Streetwear</span>
                 </div>
-                <ProductGrid products={verse3Merch} isLoading={isLoading} type="merch" onProductClick={handleProductClick} />
+                <ProductGrid products={verse3Merch} isLoading={isLoading} onProductClick={handleProductClick} />
            </section>
            
            <section className="mb-20">
@@ -241,7 +241,7 @@ function StoreContent() {
                     <h2 className="font-headline text-4xl font-bold text-black uppercase italic tracking-tighter">Digital <span className="text-chart-1">Downloads</span></h2>
                     <span className="hidden sm:block text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Instant Access</span>
                 </div>
-                <ProductGrid products={digitalMusic} isLoading={isLoading} type="music" onProductClick={handleProductClick} />
+                <ProductGrid products={digitalMusic} isLoading={isLoading} onProductClick={handleProductClick} />
            </section>
 
            <section>
@@ -249,7 +249,7 @@ function StoreContent() {
                     <h2 className="font-headline text-4xl font-bold text-black uppercase italic tracking-tighter">Physical <span className="text-chart-1">Music</span></h2>
                     <span className="hidden sm:block text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Vinyl & CDs</span>
                 </div>
-                <ProductGrid products={physicalMusic} isLoading={isLoading} type="music" onProductClick={handleProductClick} />
+                <ProductGrid products={physicalMusic} isLoading={isLoading} onProductClick={handleProductClick} />
            </section>
          </>
        ) : (
@@ -258,7 +258,7 @@ function StoreContent() {
                 <h2 className="font-headline text-4xl font-bold text-black uppercase italic tracking-tighter">Crude City <span className="text-chart-1">{regionLabel}</span></h2>
                 <span className="hidden sm:block text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">Raw Culture</span>
             </div>
-            <ProductGrid products={crudeCityMerch} isLoading={isLoading} type="merch" onProductClick={handleProductClick} />
+            <ProductGrid products={crudeCityMerch} isLoading={isLoading} onProductClick={handleProductClick} />
          </section>
        )}
 

@@ -15,7 +15,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
     let dbProducts: Product[] = [];
     let flowProducts: Product[] = [];
 
-    // Robust fallbacks that always show up to prevent blank pages
+    // Fallbacks to ensure the store is never empty
     const fallbacks: Product[] = [
         {
             id: 'v3-hoodie-fallback',
@@ -59,38 +59,32 @@ export const getAllProducts = async (): Promise<Product[]> => {
             return { ...serialized, id: doc.id } as Product;
         });
     } catch (error) {
-        console.warn("Firestore fetch error, proceeding with flow/fallbacks.");
+        console.warn("Firestore fetch error, proceeding with flow.");
     }
 
     try {
-        // Fetch Printful items with a timeout safety to prevent page hanging
+        // Fetch Printful items with a robust timeout
         const printfulData = await Promise.race([
             Promise.all([
                 getFlowProducts('Crude City'),
                 getFlowProducts('Verse 3 Merch')
             ]),
-            new Promise<Product[][]>((_, reject) => setTimeout(() => reject(new Error('Printful timeout')), 8000))
+            new Promise<Product[][]>((_, reject) => setTimeout(() => reject(new Error('Printful timeout')), 10000))
         ]).catch(() => [[], []]);
         
         flowProducts = [...printfulData[0], ...printfulData[1]];
     } catch (error) {
-        console.warn("Printful flow skipped due to timeout or error.");
+        console.warn("Printful flow skipped due to timeout.");
     }
 
-    // Global de-duplication by normalized slug
     const uniqueMap = new Map<string, Product>();
     
-    // Priority 1: Fallbacks (Baseline)
+    // Merge Strategy: local DB > Printful > Fallbacks
     fallbacks.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));
-    
-    // Priority 2: Flow (Printful - overrides fallbacks)
     flowProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));
-    
-    // Priority 3: Database (Manual - overrides all)
     dbProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));
 
-    const combined = Array.from(uniqueMap.values());
-    return combined.sort((a, b) => a.name.localeCompare(b.name));
+    return Array.from(uniqueMap.values()).sort((a, b) => a.name.localeCompare(b.name));
 };
 
 export const getProductBySlug = async (slug: string): Promise<Product | undefined> => {
