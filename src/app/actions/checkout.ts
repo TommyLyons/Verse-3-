@@ -9,15 +9,15 @@ import { getStripeClient } from '@/lib/stripe';
 export async function fetchClientSecret(cart: any[], origin: string) {
   const secretKey = (process.env.STRIPE_SECRET_KEY || '').trim();
 
-  if (!secretKey || secretKey.length < 10) {
-    throw new Error("Payment configuration error: Stripe Secret Key is missing or invalid.");
+  if (!secretKey || secretKey.length < 10 || secretKey.includes('*')) {
+    throw new Error("Payment configuration error: Stripe Secret Key is missing or invalid in your environment.");
   }
 
   if (!cart || cart.length === 0) {
     throw new Error("Your cart is empty.");
   }
 
-  // Initialize client INSIDE the function to be build-safe
+  // Initialize client INSIDE the function to be build-safe and runtime-ready
   const stripe = getStripeClient();
 
   try {
