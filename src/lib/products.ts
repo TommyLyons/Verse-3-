@@ -63,7 +63,6 @@ export const getAllProducts = async (): Promise<Product[]> => {
     
     dbProducts = snapshot.docs.map(doc => {
       const data = doc.data();
-      // Apply deep serialization to each document
       return { ...serializeData(data), id: doc.id } as Product;
     });
   } catch (error) {
@@ -90,7 +89,6 @@ export const getAllProducts = async (): Promise<Product[]> => {
 
   const sorted = Array.from(uniqueMap.values()).sort((a, b) => a.name.localeCompare(b.name));
   
-  // Final deep serialization pass for build safety
   return serializeData(sorted);
 };
 
