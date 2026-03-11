@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview Exhaustive synchronization flow for Printful inventory.
@@ -11,11 +10,11 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { ProductSchema, type Product } from '@/lib/schemas';
 
+// Hardcoded key as requested by user to ensure immediate synchronization
+const AUTHORIZED_KEY = "Ov2Uw6O0IVIwo0GQyILreP4POv0NSwfcowFvmU20";
+
 export async function getPrintfulApiKey(): Promise<string | null> {
-    if (process.env.PRINTFUL_API_KEY) {
-        return process.env.PRINTFUL_API_KEY.trim();
-    }
-    return null;
+    return AUTHORIZED_KEY;
 }
 
 const getProductsFlow = ai.defineFlow(
@@ -27,7 +26,7 @@ const getProductsFlow = ai.defineFlow(
   async ({ brand }) => {
     const apiKey = await getPrintfulApiKey();
     if (!apiKey) {
-        console.warn("Printful API Key missing from environment.");
+        console.warn("Printful API Key missing.");
         return [];
     }
 
@@ -52,7 +51,7 @@ const getProductsFlow = ai.defineFlow(
                 const storeId = store.id;
                 const storeNameUpper = store.name.toUpperCase();
                 
-                // Primary brand detection based on Store Name
+                // Brand detection based on Store Name
                 const isCrudeStore = storeNameUpper.includes('CRUDE') || storeNameUpper.includes('CITY');
                 
                 // Region detection
@@ -61,7 +60,7 @@ const getProductsFlow = ai.defineFlow(
                 const currencySymbol = isUKStore ? '£' : '€';
 
                 // Fetch sync products for this specific store
-                const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=50`, { headers });
+                const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
                 if (!productsResponse.ok) continue;
 
                 const data = await productsResponse.json();
@@ -84,7 +83,7 @@ const getProductsFlow = ai.defineFlow(
 
                         // De-duplicate globally by slug
                         if (!globalProductsMap.has(slug)) {
-                            // Fetch full details to get variants, prices and accurate descriptions
+                            // Fetch full details
                             const detailResponse = await fetch(`https://api.printful.com/sync/products/${item.id}?store_id=${storeId}`, { headers });
                             if (!detailResponse.ok) continue;
                             
@@ -94,7 +93,6 @@ const getProductsFlow = ai.defineFlow(
 
                             if (!syncProduct) continue;
 
-                            // Extract sizes and calculate minimum retail price
                             const sizes = syncVariants 
                                 ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
                                 : [];
@@ -107,7 +105,6 @@ const getProductsFlow = ai.defineFlow(
                                 if (validPrices.length > 0) minPrice = Math.min(...validPrices);
                             }
 
-                            // Professional pricing: Add buffer for shipping and round to nearest 5
                             if (minPrice > 0) {
                                 minPrice += isUKStore ? 5 : 6;
                                 minPrice = Math.round(minPrice / 5) * 5;
