@@ -38,7 +38,10 @@ const getProductsFlow = ai.defineFlow(
     try {
         // Fetch all stores to ensure we don't miss any region or brand
         const storesResponse = await fetch('https://api.printful.com/stores', { headers });
-        if (!storesResponse.ok) return [];
+        if (!storesResponse.ok) {
+            console.error("Printful stores fetch failed:", storesResponse.status);
+            return [];
+        }
         
         const storesData = await storesResponse.json();
         const allStores = storesData.result || [];
@@ -106,6 +109,7 @@ const getProductsFlow = ai.defineFlow(
                             }
 
                             if (minPrice > 0) {
+                                // Add small markup for global shipping integration
                                 minPrice += isUKStore ? 5 : 6;
                                 minPrice = Math.round(minPrice / 5) * 5;
                             }
@@ -133,6 +137,7 @@ const getProductsFlow = ai.defineFlow(
 
         return Array.from(globalProductsMap.values()).sort((a, b) => a.name.localeCompare(b.name));
     } catch (err) {
+        console.error("Printful sync flow error:", err);
         return [];
     }
   }
