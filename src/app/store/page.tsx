@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import React, { useState, useEffect, Suspense, useMemo } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from '@/skeleton';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 const ProductGrid = ({ products, isLoading, onProductClick }: { products: any[], isLoading?: boolean, onProductClick?: (item: any) => void }) => {

@@ -25,7 +25,10 @@ const getProductsFlow = ai.defineFlow(
   },
   async ({ brand }) => {
     const apiKey = await getPrintfulApiKey();
-    if (!apiKey) return [];
+    if (!apiKey) {
+        console.warn("Printful API Key missing from environment.");
+        return [];
+    }
 
     const headers = { 
         'Authorization': `Bearer ${apiKey}`,
@@ -33,7 +36,7 @@ const getProductsFlow = ai.defineFlow(
     };
 
     try {
-        // Fetch all stores
+        // Fetch all stores to ensure we don't miss any region or brand
         const storesResponse = await fetch('https://api.printful.com/stores', { headers });
         if (!storesResponse.ok) return [];
         
@@ -48,14 +51,16 @@ const getProductsFlow = ai.defineFlow(
                 const storeId = store.id;
                 const storeNameUpper = store.name.toUpperCase();
                 
-                // Determine default brand for this store
+                // Primary brand detection based on Store Name
                 const isCrudeStore = storeNameUpper.includes('CRUDE') || storeNameUpper.includes('CITY');
+                
+                // Region detection
                 const isUKStore = storeNameUpper.includes('UK') || storeNameUpper.includes('GBP');
                 const region = isUKStore ? 'UK' : 'EU';
                 const currencySymbol = isUKStore ? '£' : '€';
 
-                // Fetch products from this store
-                const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
+                // Fetch sync products for this specific store
+                const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=50`, { headers });
                 if (!productsResponse.ok) continue;
 
                 const data = await productsResponse.json();
@@ -69,13 +74,16 @@ const getProductsFlow = ai.defineFlow(
                             .replace(/[^\w-]+/g, '')
                             .trim();
 
-                        // Categorize: Store name is the primary indicator, then item name
+                        // Item-level brand refinement
                         const isCrudeItem = isCrudeStore || prodName.includes('crude') || prodName.includes('city');
                         const targetBrand = isCrudeItem ? 'Crude City' : 'Verse 3 Merch';
 
+                        // Only process items for the requested brand
                         if (targetBrand !== brand) continue;
 
+                        // De-duplicate globally by slug
                         if (!globalProductsMap.has(slug)) {
+                            // Fetch full details to get variants, prices and accurate descriptions
                             const detailResponse = await fetch(`https://api.printful.com/sync/products/${item.id}?store_id=${storeId}`, { headers });
                             if (!detailResponse.ok) continue;
                             
@@ -85,6 +93,7 @@ const getProductsFlow = ai.defineFlow(
 
                             if (!syncProduct) continue;
 
+                            // Extract sizes and calculate minimum retail price
                             const sizes = syncVariants 
                                 ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
                                 : [];
@@ -97,7 +106,7 @@ const getProductsFlow = ai.defineFlow(
                                 if (validPrices.length > 0) minPrice = Math.min(...validPrices);
                             }
 
-                            // V3 standard pricing logic (free shipping buffer included)
+                            // Professional pricing: Add buffer for shipping and round to nearest 5
                             if (minPrice > 0) {
                                 minPrice += isUKStore ? 5 : 6;
                                 minPrice = Math.round(minPrice / 5) * 5;
@@ -110,7 +119,7 @@ const getProductsFlow = ai.defineFlow(
                                 name: syncProduct.name,
                                 slug: slug,
                                 price: formattedPrice,
-                                description: syncProduct.description || `Official ${brand} merchandise. Premium quality. Free shipping included.`,
+                                description: syncProduct.description || `Official ${brand} merchandise. Premium quality. Global shipping included.`,
                                 imageUrl: syncProduct.thumbnail_url || item.thumbnail_url,
                                 revolutLink: 'https://checkout.stripe.com/',
                                 type: 'merch',
@@ -126,7 +135,6 @@ const getProductsFlow = ai.defineFlow(
 
         return Array.from(globalProductsMap.values()).sort((a, b) => a.name.localeCompare(b.name));
     } catch (err) {
-        console.error("Printful Flow Error:", err);
         return [];
     }
   }

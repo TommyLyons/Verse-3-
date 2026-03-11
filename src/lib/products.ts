@@ -15,7 +15,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
     let dbProducts: Product[] = [];
     let flowProducts: Product[] = [];
 
-    // Permanent Fallbacks to ensure the store is never empty
+    // Permanent High-Impact Fallbacks
     const fallbacks: Product[] = [
         {
             id: 'v3-hoodie-fallback',
@@ -59,30 +59,30 @@ export const getAllProducts = async (): Promise<Product[]> => {
             return { ...serialized, id: doc.id } as Product;
         });
     } catch (error) {
-        console.warn("Firestore fetch error, proceeding with flow.");
+        console.warn("Firestore products fetch failed, using flow and fallbacks.");
     }
 
     try {
-        // Fetch Printful items with a robust timeout to avoid blocking
+        // Robust Printful sync with timeout
         const printfulData = await Promise.race([
             Promise.all([
                 getFlowProducts('Crude City'),
                 getFlowProducts('Verse 3 Merch')
             ]),
-            new Promise<Product[][]>((_, reject) => setTimeout(() => reject(new Error('Printful timeout')), 10000))
+            new Promise<Product[][]>((_, reject) => setTimeout(() => reject(new Error('Printful timeout')), 12000))
         ]).catch((e) => {
-            console.error("Sync Error:", e);
+            console.warn("Printful Sync Timed Out or Failed:", e.message);
             return [[], []];
         });
         
         flowProducts = [...(printfulData[0] || []), ...(printfulData[1] || [])];
     } catch (error) {
-        console.warn("Printful flow skipped due to timeout.");
+        console.warn("External sync failed completely.");
     }
 
     const uniqueMap = new Map<string, Product>();
     
-    // Merge Strategy: Fallbacks < Printful < local DB
+    // Merge Hierarchy: Fallbacks < Printful < local DB (highest authority)
     fallbacks.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));
     flowProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));
     dbProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));

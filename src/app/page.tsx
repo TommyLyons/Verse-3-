@@ -45,7 +45,7 @@ export default function Home() {
           const products = await getAllProducts();
           setAllProducts(products || []);
         } catch (err) {
-          console.error("Failed to fetch home products:", err);
+          console.error("Failed to fetch products:", err);
         } finally {
           setIsLoading(false);
         }
@@ -116,16 +116,16 @@ export default function Home() {
       subscribedAt: serverTimestamp(),
     });
 
-    toast({ title: "Welcome to the V3 Family!", description: "You've been added to our exclusive list." });
+    toast({ title: "Welcome to the Family!", description: "You've been added to our list." });
     setEmail('');
     setIsSubmitting(false);
   };
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Optimized Mobile Fitting (Centered, 20% Smaller) */}
-      <section className="relative w-full h-[85dvh] flex items-center justify-center bg-black overflow-hidden px-0">
-        <div className="relative w-[80%] md:w-full h-full flex items-center justify-center">
+      {/* Optimized Hero - 20% Smaller on Mobile to fit without cutoff */}
+      <section className="relative w-full h-[85dvh] flex items-center justify-center bg-black overflow-hidden px-4 md:px-0">
+        <div className="relative w-[85%] md:w-full h-full flex items-center justify-center">
             <video
               src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
               autoPlay loop muted playsInline
@@ -142,7 +142,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Vision Section */}
+      {/* Vision */}
       <section className="py-20 bg-white border-b border-black/5">
           <div className="container max-w-4xl mx-auto px-4 text-center">
               <h2 className="font-headline text-4xl font-bold text-black uppercase italic tracking-tight">Our Vision</h2>
@@ -153,7 +153,7 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image */}
+      {/* Impact Visual */}
       {vibeHero && (
         <section className="w-full bg-black py-4">
           <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto">
@@ -205,10 +205,6 @@ export default function Home() {
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                         {[...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full rounded-none" />)}
                     </div>
-                ) : merchProducts.length === 0 ? (
-                  <div className="text-center py-10">
-                    <p className="text-muted-foreground uppercase text-xs font-bold tracking-widest">Inventory updating...</p>
-                  </div>
                 ) : (
                     <div className="relative">
                         <Carousel 
@@ -262,10 +258,6 @@ export default function Home() {
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                         {[...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full rounded-none" />)}
                     </div>
-                ) : musicProducts.length === 0 ? (
-                  <div className="text-center py-10">
-                    <p className="text-muted-foreground uppercase text-xs font-bold tracking-widest">Awaiting releases...</p>
-                  </div>
                 ) : (
                     <div className="relative">
                         <Carousel 
@@ -307,7 +299,7 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Social Section */}
+       {/* Social */}
        <section className="py-24 bg-black text-white text-center">
           <div className="container max-w-5xl mx-auto px-4">
             <Instagram className="h-12 w-12 mx-auto text-chart-1 mb-6" />
@@ -319,7 +311,7 @@ export default function Home() {
           </div>
        </section>
 
-       {/* Newsletter Section */}
+       {/* Newsletter */}
        <section className="py-24 bg-chart-1">
           <div className="container max-w-4xl mx-auto px-4 text-center">
                 <h2 className="font-headline text-5xl font-bold text-black uppercase italic tracking-tighter mb-8">Join The Family</h2>
