@@ -9,8 +9,8 @@ import { firebaseConfig } from '@/firebase/config';
 export type { Product };
 
 /**
- * Deep recursive serialization for Firestore data.
- * Ensures ALL nested Timestamps and complex types are plain objects for Client Components.
+ * Robust recursive serialization for Firestore data.
+ * Converts Timestamps to ISO strings and handles nested structures for Client Components.
  */
 export async function serializeData(data: any): Promise<any> {
   if (data === null || data === undefined) return data;
@@ -44,7 +44,7 @@ export async function serializeData(data: any): Promise<any> {
     const serialized: any = {};
     for (const key in data) {
       if (Object.prototype.hasOwnProperty.call(data, key)) {
-        // Skip functions and internal underscores
+        // Skip functions and private properties
         if (typeof data[key] !== 'function' && !key.startsWith('_')) {
           serialized[key] = await serializeData(data[key]);
         }
@@ -69,7 +69,7 @@ function getServerFirestore() {
 }
 
 /**
- * Fetches all products from Firestore and Printful, then serializes them.
+ * Fetches and serializes all products.
  */
 export const getAllProducts = async (): Promise<Product[]> => {
   let dbProducts: Product[] = [];
@@ -80,31 +80,30 @@ export const getAllProducts = async (): Promise<Product[]> => {
     if (db) {
         const productsCol = collection(db, 'products');
         const snapshot = await getDocs(productsCol);
-        dbProducts = snapshot.docs.map(doc => {
-            const data = doc.data();
-            return { ...data, id: doc.id } as Product;
-        });
+        dbProducts = snapshot.docs.map(doc => ({
+            ...doc.data(),
+            id: doc.id
+        } as any));
     }
   } catch (error) {
-    console.warn("Database fetch deferred during build phase:", error);
+    console.warn("Database fetch deferred during build:", error);
   }
 
   try {
     const results = await getFlowProducts();
     flowProducts = results || [];
   } catch (error) {
-    console.warn("External sync deferred during build phase:", error);
+    console.warn("External sync deferred during build:", error);
   }
 
-  const uniqueMap = new Map<string, Product>();
+  const uniqueMap = new Map<string, any>();
   
-  // Combine, prioritizing local entries for slug collisions
+  // Combine, prioritizing database entries for slug collisions
   flowProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));
   dbProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));
 
   const sorted = Array.from(uniqueMap.values()).sort((a, b) => a.name.localeCompare(b.name));
   
-  // Definitive serialization for Client Component compatibility
   return await serializeData(sorted);
 };
 
