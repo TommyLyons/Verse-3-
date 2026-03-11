@@ -3,6 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getStripeClient } from '@/lib/stripe';
 import { getPrintfulApiKey } from '@/ai/flows/get-products-flow';
 
+/**
+ * Force dynamic rendering to prevent build-time static generation failures
+ * as this route depends on external APIs and secret keys.
+ */
 export const dynamic = 'force-dynamic';
 
 /**
@@ -68,18 +72,19 @@ async function processPrintfulOrder(session: any) {
       });
 
       if (variantsResponse.ok) {
-        const data = await variantsResponse.json();
-        const variants = data.result.sync_variants;
-        
-        const matchingVariant = variants.find((v: any) => 
-          v.size?.toUpperCase() === metadata.size?.toUpperCase() || variants.length === 1
-        );
+        const data = await variantsResponse.ok ? await variantsResponse.json() : null;
+        if (data) {
+            const variants = data.result.sync_variants;
+            const matchingVariant = variants.find((v: any) => 
+                v.size?.toUpperCase() === metadata.size?.toUpperCase() || variants.length === 1
+            );
 
-        if (matchingVariant) {
-          printfulItems.push({
-            sync_variant_id: matchingVariant.id,
-            quantity: item.quantity,
-          });
+            if (matchingVariant) {
+                printfulItems.push({
+                    sync_variant_id: matchingVariant.id,
+                    quantity: item.quantity,
+                });
+            }
         }
       }
     }

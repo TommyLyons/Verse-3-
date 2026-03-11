@@ -16,7 +16,7 @@ export type { Product };
 export async function serializeData(data: any): Promise<any> {
   if (data === null || data === undefined) return data;
 
-  // Handle Firestore Timestamps (class instance or object representation)
+  // Handle Firestore Timestamps (both class instance and plain object representation)
   if (typeof data === 'object') {
     if (typeof data.toDate === 'function') {
       return data.toDate().toISOString();
@@ -33,11 +33,7 @@ export async function serializeData(data: any): Promise<any> {
 
   // Handle Arrays
   if (Array.isArray(data)) {
-    const serializedArray = [];
-    for (const item of data) {
-      serializedArray.push(await serializeData(item));
-    }
-    return serializedArray;
+    return Promise.all(data.map(item => serializeData(item)));
   }
 
   // Handle Objects (plain objects and class instances we want to flatten)
@@ -58,8 +54,13 @@ export async function serializeData(data: any): Promise<any> {
 }
 
 function getServerFirestore() {
-  const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-  return getFirestore(app);
+  try {
+    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+    return getFirestore(app);
+  } catch (e) {
+    console.error("Firestore initialization failed:", e);
+    return null;
+  }
 }
 
 export const getAllProducts = async (): Promise<Product[]> => {
@@ -68,13 +69,14 @@ export const getAllProducts = async (): Promise<Product[]> => {
 
   try {
     const db = getServerFirestore();
-    const productsCol = collection(db, 'products');
-    const snapshot = await getDocs(productsCol);
-    
-    dbProducts = snapshot.docs.map(doc => {
-      const data = doc.data();
-      return { ...data, id: doc.id } as Product;
-    });
+    if (db) {
+        const productsCol = collection(db, 'products');
+        const snapshot = await getDocs(productsCol);
+        dbProducts = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return { ...data, id: doc.id } as Product;
+        });
+    }
   } catch (error) {
     console.warn("Firestore products fetch failed:", error);
   }
