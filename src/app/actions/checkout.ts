@@ -34,8 +34,8 @@ export async function fetchClientSecret(cart: any[]) {
       const priceStr = item.price.replace(/[^0-9.]/g, '');
       const amount = Math.round(parseFloat(priceStr) * 100);
       
-      // Auto-detect currency
-      const currency = item.price.includes('£') ? 'gbp' : 'eur';
+      // Auto-detect currency based on price symbol or fallback to GBP
+      const currency = item.price.includes('€') ? 'eur' : 'gbp';
 
       if (isNaN(amount) || amount <= 0) {
         throw new Error(`Invalid price detected for item: ${item.name}`);

@@ -124,7 +124,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Optimized for 20% smaller mobile visible video */}
+      {/* Hero Section - Optimized for 20% smaller mobile visible video (Centered) */}
       <section className="relative w-full h-[85dvh] flex flex-col items-center justify-center bg-black overflow-hidden">
         <div className="absolute inset-0 z-0 flex items-center justify-center px-[10%] md:px-0">
           <video
@@ -133,7 +133,7 @@ export default function Home() {
             className="w-full h-full object-contain md:object-cover"
           />
         </div>
-        {/* Buttons sitting slightly higher for better mobile ergonomics */}
+        {/* Navigation buttons sitting optimally for mobile */}
         <div className="absolute bottom-20 z-10 flex gap-4 px-6 w-full max-w-sm mx-auto">
           <Button asChild className="flex-1 bg-black text-chart-1 font-bold h-11 rounded-none uppercase italic tracking-wider shadow-lg hover:bg-chart-1 hover:text-black transition-all">
             <Link href="/store">SHOP MERCH</Link>
@@ -155,7 +155,7 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image - Positioned strictly above Brand Selector */}
+      {/* Impact Image - Fitted layout */}
       {vibeHero && (
         <section className="w-full bg-black py-4">
           <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto px-6 md:px-0">
