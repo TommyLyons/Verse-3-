@@ -60,7 +60,7 @@ const getProductsFlow = ai.defineFlow(
                 // Brand detection logic: If store name contains CRUDE or CITY, assign to Crude City
                 const isCrudeStore = storeNameUpper.includes('CRUDE') || storeNameUpper.includes('CITY');
                 
-                const currency = store.currency || 'USD';
+                const currency = store.currency || 'GBP';
                 const isUKStore = currency === 'GBP' || storeNameUpper.includes('UK');
                 const region = isUKStore ? 'UK' : 'EU';
                 const currencySymbol = isUKStore ? '£' : '€';
@@ -115,7 +115,9 @@ const getProductsFlow = ai.defineFlow(
 
                             // Professional Pricing Strategy: Included Shipping + Branding Markup
                             if (minPrice > 0) {
+                                // Add small buffer for shipping/branding
                                 minPrice += isUKStore ? 5 : 6;
+                                // Round to nearest 5 for clean aesthetics
                                 minPrice = Math.round(minPrice / 5) * 5;
                             }
 
