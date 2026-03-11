@@ -5,8 +5,7 @@ import { getStripeClient } from '@/lib/stripe';
 
 /**
  * Creates a Stripe Checkout Session with Embedded UI mode.
- * Robust origin detection ensures return_url compatibility.
- * Strictly uses STRIPE_SECRET_KEY from environment with fresh client initialization.
+ * Strictly uses STRIPE_SECRET_KEY from environment with robust validation.
  */
 export async function fetchClientSecret(cart: any[]) {
   const headersList = await headers();
@@ -14,18 +13,19 @@ export async function fetchClientSecret(cart: any[]) {
   const proto = headersList.get('x-forwarded-proto') || 'http';
   const origin = headersList.get('origin') || `${proto}://${host}`;
   
-  const secretKey = process.env.STRIPE_SECRET_KEY;
+  // Ensure the secret key is fresh and trimmed of any accidental spaces
+  const secretKey = (process.env.STRIPE_SECRET_KEY || '').trim();
 
-  if (!secretKey) {
-    console.error("CRITICAL ERROR: STRIPE_SECRET_KEY is missing from environment variables.");
-    throw new Error("Payment gateway configuration error. Please contact the administrator.");
+  if (!secretKey || secretKey.includes('*') || secretKey.length < 10) {
+    console.error("CRITICAL ERROR: STRIPE_SECRET_KEY is missing or invalid in environment.");
+    throw new Error("Payment gateway configuration error. Please ensure your Stripe Secret Key is correctly set in the environment variables.");
   }
 
   if (!cart || cart.length === 0) {
     throw new Error("Your cart is empty.");
   }
 
-  // Initialize a fresh Stripe client for this request to ensure key validity
+  // fresh client initialization for this request
   const stripe = getStripeClient();
 
   try {
@@ -34,7 +34,7 @@ export async function fetchClientSecret(cart: any[]) {
       const priceStr = item.price.replace(/[^0-9.]/g, '');
       const amount = Math.round(parseFloat(priceStr) * 100);
       
-      // Auto-detect currency based on price symbol or fallback to GBP
+      // Auto-detect currency based on price symbol
       const currency = item.price.includes('€') ? 'eur' : 'gbp';
 
       if (isNaN(amount) || amount <= 0) {
@@ -50,7 +50,6 @@ export async function fetchClientSecret(cart: any[]) {
             description: item.description?.substring(0, 250),
             metadata: {
               product_id: String(item.id),
-              printful_id: item.type === 'merch' ? String(item.id) : '',
               size: item.size || '',
               type: item.type,
               digital: item.digital ? 'true' : 'false'
@@ -70,7 +69,7 @@ export async function fetchClientSecret(cart: any[]) {
         allowed_countries: ['GB', 'IE', 'US', 'CA', 'FR', 'DE', 'ES', 'IT', 'AU', 'NZ'],
       },
       metadata: {
-        order_source: 'verse3_web_store_v2',
+        order_source: 'verse3_v3_production',
         has_digital: cart.some(i => i.digital) ? 'true' : 'false'
       },
       return_url: `${origin}/return?session_id={CHECKOUT_SESSION_ID}`,
@@ -79,10 +78,6 @@ export async function fetchClientSecret(cart: any[]) {
     return session.client_secret;
   } catch (error: any) {
     console.error('Stripe Session Creation Error:', error.message);
-    // Surface specific key errors to the admin overlay during development
-    if (error.message.includes('API key')) {
-      throw new Error(`Secure payment failed: The provided Stripe Secret Key is invalid. Please check your .env file.`);
-    }
     throw new Error(error.message || 'Secure payment session could not be established.');
   }
 }
