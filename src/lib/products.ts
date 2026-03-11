@@ -15,7 +15,7 @@ export type { Product };
 export async function serializeData(data: any): Promise<any> {
   if (data === null || data === undefined) return data;
 
-  // Handle Firestore Timestamps (both class instance and plain object representation)
+  // Handle Firestore Timestamps
   if (typeof data === 'object') {
     if (typeof data.toDate === 'function') {
       return data.toDate().toISOString();
@@ -32,15 +32,18 @@ export async function serializeData(data: any): Promise<any> {
 
   // Handle Arrays
   if (Array.isArray(data)) {
-    return Promise.all(data.map(item => serializeData(item)));
+    const serializedArray = [];
+    for (const item of data) {
+      serializedArray.push(await serializeData(item));
+    }
+    return serializedArray;
   }
 
-  // Handle Objects (plain objects and class instances we want to flatten)
+  // Handle Objects
   if (typeof data === 'object') {
     const serialized: any = {};
     for (const key in data) {
       if (Object.prototype.hasOwnProperty.call(data, key)) {
-        // Skip functions and internal private members
         if (typeof data[key] !== 'function' && !key.startsWith('_')) {
           serialized[key] = await serializeData(data[key]);
         }
@@ -53,11 +56,13 @@ export async function serializeData(data: any): Promise<any> {
 }
 
 function getServerFirestore() {
+  if (typeof window !== 'undefined') return null; // Defensive check for server-only initialization
+  
   try {
     const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     return getFirestore(app);
   } catch (e) {
-    console.error("Firestore initialization failed:", e);
+    console.error("Firestore initialization failed during build/runtime:", e);
     return null;
   }
 }
@@ -80,19 +85,19 @@ export const getAllProducts = async (): Promise<Product[]> => {
         });
     }
   } catch (error) {
-    console.warn("Firestore products fetch failed:", error);
+    console.warn("Firestore products fetch omitted or failed during build:", error);
   }
 
   try {
     const results = await getFlowProducts();
     flowProducts = results || [];
   } catch (error) {
-    console.warn("External product synchronization failed:", error);
+    console.warn("External product synchronization skipped or failed:", error);
   }
 
   const uniqueMap = new Map<string, Product>();
   
-  // Combine both sources, prioritizing local DB entries for custom overrides
+  // Combine both sources
   flowProducts.forEach(p => {
     uniqueMap.set(p.slug.toLowerCase(), p);
   });
@@ -103,7 +108,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
 
   const sorted = Array.from(uniqueMap.values()).sort((a, b) => a.name.localeCompare(b.name));
   
-  // Deeply serialize the result to remove all non-plain objects like Timestamps
+  // Return deeply serialized data to ensure no hydration or "plain object" errors
   return await serializeData(sorted);
 };
 
