@@ -72,25 +72,24 @@ const getProductsFlow = ai.defineFlow(
                 const data = await productsResponse.json();
                 const products = data.result || [];
 
-                for (const item of products) {
+                // Parallel fetch details to speed up sync
+                const productPromises = products.map(async (item: any) => {
                     try {
                         const slug = item.name.toLowerCase()
                             .replace(/ /g, '-')
                             .replace(/[^\w-]+/g, '')
                             .trim();
 
-                        // De-duplication: skip if already processed in this sync cycle
-                        if (globalProductsMap.has(slug)) continue;
+                        if (globalProductsMap.has(slug)) return;
 
-                        // Step 4: Fetch product details to resolve variants (pricing/sizes)
                         const detailResponse = await fetch(`https://api.printful.com/sync/products/${item.id}?store_id=${storeId}`, { headers });
-                        if (!detailResponse.ok) continue;
+                        if (!detailResponse.ok) return;
                         
                         const detailData = await detailResponse.json();
                         const syncProduct = detailData.result.sync_product;
                         const syncVariants = detailData.result.sync_variants;
 
-                        if (!syncProduct) continue;
+                        if (!syncProduct) return;
 
                         const targetBrand = isCrudeStore ? 'Crude City' : 'Verse 3 Merch';
 
@@ -106,7 +105,6 @@ const getProductsFlow = ai.defineFlow(
                             if (validPrices.length > 0) minPrice = Math.min(...validPrices);
                         }
 
-                        // Pricing logic for retail (including global shipping)
                         if (minPrice > 0) {
                             minPrice += isUKStore ? 5 : 6;
                             minPrice = Math.round(minPrice / 5) * 5;
@@ -127,8 +125,10 @@ const getProductsFlow = ai.defineFlow(
                             availableRegions: [region as any],
                             sizes: sizes.length > 0 ? sizes : undefined,
                         });
-                    } catch (err) { continue; }
-                }
+                    } catch (err) { }
+                });
+
+                await Promise.all(productPromises);
             } catch (err) { continue; }
         }
 
