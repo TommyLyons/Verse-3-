@@ -11,6 +11,36 @@ function getServerFirestore() {
     return getFirestore(app);
 }
 
+/**
+ * Recursively serializes Firestore data to ensure only plain objects 
+ * are passed from Server Components to Client Components.
+ */
+function serializeData(data: any): any {
+    if (data === null || typeof data !== 'object') return data;
+    
+    // Handle Firestore Timestamps (they have seconds and nanoseconds)
+    if (data.seconds !== undefined && data.nanoseconds !== undefined) {
+        try {
+            if (typeof data.toDate === 'function') {
+                return data.toDate().toISOString();
+            }
+            return new Date(data.seconds * 1000).toISOString();
+        } catch (e) {
+            return data;
+        }
+    }
+
+    if (Array.isArray(data)) {
+        return data.map(serializeData);
+    }
+
+    const result: any = {};
+    for (const key in data) {
+        result[key] = serializeData(data[key]);
+    }
+    return result;
+}
+
 export const getAllProducts = async (): Promise<Product[]> => {
     let dbProducts: Product[] = [];
     let flowProducts: Product[] = [];
@@ -29,19 +59,6 @@ export const getAllProducts = async (): Promise<Product[]> => {
             brand: 'Verse 3 Merch',
             sizes: ['S', 'M', 'L', 'XL'],
             availableRegions: ['UK', 'EU']
-        },
-        {
-            id: 'quiet-steps-digital',
-            name: 'Quiet Steps',
-            slug: 'quiet-steps',
-            price: '£2',
-            description: 'Debut single from Verse 3 Records. Authorized Digital Master.',
-            imageUrl: 'https://images.unsplash.com/photo-1511447333015-45b65e60f6d5?auto=format&fit=crop&q=80&w=1080',
-            revolutLink: 'https://checkout.stripe.com/',
-            type: 'music',
-            brand: 'Verse 3 Merch',
-            digital: true,
-            downloadUrl: 'https://storage.googleapis.com/studioprod-us-central1-39a4/media/SoundHelix-Song-1.mp3'
         }
     ];
 
@@ -51,23 +68,16 @@ export const getAllProducts = async (): Promise<Product[]> => {
         const snapshot = await getDocs(productsCol);
         
         dbProducts = snapshot.docs.map(doc => {
-            const data = doc.data() as any;
-            const serialized = { ...data };
-            if (serialized.updatedAt && typeof serialized.updatedAt.toDate === 'function') {
-                serialized.updatedAt = serialized.updatedAt.toDate().toISOString();
-            }
-            return { ...serialized, id: doc.id } as Product;
+            const data = doc.data();
+            return { ...serializeData(data), id: doc.id } as Product;
         });
     } catch (error) {
         console.warn("Firestore collection fetch failure.");
     }
 
     try {
-        // Increased timeout to 60s for exhaustive multi-store scanning
-        flowProducts = await Promise.race([
-            getFlowProducts(),
-            new Promise<Product[]>((_, reject) => setTimeout(() => reject(new Error('Printful exhaustive sync timeout')), 60000))
-        ]).catch((e) => {
+        // Fetch products from Printful Flow
+        flowProducts = await getFlowProducts().catch((e) => {
             console.warn("Printful Sync Failure:", e.message);
             return [];
         });
