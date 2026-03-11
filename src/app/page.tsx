@@ -124,7 +124,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Optimized for mobile visibility and fitted image */}
+      {/* Hero Section - Optimized for 20% smaller mobile visible video */}
       <section className="relative w-full h-[85dvh] flex flex-col items-center justify-center bg-black overflow-hidden">
         <div className="absolute inset-0 z-0 flex items-center justify-center px-[10%] md:px-0">
           <video

@@ -1,12 +1,12 @@
 'use server';
 
 import { headers } from 'next/headers';
-import { stripe } from '@/lib/stripe';
+import { getStripeClient } from '@/lib/stripe';
 
 /**
  * Creates a Stripe Checkout Session with Embedded UI mode.
  * Robust origin detection ensures return_url compatibility.
- * Strictly uses STRIPE_SECRET_KEY from environment.
+ * Strictly uses STRIPE_SECRET_KEY from environment with fresh client initialization.
  */
 export async function fetchClientSecret(cart: any[]) {
   const headersList = await headers();
@@ -24,6 +24,9 @@ export async function fetchClientSecret(cart: any[]) {
   if (!cart || cart.length === 0) {
     throw new Error("Your cart is empty.");
   }
+
+  // Initialize a fresh Stripe client for this request to ensure key validity
+  const stripe = getStripeClient();
 
   try {
     const line_items = cart.map((item: any) => {
@@ -76,6 +79,10 @@ export async function fetchClientSecret(cart: any[]) {
     return session.client_secret;
   } catch (error: any) {
     console.error('Stripe Session Creation Error:', error.message);
+    // Surface specific key errors to the admin overlay during development
+    if (error.message.includes('API key')) {
+      throw new Error(`Secure payment failed: The provided Stripe Secret Key is invalid. Please check your .env file.`);
+    }
     throw new Error(error.message || 'Secure payment session could not be established.');
   }
 }
