@@ -3,7 +3,7 @@
  * @fileOverview Exhaustive synchronization flow for multiple Printful stores.
  * - Optimized to fetch all stores associated with the account.
  * - Global de-duplication based on product slugs.
- * - Robust brand categorization based on store names and product metadata.
+ * - Robust brand categorization based on store names.
  */
 
 import {ai} from '@/ai/genkit';
@@ -35,7 +35,7 @@ const getProductsFlow = ai.defineFlow(
     };
 
     try {
-        // Step 1: Fetch ALL stores in the account to ensure we hit all 3 stores
+        // Step 1: Fetch ALL stores in the account
         const storesResponse = await fetch('https://api.printful.com/stores', { headers });
         if (!storesResponse.ok) {
             console.error("Printful Stores Fetch Failed:", await storesResponse.text());
@@ -55,7 +55,7 @@ const getProductsFlow = ai.defineFlow(
         for (const store of allStores) {
             try {
                 const storeId = store.id;
-                const storeNameUpper = store.name.toUpperCase();
+                const storeNameUpper = (store.name || '').toUpperCase();
                 
                 // Brand detection logic: If store name contains CRUDE or CITY, assign to Crude City
                 const isCrudeStore = storeNameUpper.includes('CRUDE') || storeNameUpper.includes('CITY');
@@ -72,72 +72,62 @@ const getProductsFlow = ai.defineFlow(
                 const data = await productsResponse.json();
                 const products = data.result || [];
 
-                // Sequential processing in chunks of 5 to respect rate limits while maintaining speed
-                const chunk = <T>(arr: T[], size: number) =>
-                    Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
-                        arr.slice(i * size, i * size + size)
-                    );
+                // Sequential processing to respect rate limits
+                for (const item of products) {
+                    try {
+                        const slug = (item.name || '').toLowerCase()
+                            .replace(/ /g, '-')
+                            .replace(/[^\w-]+/g, '')
+                            .trim();
 
-                const productChunks = chunk(products, 5);
-                for (const pChunk of productChunks) {
-                    await Promise.all(pChunk.map(async (item: any) => {
-                        try {
-                            const slug = item.name.toLowerCase()
-                                .replace(/ /g, '-')
-                                .replace(/[^\w-]+/g, '')
-                                .trim();
+                        // Prevent duplicates across stores (prefer first store encountered)
+                        if (globalProductsMap.has(slug)) continue;
 
-                            // Prevent duplicates across stores
-                            if (globalProductsMap.has(slug)) return;
+                        const detailResponse = await fetch(`https://api.printful.com/sync/products/${item.id}?store_id=${storeId}`, { headers });
+                        if (!detailResponse.ok) continue;
+                        
+                        const detailData = await detailResponse.json();
+                        const syncProduct = detailData.result.sync_product;
+                        const syncVariants = detailData.result.sync_variants;
 
-                            const detailResponse = await fetch(`https://api.printful.com/sync/products/${item.id}?store_id=${storeId}`, { headers });
-                            if (!detailResponse.ok) return;
-                            
-                            const detailData = await detailResponse.json();
-                            const syncProduct = detailData.result.sync_product;
-                            const syncVariants = detailData.result.sync_variants;
+                        if (!syncProduct) continue;
 
-                            if (!syncProduct) return;
+                        const targetBrand = isCrudeStore ? 'Crude City' : 'Verse 3 Merch';
 
-                            const targetBrand = isCrudeStore ? 'Crude City' : 'Verse 3 Merch';
+                        const sizes = syncVariants 
+                            ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
+                            : [];
+                        
+                        let minPrice = 0;
+                        if (syncVariants && syncVariants.length > 0) {
+                            const validPrices = syncVariants
+                                .map((v: any) => parseFloat(v.retail_price))
+                                .filter((p: number) => !isNaN(p) && p > 0);
+                            if (validPrices.length > 0) minPrice = Math.min(...validPrices);
+                        }
 
-                            const sizes = syncVariants 
-                                ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
-                                : [];
-                            
-                            let minPrice = 0;
-                            if (syncVariants && syncVariants.length > 0) {
-                                const validPrices = syncVariants
-                                    .map((v: any) => parseFloat(v.retail_price))
-                                    .filter((p: number) => !isNaN(p) && p > 0);
-                                if (validPrices.length > 0) minPrice = Math.min(...validPrices);
-                            }
+                        // Pricing: Include estimated shipping buffer + round for aesthetics
+                        if (minPrice > 0) {
+                            minPrice += isUKStore ? 5 : 6;
+                            minPrice = Math.round(minPrice / 5) * 5;
+                        }
 
-                            // Professional Pricing Strategy: Included Shipping + Branding Markup
-                            if (minPrice > 0) {
-                                // Add small buffer for shipping/branding
-                                minPrice += isUKStore ? 5 : 6;
-                                // Round to nearest 5 for clean aesthetics
-                                minPrice = Math.round(minPrice / 5) * 5;
-                            }
+                        const formattedPrice = minPrice === 0 ? 'N/A' : `${currencySymbol}${minPrice.toFixed(0)}`;
 
-                            const formattedPrice = minPrice === 0 ? 'N/A' : `${currencySymbol}${minPrice.toFixed(0)}`;
-
-                            globalProductsMap.set(slug, {
-                                id: String(syncProduct.id),
-                                name: syncProduct.name,
-                                slug: slug,
-                                price: formattedPrice,
-                                description: syncProduct.description || `Official ${targetBrand} merchandise. Premium quality. Global shipping included.`,
-                                imageUrl: syncProduct.thumbnail_url || item.thumbnail_url,
-                                revolutLink: 'https://checkout.stripe.com/',
-                                type: 'merch',
-                                brand: targetBrand as any,
-                                availableRegions: [region as any],
-                                sizes: sizes.length > 0 ? sizes : undefined,
-                            });
-                        } catch (err) { }
-                    }));
+                        globalProductsMap.set(slug, {
+                            id: String(syncProduct.id),
+                            name: syncProduct.name,
+                            slug: slug,
+                            price: formattedPrice,
+                            description: syncProduct.description || `Official ${targetBrand} merchandise. Premium quality. Global shipping included.`,
+                            imageUrl: syncProduct.thumbnail_url || item.thumbnail_url,
+                            revolutLink: 'https://checkout.stripe.com/',
+                            type: 'merch',
+                            brand: targetBrand as any,
+                            availableRegions: [region as any],
+                            sizes: sizes.length > 0 ? sizes : undefined,
+                        });
+                    } catch (err) { }
                 }
             } catch (err) { continue; }
         }

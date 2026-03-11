@@ -12,18 +12,19 @@ function getServerFirestore() {
 }
 
 /**
- * Recursively serializes Firestore data to ensure only plain objects 
- * are passed from Server Components to Client Components.
- * This fixes the "Only plain objects can be passed to Client Components" error.
+ * Recursively serializes data to ensure only plain objects are passed to Client Components.
+ * This explicitly handles Firestore Timestamps by converting them to ISO strings.
  */
 function serializeData(data: any): any {
-    if (data === null || typeof data !== 'object') return data;
-    
+    if (data === null || typeof data !== 'object') {
+        return data;
+    }
+
     // Handle Firestore Timestamps
-    if (data.seconds !== undefined && data.nanoseconds !== undefined) {
+    if (typeof data.seconds === 'number' && typeof data.nanoseconds === 'number') {
         return new Date(data.seconds * 1000).toISOString();
     }
-    
+
     if (data instanceof Date) {
         return data.toISOString();
     }
@@ -32,13 +33,13 @@ function serializeData(data: any): any {
         return data.map(serializeData);
     }
 
-    const result: any = {};
+    const serialized: any = {};
     for (const key in data) {
-        // Skip functions and other non-serializable properties
-        if (typeof data[key] === 'function') continue;
-        result[key] = serializeData(data[key]);
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+            serialized[key] = serializeData(data[key]);
+        }
     }
-    return result;
+    return serialized;
 }
 
 export const getAllProducts = async (): Promise<Product[]> => {
@@ -52,7 +53,6 @@ export const getAllProducts = async (): Promise<Product[]> => {
         
         dbProducts = snapshot.docs.map(doc => {
             const data = doc.data();
-            // Crucial: Serialize the data before it leaves the server component context
             return { ...serializeData(data), id: doc.id } as Product;
         });
     } catch (error) {
@@ -60,7 +60,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
     }
 
     try {
-        // Fetch products from Printful Flow using the hardcoded authorized key
+        // Fetch products from Printful Flow
         flowProducts = await getFlowProducts().catch((e) => {
             console.warn("Printful Sync Failure:", e.message);
             return [];
@@ -71,7 +71,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
 
     const uniqueMap = new Map<string, Product>();
     
-    // Merge strategy with local database taking priority
+    // Merge strategy: Printful first, then DB (DB overrides Printful if slugs match)
     flowProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), serializeData(p)));
     dbProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), serializeData(p)));
 

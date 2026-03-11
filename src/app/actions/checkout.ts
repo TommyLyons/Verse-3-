@@ -4,14 +4,14 @@ import { getStripeClient } from '@/lib/stripe';
 
 /**
  * Creates a Stripe Checkout Session.
- * This is a Server Action ('use server') to securely handle the Secret Key.
+ * This is a Server Action to securely handle the Secret Key and prevent exposure.
  */
 export async function fetchClientSecret(cart: any[], origin: string) {
+  // Ensure we get the most up-to-date environment variable and trim it
   const secretKey = (process.env.STRIPE_SECRET_KEY || '').trim();
 
   if (!secretKey || secretKey.length < 10) {
-    console.error("CRITICAL ERROR: STRIPE_SECRET_KEY is missing or invalid.");
-    throw new Error("Payment gateway configuration error. Please ensure your Stripe Secret Key is set.");
+    throw new Error("Payment configuration error: Stripe Secret Key is missing or invalid in the server environment.");
   }
 
   if (!cart || cart.length === 0) {
@@ -22,6 +22,7 @@ export async function fetchClientSecret(cart: any[], origin: string) {
 
   try {
     const line_items = cart.map((item: any) => {
+      // Clean price string to get raw number
       const priceStr = item.price.replace(/[^0-9.]/g, '');
       const amount = Math.round(parseFloat(priceStr) * 100);
       const currency = item.price.includes('€') ? 'eur' : 'gbp';
@@ -58,7 +59,7 @@ export async function fetchClientSecret(cart: any[], origin: string) {
         allowed_countries: ['GB', 'IE', 'US', 'CA', 'FR', 'DE', 'ES', 'IT', 'AU', 'NZ'],
       },
       metadata: {
-        order_source: 'verse3_v3_production',
+        order_source: 'verse3_records_production',
       },
       return_url: `${origin}/return?session_id={CHECKOUT_SESSION_ID}`,
     });
@@ -66,6 +67,7 @@ export async function fetchClientSecret(cart: any[], origin: string) {
     return session.client_secret;
   } catch (error: any) {
     console.error('Stripe Session Creation Error:', error.message);
+    // Return a user-friendly error or the specific Stripe error if it's an API issue
     throw new Error(error.message || 'Secure payment session could not be established.');
   }
 }
