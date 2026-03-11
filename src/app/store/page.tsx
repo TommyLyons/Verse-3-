@@ -114,7 +114,7 @@ function StoreContent() {
         setIsLoading(true);
         try {
             const products = await getAllProducts();
-            setAllProducts(products);
+            setAllProducts(products || []);
         } catch (error) {
             console.error("Failed to fetch products:", error);
         } finally {

@@ -15,7 +15,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
     let dbProducts: Product[] = [];
     let flowProducts: Product[] = [];
 
-    // Fallbacks to ensure the store is never empty
+    // Permanent Fallbacks to ensure the store is never empty
     const fallbacks: Product[] = [
         {
             id: 'v3-hoodie-fallback',
@@ -63,23 +63,26 @@ export const getAllProducts = async (): Promise<Product[]> => {
     }
 
     try {
-        // Fetch Printful items with a robust timeout
+        // Fetch Printful items with a robust timeout to avoid blocking
         const printfulData = await Promise.race([
             Promise.all([
                 getFlowProducts('Crude City'),
                 getFlowProducts('Verse 3 Merch')
             ]),
             new Promise<Product[][]>((_, reject) => setTimeout(() => reject(new Error('Printful timeout')), 10000))
-        ]).catch(() => [[], []]);
+        ]).catch((e) => {
+            console.error("Sync Error:", e);
+            return [[], []];
+        });
         
-        flowProducts = [...printfulData[0], ...printfulData[1]];
+        flowProducts = [...(printfulData[0] || []), ...(printfulData[1] || [])];
     } catch (error) {
         console.warn("Printful flow skipped due to timeout.");
     }
 
     const uniqueMap = new Map<string, Product>();
     
-    // Merge Strategy: local DB > Printful > Fallbacks
+    // Merge Strategy: Fallbacks < Printful < local DB
     fallbacks.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));
     flowProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));
     dbProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));

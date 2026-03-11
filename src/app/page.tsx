@@ -43,7 +43,7 @@ export default function Home() {
         setIsLoading(true);
         try {
           const products = await getAllProducts();
-          setAllProducts(products);
+          setAllProducts(products || []);
         } catch (err) {
           console.error("Failed to fetch home products:", err);
         } finally {
@@ -123,16 +123,14 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Centered and 20% smaller on mobile */}
-      <section className="relative w-full h-[85dvh] flex flex-col items-center justify-center bg-black overflow-hidden px-4 md:px-0">
-        <div className="relative w-full md:w-full h-full max-w-full md:max-w-none flex items-center justify-center">
-            <div className="w-[80%] md:w-full h-full flex items-center justify-center">
-                <video
-                src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
-                autoPlay loop muted playsInline
-                className="w-full h-full object-contain md:object-cover"
-                />
-            </div>
+      {/* Hero Section - Optimized Mobile Fitting (Centered, 20% Smaller) */}
+      <section className="relative w-full h-[85dvh] flex items-center justify-center bg-black overflow-hidden px-0">
+        <div className="relative w-[80%] md:w-full h-full flex items-center justify-center">
+            <video
+              src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
+              autoPlay loop muted playsInline
+              className="w-full h-full object-contain md:object-cover"
+            />
         </div>
         <div className="absolute bottom-20 z-10 flex gap-4 px-6 w-full max-w-sm mx-auto">
           <Button asChild className="flex-1 bg-black text-chart-1 font-bold h-11 rounded-none uppercase italic tracking-wider shadow-lg hover:bg-chart-1 hover:text-black transition-all">
@@ -207,6 +205,10 @@ export default function Home() {
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                         {[...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full rounded-none" />)}
                     </div>
+                ) : merchProducts.length === 0 ? (
+                  <div className="text-center py-10">
+                    <p className="text-muted-foreground uppercase text-xs font-bold tracking-widest">Inventory updating...</p>
+                  </div>
                 ) : (
                     <div className="relative">
                         <Carousel 
@@ -260,6 +262,10 @@ export default function Home() {
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                         {[...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full rounded-none" />)}
                     </div>
+                ) : musicProducts.length === 0 ? (
+                  <div className="text-center py-10">
+                    <p className="text-muted-foreground uppercase text-xs font-bold tracking-widest">Awaiting releases...</p>
+                  </div>
                 ) : (
                     <div className="relative">
                         <Carousel 
