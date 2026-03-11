@@ -44,7 +44,10 @@ const getProductsFlow = ai.defineFlow(
         
         const storesData = await storesResponse.json();
         const allStores = storesData.result || [];
-        if (allStores.length === 0) return [];
+        if (allStores.length === 0) {
+            console.warn("Printful Sync: No stores found for this account.");
+            return [];
+        }
 
         const globalProductsMap = new Map<string, Product>();
 

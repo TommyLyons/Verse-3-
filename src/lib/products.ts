@@ -63,10 +63,10 @@ export const getAllProducts = async (): Promise<Product[]> => {
     }
 
     try {
-        // Generous 45s timeout to allow for exhaustive store-scanning (3 stores)
+        // Increased timeout to 60s for exhaustive multi-store scanning
         flowProducts = await Promise.race([
             getFlowProducts(),
-            new Promise<Product[]>((_, reject) => setTimeout(() => reject(new Error('Printful exhaustive sync timeout')), 45000))
+            new Promise<Product[]>((_, reject) => setTimeout(() => reject(new Error('Printful exhaustive sync timeout')), 60000))
         ]).catch((e) => {
             console.warn("Printful Sync Failure:", e.message);
             return [];
