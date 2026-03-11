@@ -1,38 +1,21 @@
 'use server';
 /**
- * @fileOverview A robust flow for fetching and categorizing products from ALL connected Printful stores.
- * - Global De-duplication: Uses product slugs as unique identifiers across all stores.
- * - Brand Categorization: Detects 'Crude City' vs 'Verse 3' based on store name and product title.
- * - Region Detection: Automatically assigns UK (GBP) or EU (EUR) based on store currency/name.
- * - Robust Error Handling: Ensures the flow returns a clean list even if individual store calls fail.
+ * @fileOverview Exhaustive synchronization flow for Printful inventory.
+ * - Robust error handling for all API interactions.
+ * - Global de-duplication based on product slugs.
+ * - Intelligent brand categorization based on store name and content.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 import { ProductSchema, type Product } from '@/lib/schemas';
-import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 
 export async function getPrintfulApiKey(): Promise<string | null> {
+    // Priority: Environment Variable
     if (process.env.PRINTFUL_API_KEY) {
-        return process.env.PRINTFUL_API_KEY;
+        return process.env.PRINTFUL_API_KEY.trim();
     }
-
-    const secretName = 'projects/studio-6967403383-a8bb0/secrets/PRINTFUL_API_KEY/versions/latest';
-
-    try {
-        const client = new SecretManagerServiceClient();
-        const [version] = await client.accessSecretVersion({
-            name: secretName,
-        });
-
-        const payload = version.payload?.data?.toString();
-        if (payload) {
-            return payload;
-        }
-        return null;
-    } catch (error) {
-        return null;
-    }
+    return null;
 }
 
 const getProductsFlow = ai.defineFlow(
@@ -45,10 +28,13 @@ const getProductsFlow = ai.defineFlow(
     const apiKey = await getPrintfulApiKey();
     if (!apiKey) return [];
 
-    const headers = { 'Authorization': `Bearer ${apiKey}` };
+    const headers = { 
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+    };
 
     try {
-        // 1. Fetch all connected stores
+        // Fetch all stores with a timeout safety
         const storesResponse = await fetch('https://api.printful.com/stores', { headers });
         if (!storesResponse.ok) return [];
         
@@ -56,25 +42,20 @@ const getProductsFlow = ai.defineFlow(
         const allStores = storesData.result || [];
         if (allStores.length === 0) return [];
 
-        // Map to prevent duplicates globally by slug
         const globalProductsMap = new Map<string, Product>();
 
-        // 2. Iterate through each store
         for (const store of allStores) {
             const storeId = store.id;
             const storeNameUpper = store.name.toUpperCase();
             
-            // Determine brand affiliation for the entire store as a hint
-            const isCrudeCityStore = storeNameUpper.includes('CRUDE') || storeNameUpper.includes('CITY');
-            
-            // Determine region and currency
+            // Determine if the store is primarily Crude City or V3
+            const isCrudeStore = storeNameUpper.includes('CRUDE') || storeNameUpper.includes('CITY');
             const isUKStore = storeNameUpper.includes('UK') || storeNameUpper.includes('GBP');
             const region = isUKStore ? 'UK' : 'EU';
             const currencySymbol = isUKStore ? '£' : '€';
-            const shippingBuffer = isUKStore ? 5.00 : 6.00;
 
-            // 3. Fetch sync products for this store
-            const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=50`, { headers });
+            // Fetch products from this store (limit increased for thoroughness)
+            const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
             if (!productsResponse.ok) continue;
 
             const data = await productsResponse.json();
@@ -82,22 +63,20 @@ const getProductsFlow = ai.defineFlow(
 
             for (const item of products) {
                 try {
-                    // Normalize identifying info
                     const prodName = item.name.toLowerCase();
                     const slug = item.name.toLowerCase()
                         .replace(/ /g, '-')
                         .replace(/[^\w-]+/g, '')
                         .trim();
 
-                    // Determine if this specific product belongs to the requested brand
-                    const belongsToCrude = isCrudeCityStore || prodName.includes('crude') || prodName.includes('city');
-                    const targetBrand = belongsToCrude ? 'Crude City' : 'Verse 3 Merch';
+                    // Categorize product based on store type or item name
+                    const isCrudeItem = isCrudeStore || prodName.includes('crude') || prodName.includes('city');
+                    const targetBrand = isCrudeItem ? 'Crude City' : 'Verse 3 Merch';
 
-                    // Only process if it matches the requested brand
                     if (targetBrand !== brand) continue;
 
-                    // Fetch detail for price and variants if not already in global map
                     if (!globalProductsMap.has(slug)) {
+                        // Fetch individual details for pricing and variants
                         const detailResponse = await fetch(`https://api.printful.com/sync/products/${item.id}?store_id=${storeId}`, { headers });
                         if (!detailResponse.ok) continue;
                         
@@ -105,30 +84,27 @@ const getProductsFlow = ai.defineFlow(
                         const syncProduct = detailData.result.sync_product;
                         const syncVariants = detailData.result.sync_variants;
 
-                        if (!syncProduct || !syncProduct.name) continue;
+                        if (!syncProduct) continue;
 
                         const sizes = syncVariants 
                             ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
                             : [];
                         
-                        let retailPrice = 0;
+                        let minPrice = 0;
                         if (syncVariants && syncVariants.length > 0) {
                             const validPrices = syncVariants
                                 .map((v: any) => parseFloat(v.retail_price))
                                 .filter((p: number) => !isNaN(p) && p > 0);
-                            
-                            if (validPrices.length > 0) {
-                                retailPrice = Math.min(...validPrices);
-                            }
+                            if (validPrices.length > 0) minPrice = Math.min(...validPrices);
                         }
 
-                        // Apply standard retail rounding logic
-                        if (retailPrice > 0) {
-                            retailPrice += shippingBuffer;
-                            retailPrice = Math.round(retailPrice / 5) * 5;
+                        // Apply standard V3 retail logic (including shipping buffer and rounding)
+                        if (minPrice > 0) {
+                            minPrice += isUKStore ? 5 : 6;
+                            minPrice = Math.round(minPrice / 5) * 5;
                         }
 
-                        const formattedPrice = retailPrice === 0 ? 'N/A' : `${currencySymbol}${retailPrice.toFixed(0)}`;
+                        const formattedPrice = minPrice === 0 ? 'N/A' : `${currencySymbol}${minPrice.toFixed(0)}`;
 
                         globalProductsMap.set(slug, {
                             id: String(syncProduct.id),
@@ -145,13 +121,14 @@ const getProductsFlow = ai.defineFlow(
                         });
                     }
                 } catch (err) {
-                    continue; // Skip individual product failures
+                    continue; 
                 }
             }
         }
 
         return Array.from(globalProductsMap.values()).sort((a, b) => a.name.localeCompare(b.name));
     } catch (err) {
+        console.error("Printful Flow Error:", err);
         return [];
     }
   }

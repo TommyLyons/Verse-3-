@@ -6,7 +6,7 @@ import { Product, getAllProducts } from '@/lib/products';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
-import { Eye, DownloadCloud, Globe } from 'lucide-react';
+import { Eye, DownloadCloud, Globe, ShoppingBag } from 'lucide-react';
 import { useRegion } from '@/context/region-context';
 import { AgeGate } from '@/components/age-gate';
 import {
@@ -39,8 +39,9 @@ const ProductGrid = ({ products, isLoading, type, onProductClick }: { products: 
 
     if (products.length === 0) {
         return (
-            <div className="text-center py-16 border-2 border-dashed rounded-lg">
-                <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">No products found in this region.</p>
+            <div className="text-center py-16 border-2 border-dashed rounded-lg bg-black/[0.02]">
+                <ShoppingBag className="h-12 w-12 mx-auto text-black/10 mb-4" />
+                <p className="text-muted-foreground font-bold uppercase tracking-widest text-[10px]">No products currently available in this collection.</p>
             </div>
         );
     }
@@ -66,7 +67,7 @@ const ProductGrid = ({ products, isLoading, type, onProductClick }: { products: 
                     <div className="mt-4 flex justify-between items-center px-1">
                         <div>
                             <p className="font-bold text-black uppercase text-sm leading-tight">{item.name}</p>
-                            <p className="text-sm font-bold text-chart-1 bg-black px-2 py-0.5 inline-block italic mt-1">{item.price}</p>
+                            <p className="text-xs font-bold text-chart-1 bg-black px-2 py-0.5 inline-block italic mt-1">{item.price}</p>
                         </div>
                         <Button 
                           size="sm" 
@@ -157,7 +158,6 @@ function StoreContent() {
     if (activeBrand === 'Crude City') setActiveBrand('Verse 3');
   };
 
-  // Improved filtering by checking brand and region strictly
   const verse3Merch = useMemo(() => {
     return allProducts.filter(p => 
       p.type === 'merch' && 

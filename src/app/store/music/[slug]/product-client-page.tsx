@@ -106,7 +106,6 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
     <div className="container py-12 md:py-24 bg-background">
       <BackButton />
       <div className="grid md:grid-cols-2 gap-8 lg:gap-16 items-start">
-        {/* Fitted product image container with zero padding */}
         <div className="relative aspect-square rounded-none overflow-hidden border-2 border-black/5 bg-black/5 flex items-center justify-center">
           <Image
             src={imageUrl}

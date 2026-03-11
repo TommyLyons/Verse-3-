@@ -123,16 +123,16 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Exactly 20% smaller on mobile by using w-[80%] centered */}
-      <section className="relative w-full h-[85dvh] flex flex-col items-center justify-center bg-black overflow-hidden">
-        <div className="absolute inset-0 z-0 flex items-center justify-center">
-          <div className="w-[80%] h-full md:w-full px-[10%] md:px-0">
-            <video
-              src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
-              autoPlay loop muted playsInline
-              className="w-full h-full object-contain md:object-cover"
-            />
-          </div>
+      {/* Hero Section - Centered and 20% smaller on mobile (80% width) */}
+      <section className="relative w-full h-[85dvh] flex flex-col items-center justify-center bg-black overflow-hidden px-4 md:px-0">
+        <div className="relative w-full md:w-full h-full max-w-full md:max-w-none flex items-center justify-center">
+            <div className="w-[80%] md:w-full h-full flex items-center justify-center">
+                <video
+                src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
+                autoPlay loop muted playsInline
+                className="w-full h-full object-contain md:object-cover"
+                />
+            </div>
         </div>
         <div className="absolute bottom-20 z-10 flex gap-4 px-6 w-full max-w-sm mx-auto">
           <Button asChild className="flex-1 bg-black text-chart-1 font-bold h-11 rounded-none uppercase italic tracking-wider shadow-lg hover:bg-chart-1 hover:text-black transition-all">
@@ -155,10 +155,10 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image - Aspect preserved from version 34172f3 */}
+      {/* Impact Image - Aspect preserved from high-impact version */}
       {vibeHero && (
         <section className="w-full bg-black py-4">
-          <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto px-6 md:px-0">
+          <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto">
             <Image
               src={vibeHero.imageUrl}
               alt={vibeHero.description}
@@ -170,7 +170,7 @@ export default function Home() {
         </section>
       )}
 
-      {/* Choose Your Vibe */}
+      {/* Brand Selector */}
       <section className="py-12 bg-black text-white">
           <div className="container max-w-7xl mx-auto px-4">
             <div className="text-center mb-8">
@@ -195,7 +195,7 @@ export default function Home() {
           </div>
        </section>
 
-       {/* Featured Merch Carousel (V3 Only) - Zero padding for fitted look */}
+       {/* Featured Merch - Fitted visuals with zero padding */}
        <section className="py-24 bg-white">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
@@ -208,7 +208,7 @@ export default function Home() {
                         {[...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full rounded-none" />)}
                     </div>
                 ) : (
-                    <div className="relative px-4 md:px-0">
+                    <div className="relative">
                         <Carousel 
                           opts={{ align: "start", loop: true }} 
                           plugins={[Autoplay({ delay: 3500, stopOnInteraction: false })]}
@@ -216,7 +216,7 @@ export default function Home() {
                         >
                             <CarouselContent className="-ml-4">
                                 {merchProducts.map((item) => (
-                                    <CarouselItem key={item.id} className="pl-4 basis-[75%] sm:basis-1/2 lg:basis-1/4">
+                                    <CarouselItem key={item.id} className="pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/4">
                                         <Card className="border-none shadow-none bg-transparent group cursor-pointer" onClick={() => handleProductClick(item)}>
                                             <div className="aspect-square relative bg-secondary rounded-none overflow-hidden border-2 border-black/5">
                                                 <Image
@@ -248,7 +248,7 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Latest Music Carousel - Zero padding for fitted look */}
+       {/* Latest Music - Fitted visuals with zero padding */}
        <section className="py-24 bg-secondary/30">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
@@ -261,7 +261,7 @@ export default function Home() {
                         {[...Array(4)].map((_, i) => <Skeleton key={i} className="aspect-square w-full rounded-none" />)}
                     </div>
                 ) : (
-                    <div className="relative px-4 md:px-0">
+                    <div className="relative">
                         <Carousel 
                           opts={{ align: "start", loop: true }} 
                           plugins={[Autoplay({ delay: 4500, stopOnInteraction: false })]}
@@ -269,7 +269,7 @@ export default function Home() {
                         >
                             <CarouselContent className="-ml-4">
                                 {musicProducts.map((item) => (
-                                    <CarouselItem key={item.id} className="pl-4 basis-[75%] sm:basis-1/2 lg:basis-1/4">
+                                    <CarouselItem key={item.id} className="pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/4">
                                         <Card className="border-none shadow-none bg-transparent group cursor-pointer" onClick={() => handleProductClick(item)}>
                                             <div className="aspect-square relative bg-white rounded-none overflow-hidden shadow-sm border-2 border-black/5">
                                                 <Image

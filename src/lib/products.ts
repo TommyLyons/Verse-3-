@@ -15,26 +15,27 @@ export const getAllProducts = async (): Promise<Product[]> => {
     let dbProducts: Product[] = [];
     let flowProducts: Product[] = [];
 
-    // Fallback items that should ALWAYS be present if everything else fails
+    // Robust fallbacks that always show up to prevent blank pages
     const fallbacks: Product[] = [
         {
             id: 'v3-hoodie-fallback',
             name: 'V3 Classic Hoodie',
             slug: 'v3-classic-hoodie',
             price: '£35',
-            description: 'The essential Verse 3 Hoodie. Premium heavyweight cotton.',
+            description: 'The essential Verse 3 Hoodie. Premium heavyweight cotton. Free shipping included.',
             imageUrl: 'https://images.unsplash.com/photo-1610582144787-eda2e6f293b4?auto=format&fit=crop&q=80&w=1080',
             revolutLink: 'https://checkout.stripe.com/',
             type: 'merch',
             brand: 'Verse 3 Merch',
-            sizes: ['S', 'M', 'L', 'XL']
+            sizes: ['S', 'M', 'L', 'XL'],
+            availableRegions: ['UK', 'EU']
         },
         {
             id: 'quiet-steps-digital',
             name: 'Quiet Steps',
             slug: 'quiet-steps',
             price: '£2',
-            description: 'Debut single from Verse 3 Records. Digital Master.',
+            description: 'Debut single from Verse 3 Records. Authorized Digital Master.',
             imageUrl: 'https://images.unsplash.com/photo-1511447333015-45b65e60f6d5?auto=format&fit=crop&q=80&w=1080',
             revolutLink: 'https://checkout.stripe.com/',
             type: 'music',
@@ -52,35 +53,40 @@ export const getAllProducts = async (): Promise<Product[]> => {
         dbProducts = snapshot.docs.map(doc => {
             const data = doc.data() as any;
             const serialized = { ...data };
-            if (serialized.createdAt && typeof serialized.createdAt.toDate === 'function') {
-                serialized.createdAt = serialized.createdAt.toDate().toISOString();
+            if (serialized.updatedAt && typeof serialized.updatedAt.toDate === 'function') {
+                serialized.updatedAt = serialized.updatedAt.toDate().toISOString();
             }
             return { ...serialized, id: doc.id } as Product;
         });
     } catch (error) {
-        console.warn("Firestore fetch failed, using fallback/flow products.");
+        console.warn("Firestore fetch error, proceeding with flow/fallbacks.");
     }
 
     try {
-        const [crudeProducts, v3Products] = await Promise.all([
-            getFlowProducts('Crude City'),
-            getFlowProducts('Verse 3 Merch')
-        ]);
-        flowProducts = [...crudeProducts, ...v3Products];
+        // Fetch Printful items with a timeout safety to prevent page hanging
+        const printfulData = await Promise.race([
+            Promise.all([
+                getFlowProducts('Crude City'),
+                getFlowProducts('Verse 3 Merch')
+            ]),
+            new Promise<Product[][]>((_, reject) => setTimeout(() => reject(new Error('Printful timeout')), 8000))
+        ]).catch(() => [[], []]);
+        
+        flowProducts = [...printfulData[0], ...printfulData[1]];
     } catch (error) {
-        console.warn("Printful flow fetch failed.");
+        console.warn("Printful flow skipped due to timeout or error.");
     }
 
-    // Global de-duplication by slug
+    // Global de-duplication by normalized slug
     const uniqueMap = new Map<string, Product>();
     
-    // 1. Start with fallbacks
+    // Priority 1: Fallbacks (Baseline)
     fallbacks.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));
     
-    // 2. Add Printful products (overrides fallbacks if slug matches)
+    // Priority 2: Flow (Printful - overrides fallbacks)
     flowProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));
     
-    // 3. Add DB products (local manual entries override everything)
+    // Priority 3: Database (Manual - overrides all)
     dbProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));
 
     const combined = Array.from(uniqueMap.values());
