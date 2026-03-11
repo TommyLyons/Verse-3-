@@ -56,19 +56,19 @@ export async function serializeData(data: any): Promise<any> {
 }
 
 function getServerFirestore() {
-  if (typeof window !== 'undefined') return null; // Defensive check for server-only initialization
+  if (typeof window !== 'undefined') return null;
   
   try {
     const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     return getFirestore(app);
   } catch (e) {
-    console.error("Firestore initialization failed during build/runtime:", e);
+    console.error("Firestore initialization failed:", e);
     return null;
   }
 }
 
 /**
- * Fetches all products from Firestore and Printful, then serializes them for Client Components.
+ * Fetches all products from Firestore and Printful, then serializes them.
  */
 export const getAllProducts = async (): Promise<Product[]> => {
   let dbProducts: Product[] = [];
@@ -85,30 +85,22 @@ export const getAllProducts = async (): Promise<Product[]> => {
         });
     }
   } catch (error) {
-    console.warn("Firestore products fetch omitted or failed during build:", error);
+    console.warn("Database fetch deferred:", error);
   }
 
   try {
     const results = await getFlowProducts();
     flowProducts = results || [];
   } catch (error) {
-    console.warn("External product synchronization skipped or failed:", error);
+    console.warn("External sync deferred:", error);
   }
 
   const uniqueMap = new Map<string, Product>();
   
-  // Combine both sources
-  flowProducts.forEach(p => {
-    uniqueMap.set(p.slug.toLowerCase(), p);
-  });
-  
-  dbProducts.forEach(p => {
-    uniqueMap.set(p.slug.toLowerCase(), p);
-  });
+  flowProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));
+  dbProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));
 
   const sorted = Array.from(uniqueMap.values()).sort((a, b) => a.name.localeCompare(b.name));
-  
-  // Return deeply serialized data to ensure no hydration or "plain object" errors
   return await serializeData(sorted);
 };
 

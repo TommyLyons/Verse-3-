@@ -21,7 +21,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel"
+} from "@/components/ui/carousel";
 
 const INSTAGRAM_URL = "https://www.instagram.com/verse3records?igsh=NXhzcW84N2NwZ3Iw";
 
@@ -127,12 +127,15 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Centered Hero - 80% width on mobile (20% smaller) */}
+      {/* Centered Hero - Video Loop */}
       <section className="relative w-full h-[85dvh] flex items-center justify-center bg-black overflow-hidden">
         <div className="relative w-[80%] md:w-full h-full flex items-center justify-center">
             <video
               src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
-              autoPlay loop muted playsInline
+              autoPlay 
+              loop 
+              muted 
+              playsInline
               className="w-full h-full object-contain md:object-cover"
             />
         </div>
@@ -146,7 +149,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Vision */}
+      {/* Vision Statement */}
       <section className="py-20 bg-white border-b border-black/5">
           <div className="container max-w-4xl mx-auto px-4 text-center">
               <h2 className="font-headline text-4xl font-bold text-black uppercase italic tracking-tight">Our Vision</h2>
@@ -157,7 +160,7 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Visual */}
+      {/* Culture Visual */}
       {vibeHero && (
         <section className="w-full bg-black py-4">
           <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto">
@@ -167,12 +170,13 @@ export default function Home() {
               fill
               className="object-contain"
               priority
+              data-ai-hint="streetwear culture"
             />
           </div>
         </section>
       )}
 
-      {/* Brand Selector */}
+      {/* Brand Navigator */}
       <section className="py-12 bg-black text-white">
           <div className="container max-w-7xl mx-auto px-4">
             <div className="text-center mb-8">
@@ -197,7 +201,7 @@ export default function Home() {
           </div>
        </section>
 
-       {/* Featured Merch - Fitted Visuals */}
+       {/* Featured Streetwear Carousel */}
        <section className="py-24 bg-white">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
@@ -250,7 +254,7 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Latest Music - Fitted Visuals */}
+       {/* Latest Records Carousel */}
        <section className="py-24 bg-secondary/30">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
@@ -303,7 +307,7 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Social */}
+       {/* Social Impact Section */}
        <section className="py-24 bg-black text-white text-center">
           <div className="container max-w-5xl mx-auto px-4">
             <Instagram className="h-12 w-12 mx-auto text-chart-1 mb-6" />
@@ -315,7 +319,7 @@ export default function Home() {
           </div>
        </section>
 
-       {/* Newsletter */}
+       {/* Newsletter Signup */}
        <section className="py-24 bg-chart-1">
           <div className="container max-w-4xl mx-auto px-4 text-center">
                 <h2 className="font-headline text-5xl font-bold text-black uppercase italic tracking-tighter mb-8">Join The Family</h2>
