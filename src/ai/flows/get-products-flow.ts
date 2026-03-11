@@ -35,7 +35,7 @@ const getProductsFlow = ai.defineFlow(
     };
 
     try {
-        // Step 1: Fetch ALL stores in the account (User has 3 stores)
+        // Step 1: Fetch ALL stores in the account
         const storesResponse = await fetch('https://api.printful.com/stores', { headers });
         if (!storesResponse.ok) {
             console.error("Printful Stores Fetch Failed:", await storesResponse.text());

@@ -840,9 +840,8 @@ export default function AdminPage() {
     const loadPrintfulData = async () => {
         setIsPrintfulLoading(true);
         try {
-            const v3 = await getProducts('Verse 3 Merch');
-            const crude = await getProducts('Crude City');
-            setPrintfulProducts([...v3, ...crude]);
+            const results = await getProducts();
+            setPrintfulProducts(results || []);
         } catch (err) {
             console.error("Failed to fetch Printful products:", err);
         } finally {

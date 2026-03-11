@@ -67,7 +67,7 @@ const ProductGrid = ({ products, isLoading, onProductClick }: { products: any[],
                     <div className="mt-4 flex justify-between items-center px-1">
                         <div>
                             <p className="font-bold text-black uppercase text-sm leading-tight">{item.name}</p>
-                            <p className="text-xs font-bold text-chart-1 bg-black px-2 py-0.5 inline-block italic mt-1">{item.price}</p>
+                            <p className="text-xs font-bold text-chart-1 bg-black px-2 py-0.5 inline-block mt-1 italic">{item.price}</p>
                         </div>
                         <Button 
                           size="sm" 
