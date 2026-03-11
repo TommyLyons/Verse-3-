@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -53,11 +53,11 @@ export default function Home() {
     fetchProducts();
   }, []);
   
-  const merchProducts = React.useMemo(() => {
+  const merchProducts = useMemo(() => {
     return allProducts.filter(p => p.type === 'merch' && p.brand === 'Verse 3 Merch').slice(0, 12);
   }, [allProducts]);
 
-  const musicProducts = React.useMemo(() => {
+  const musicProducts = useMemo(() => {
     return allProducts.filter(p => p.type === 'music').slice(0, 12);
   }, [allProducts]);
 

@@ -11,15 +11,17 @@ export type { Product };
 /**
  * Robust recursive serialization for Firestore data.
  * Converts Timestamps to ISO strings and handles nested structures for Client Components.
+ * This is CRITICAL for Next.js App Router to avoid "Only plain objects" errors.
  */
 export async function serializeData(data: any): Promise<any> {
   if (data === null || data === undefined) return data;
 
-  // Handle Firestore Timestamps
+  // Handle Firestore Timestamps (common source of serialization errors)
   if (typeof data === 'object') {
     if (typeof data.toDate === 'function') {
       return data.toDate().toISOString();
     }
+    // Handle raw objects that look like Timestamps from the bridge
     if ('seconds' in data && 'nanoseconds' in data) {
       return new Date(data.seconds * 1000).toISOString();
     }
@@ -30,27 +32,25 @@ export async function serializeData(data: any): Promise<any> {
     return data.toISOString();
   }
 
-  // Handle Arrays
+  // Handle Arrays recursively
   if (Array.isArray(data)) {
-    const serializedArray = [];
-    for (const item of data) {
-      serializedArray.push(await serializeData(item));
-    }
-    return serializedArray;
+    return await Promise.all(data.map(item => serializeData(item)));
   }
 
-  // Handle Objects
-  if (typeof data === 'object') {
+  // Handle Objects recursively
+  if (typeof data === 'object' && data.constructor.name === 'Object') {
     const serialized: any = {};
     for (const key in data) {
       if (Object.prototype.hasOwnProperty.call(data, key)) {
-        // Skip functions and private properties
-        if (typeof data[key] !== 'function' && !key.startsWith('_')) {
-          serialized[key] = await serializeData(data[key]);
-        }
+        serialized[key] = await serializeData(data[key]);
       }
     }
     return serialized;
+  }
+
+  // Fallback for non-plain objects that might have data (like Firestore documents)
+  if (typeof data === 'object') {
+    return JSON.parse(JSON.stringify(data));
   }
 
   return data;
@@ -110,5 +110,5 @@ export const getAllProducts = async (): Promise<Product[]> => {
 export const getProductBySlug = async (slug: string): Promise<Product | undefined> => {
   const allProducts = await getAllProducts();
   const product = allProducts.find(p => p.slug.toLowerCase() === slug.toLowerCase());
-  return await serializeData(product);
+  return product ? await serializeData(product) : undefined;
 };
