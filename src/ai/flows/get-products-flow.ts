@@ -1,6 +1,7 @@
 'use server';
 /**
  * @fileOverview Exhaustive synchronization flow for multiple Printful stores.
+ * Iterates through all stores and syncs all products to the application.
  */
 
 import {ai} from '@/ai/genkit';
@@ -29,6 +30,7 @@ const getProductsFlow = ai.defineFlow(
     };
 
     try {
+        // 1. Get all stores associated with this key
         const storesResponse = await fetch('https://api.printful.com/stores', { headers });
         if (!storesResponse.ok) return [];
         
@@ -37,18 +39,23 @@ const getProductsFlow = ai.defineFlow(
         
         const globalProductsMap = new Map<string, Product>();
 
+        // 2. Iterate through each store
         for (const store of allStores) {
             try {
                 const storeId = store.id;
                 const storeNameUpper = (store.name || '').toUpperCase();
+                
+                // Determine brand based on store name
                 const isCrudeStore = storeNameUpper.includes('CRUDE') || storeNameUpper.includes('CITY');
+                const targetBrand = isCrudeStore ? 'Crude City' : 'Verse 3 Merch';
                 
                 const currency = store.currency || 'GBP';
                 const isUKStore = currency === 'GBP' || storeNameUpper.includes('UK');
                 const region = isUKStore ? 'UK' : 'EU';
                 const currencySymbol = isUKStore ? '£' : '€';
 
-                const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
+                // 3. Fetch all products for this store (removed status filter for better visibility)
+                const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&limit=100`, { headers });
                 if (!productsResponse.ok) continue;
 
                 const data = await productsResponse.json();
@@ -61,8 +68,10 @@ const getProductsFlow = ai.defineFlow(
                             .replace(/[^\w-]+/g, '')
                             .trim();
 
+                        // Avoid cross-store duplicate slugs if they exist
                         if (globalProductsMap.has(slug)) continue;
 
+                        // 4. Fetch variant details for pricing and sizes
                         const detailResponse = await fetch(`https://api.printful.com/sync/products/${item.id}?store_id=${storeId}`, { headers });
                         if (!detailResponse.ok) continue;
                         
@@ -71,8 +80,6 @@ const getProductsFlow = ai.defineFlow(
                         const syncVariants = detailData.result.sync_variants;
 
                         if (!syncProduct) continue;
-
-                        const targetBrand = isCrudeStore ? 'Crude City' : 'Verse 3 Merch';
 
                         const sizes = syncVariants 
                             ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
@@ -86,6 +93,7 @@ const getProductsFlow = ai.defineFlow(
                             if (validPrices.length > 0) minPrice = Math.min(...validPrices);
                         }
 
+                        // Markup logic
                         if (minPrice > 0) {
                             minPrice += isUKStore ? 5 : 6;
                             minPrice = Math.round(minPrice / 5) * 5;

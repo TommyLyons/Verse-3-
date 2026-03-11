@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getStripeClient } from '@/lib/stripe';
 import { getPrintfulApiKey } from '@/ai/flows/get-products-flow';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Stripe Webhook Handler
  * Automates the creation of Printful orders upon successful payment.
