@@ -8,13 +8,15 @@ export type { Product };
 
 /**
  * Robust recursive serialization for Firestore data.
- * Converts Timestamps to strings and ensures plain objects for Client Components.
- * This prevents the "Only plain objects can be passed to Client Components" error.
+ * Converts Timestamps to ISO strings and ensures plain objects for Client Components.
  */
 function serializeData(data: any): any {
   if (data === null || data === undefined) return data;
 
-  // Handle Firestore Timestamps
+  // Handle Firestore Timestamps (both from SDK and plain objects with seconds/nanoseconds)
+  if (typeof data === 'object' && typeof data.toDate === 'function') {
+    return data.toDate().toISOString();
+  }
   if (typeof data === 'object' && 'seconds' in data && 'nanoseconds' in data) {
     return new Date(data.seconds * 1000).toISOString();
   }
@@ -29,8 +31,8 @@ function serializeData(data: any): any {
     return data.map(item => serializeData(item));
   }
 
-  // Handle Objects - ensure we return a "plain" object
-  if (typeof data === 'object') {
+  // Handle Objects
+  if (typeof data === 'object' && data.constructor === Object) {
     const serialized: any = {};
     for (const key in data) {
       if (Object.prototype.hasOwnProperty.call(data, key)) {
@@ -59,7 +61,6 @@ export const getAllProducts = async (): Promise<Product[]> => {
     
     dbProducts = snapshot.docs.map(doc => {
       const data = doc.data();
-      // Serialize and inject ID
       return { ...serializeData(data), id: doc.id } as Product;
     });
   } catch (error) {
@@ -67,14 +68,12 @@ export const getAllProducts = async (): Promise<Product[]> => {
   }
 
   try {
-    // Fetch from Printful Synchronization Flow
     const results = await getFlowProducts();
     flowProducts = results || [];
   } catch (error) {
     console.warn("External product synchronization failed.");
   }
 
-  // Merge products by slug, prioritizing DB over Flow if there's a conflict
   const uniqueMap = new Map<string, Product>();
   
   flowProducts.forEach(p => {

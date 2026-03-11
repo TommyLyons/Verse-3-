@@ -31,11 +31,10 @@ export async function POST(req: NextRequest) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as any;
 
-    const expandedSession = await stripe.checkout.sessions.retrieve(session.id, {
-      expand: ['line_items.data.price.product'],
-    });
-
     try {
+      const expandedSession = await stripe.checkout.sessions.retrieve(session.id, {
+        expand: ['line_items.data.price.product'],
+      });
       await processPrintfulOrder(expandedSession);
     } catch (error) {
       console.error('Failed to automate Printful order fulfillment:', error);

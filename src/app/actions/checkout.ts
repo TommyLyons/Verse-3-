@@ -7,11 +7,10 @@ import { getStripeClient } from '@/lib/stripe';
  * This is a Server Action to securely handle the Secret Key and prevent exposure.
  */
 export async function fetchClientSecret(cart: any[], origin: string) {
-  // Ensure we get the most up-to-date environment variable and trim it
   const secretKey = (process.env.STRIPE_SECRET_KEY || '').trim();
 
   if (!secretKey || secretKey.length < 10) {
-    throw new Error("Payment configuration error: Stripe Secret Key is missing or invalid in the server environment.");
+    throw new Error("Payment configuration error: Stripe Secret Key is missing or invalid.");
   }
 
   if (!cart || cart.length === 0) {
@@ -22,7 +21,6 @@ export async function fetchClientSecret(cart: any[], origin: string) {
 
   try {
     const line_items = cart.map((item: any) => {
-      // Clean price string to get raw number
       const priceStr = item.price.replace(/[^0-9.]/g, '');
       const amount = Math.round(parseFloat(priceStr) * 100);
       const currency = item.price.includes('€') ? 'eur' : 'gbp';
