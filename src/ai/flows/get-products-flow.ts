@@ -24,7 +24,10 @@ const getProductsFlow = ai.defineFlow(
   },
   async () => {
     const apiKey = await getPrintfulApiKey();
-    if (!apiKey) return [];
+    if (!apiKey) {
+      console.warn("Printful Sync: No API key provided.");
+      return [];
+    }
 
     const headers = { 
         'Authorization': `Bearer ${apiKey}`,
@@ -51,7 +54,7 @@ const getProductsFlow = ai.defineFlow(
                 const storeId = store.id;
                 const storeNameUpper = store.name.toUpperCase();
                 
-                // Brand detection logic
+                // Brand detection logic: If store name contains CRUDE or CITY, assign to Crude City
                 const isCrudeStore = storeNameUpper.includes('CRUDE') || storeNameUpper.includes('CITY');
                 
                 const currency = store.currency || 'USD';
@@ -73,7 +76,7 @@ const getProductsFlow = ai.defineFlow(
                             .replace(/[^\w-]+/g, '')
                             .trim();
 
-                        // De-duplication: skip if already processed
+                        // De-duplication: skip if already processed in this sync cycle
                         if (globalProductsMap.has(slug)) continue;
 
                         // Step 4: Fetch product details to resolve variants (pricing/sizes)
@@ -86,9 +89,7 @@ const getProductsFlow = ai.defineFlow(
 
                         if (!syncProduct) continue;
 
-                        const prodName = syncProduct.name.toLowerCase();
-                        const isCrudeItem = isCrudeStore || prodName.includes('crude') || prodName.includes('city');
-                        const targetBrand = isCrudeItem ? 'Crude City' : 'Verse 3 Merch';
+                        const targetBrand = isCrudeStore ? 'Crude City' : 'Verse 3 Merch';
 
                         const sizes = syncVariants 
                             ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 

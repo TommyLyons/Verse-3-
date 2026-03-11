@@ -123,7 +123,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Centered Hero - 20% Smaller on Mobile (80% width) */}
+      {/* Centered Hero - 80% width on mobile (20% smaller) */}
       <section className="relative w-full h-[85dvh] flex items-center justify-center bg-black overflow-hidden">
         <div className="relative w-[80%] md:w-full h-full flex items-center justify-center">
             <video
