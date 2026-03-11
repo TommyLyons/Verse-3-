@@ -1,19 +1,17 @@
-'use client';
+'use server';
 
 import { getStripeClient } from '@/lib/stripe';
 
 /**
- * Creates a Stripe Checkout Session with Embedded UI mode.
- * Strictly uses STRIPE_SECRET_KEY from environment with robust validation.
+ * Creates a Stripe Checkout Session.
+ * This is a Server Action ('use server') to securely handle the Secret Key.
  */
-export async function fetchClientSecret(cart: any[]) {
-  // In a production environment, STRIPE_SECRET_KEY must be set in the Firebase/App Hosting environment.
+export async function fetchClientSecret(cart: any[], origin: string) {
   const secretKey = (process.env.STRIPE_SECRET_KEY || '').trim();
 
-  // If the key is missing or is a placeholder, we provide a descriptive error.
-  if (!secretKey || secretKey.includes('*') || secretKey.length < 10) {
-    console.error("CRITICAL ERROR: STRIPE_SECRET_KEY is missing or invalid in environment.");
-    throw new Error("Payment gateway configuration error. Please ensure your Stripe Secret Key is correctly set in the environment variables (STRIPE_SECRET_KEY).");
+  if (!secretKey || secretKey.length < 10) {
+    console.error("CRITICAL ERROR: STRIPE_SECRET_KEY is missing or invalid.");
+    throw new Error("Payment gateway configuration error. Please ensure your Stripe Secret Key is set.");
   }
 
   if (!cart || cart.length === 0) {
@@ -43,6 +41,7 @@ export async function fetchClientSecret(cart: any[]) {
               product_id: String(item.id),
               size: item.size || '',
               type: item.type,
+              printful_id: item.type === 'merch' ? String(item.id) : '',
             }
           },
           unit_amount: amount,
@@ -61,7 +60,7 @@ export async function fetchClientSecret(cart: any[]) {
       metadata: {
         order_source: 'verse3_v3_production',
       },
-      return_url: `${window.location.origin}/return?session_id={CHECKOUT_SESSION_ID}`,
+      return_url: `${origin}/return?session_id={CHECKOUT_SESSION_ID}`,
     });
 
     return session.client_secret;

@@ -19,7 +19,7 @@ function getServerFirestore() {
 function serializeData(data: any): any {
     if (data === null || typeof data !== 'object') return data;
     
-    // Handle Firestore Timestamps and Dates
+    // Handle Firestore Timestamps
     if (data.seconds !== undefined && data.nanoseconds !== undefined) {
         return new Date(data.seconds * 1000).toISOString();
     }

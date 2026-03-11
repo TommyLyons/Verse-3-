@@ -33,7 +33,8 @@ export default function CheckoutPage() {
   const getClientSecret = useCallback(async () => {
     try {
       setError(null);
-      const secret = await fetchClientSecret(cart);
+      // Pass window.location.origin to the server action
+      const secret = await fetchClientSecret(cart, window.location.origin);
       if (!secret) throw new Error("Server failed to provide a checkout secret.");
       return secret;
     } catch (err: any) {

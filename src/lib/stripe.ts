@@ -2,14 +2,15 @@ import Stripe from 'stripe';
 
 /**
  * Initializes the Stripe Node.js library.
- * We export a getter function to ensure we always have the latest 
- * environment variable state, especially in diverse cloud environments.
+ * This is a server-side only utility. The Secret Key is never exposed to the client.
  */
 export const getStripeClient = () => {
-  const secretKey = process.env.STRIPE_SECRET_KEY || '';
+  const secretKey = process.env.STRIPE_SECRET_KEY;
 
-  if (!secretKey || secretKey.includes('***')) {
-    console.warn('CRITICAL: STRIPE_SECRET_KEY is missing or contains placeholder characters.');
+  if (!secretKey) {
+    // We throw a descriptive error if the key is missing. 
+    // This function should only be called in a server environment.
+    throw new Error('STRIPE_SECRET_KEY is missing from environment variables.');
   }
 
   return new Stripe(secretKey, {
@@ -17,5 +18,5 @@ export const getStripeClient = () => {
   });
 };
 
-// Singleton instance for general use, initialized safely
-export const stripe = getStripeClient();
+// Note: We no longer export a singleton 'stripe' instance at the top level
+// to prevent accidental execution/bundling in client-side contexts.
