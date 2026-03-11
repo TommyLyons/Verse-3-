@@ -123,10 +123,10 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Centered 80% width on mobile for perfect fitting */}
+      {/* Hero Section - Centered 80% width on mobile for perfect fitting and branding visibility */}
       <section className="relative w-full h-[85dvh] flex flex-col items-center justify-center bg-black overflow-hidden">
         <div className="absolute inset-0 z-0 flex items-center justify-center">
-          <div className="w-[80%] h-full md:w-full px-[5%] md:px-0">
+          <div className="w-[85%] h-full md:w-full px-[5%] md:px-0">
             <video
               src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
               autoPlay loop muted playsInline

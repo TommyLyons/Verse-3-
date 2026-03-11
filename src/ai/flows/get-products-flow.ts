@@ -1,10 +1,9 @@
 'use server';
 /**
  * @fileOverview A flow for fetching product information from ALL connected Printful stores.
- * - Exhaustive Sync: Removes store name filtering to ensure every product in the account is checked.
- * - Brand Categorization: Products are assigned to brands based on their internal titles/tags.
- * - UK Region: GBP (£), £5 shipping buffer, rounded to nearest 5.
- * - EU Region: EUR (€), €6 shipping buffer, rounded to nearest 5.
+ * - Store-Name Categorization: Automatically assigns items to 'Crude City' if the store name matches, ensuring complete inventory sync.
+ * - Brand Logic: Products match brands based on both Store Name and Product Title for maximum accuracy.
+ * - UK/EU Regions: GBP (£) and EUR (€) handling with shipping buffers and rounding.
  */
 
 import {ai} from '@/ai/genkit';
@@ -48,7 +47,7 @@ const getProductsFlow = ai.defineFlow(
     const headers = { 'Authorization': `Bearer ${apiKey}` };
 
     try {
-        // Fetch ALL stores in the account without filtering by name
+        // Fetch ALL stores in the account
         const storesResponse = await fetch('https://api.printful.com/stores', { headers });
         if (!storesResponse.ok) return [];
         
@@ -63,7 +62,10 @@ const getProductsFlow = ai.defineFlow(
             const storeId = store.id;
             const storeNameUpper = store.name.toUpperCase();
             
-            // Determine Region for pricing based on store meta or name
+            // Categorization logic: If the store name contains 'CRUDE' or 'CITY', it's a Crude City store.
+            const isCrudeCityStore = storeNameUpper.includes('CRUDE') || storeNameUpper.includes('CITY');
+            
+            // Determine Region for pricing
             const isUKStore = storeNameUpper.includes('UK') || 
                             storeNameUpper.includes('UNITED KINGDOM') ||
                             storeNameUpper.includes('GBP');
@@ -72,7 +74,7 @@ const getProductsFlow = ai.defineFlow(
             const currencySymbol = isUKStore ? '£' : '€';
             const shippingBuffer = isUKStore ? 5.00 : 6.00;
 
-            // Fetch products with a high limit (100) to ensure we capture all merch in this store
+            // Fetch products from this specific store (limit 100 per store)
             const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
             if (!productsResponse.ok) continue;
 
@@ -90,14 +92,14 @@ const getProductsFlow = ai.defineFlow(
 
                     if (!syncProduct || !syncProduct.name || !syncProduct.thumbnail_url) return null;
 
-                    // Brand Logic:
-                    // Verse 3: Default brand for items that don't match 'Crude' or 'City'
-                    // Crude City: Specifically items with 'Crude' or 'City' in the title
+                    // Comprehensive Brand Logic:
+                    // A product belongs to Crude City if its store is a Crude City store OR if its name mentions Crude/City.
                     const prodName = syncProduct.name.toLowerCase();
-                    const isCrudeProduct = prodName.includes('crude') || prodName.includes('city');
+                    const belongsToCrude = isCrudeCityStore || prodName.includes('crude') || prodName.includes('city');
 
-                    if (brand === 'Crude City' && !isCrudeProduct) return null;
-                    if (brand === 'Verse 3 Merch' && isCrudeProduct) return null;
+                    // Filter by the requested brand
+                    if (brand === 'Crude City' && !belongsToCrude) return null;
+                    if (brand === 'Verse 3 Merch' && belongsToCrude) return null;
 
                     const sizes = syncVariants 
                         ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
@@ -115,7 +117,7 @@ const getProductsFlow = ai.defineFlow(
                     }
 
                     if (retailPrice > 0) {
-                        // Add Shipping Buffer and round to nearest multiple of 5
+                        // Add Shipping Buffer and round to nearest multiple of 5 for professional pricing
                         retailPrice += shippingBuffer;
                         retailPrice = Math.round(retailPrice / 5) * 5;
                     }
@@ -144,7 +146,7 @@ const getProductsFlow = ai.defineFlow(
             allDetailedProducts.push(...detailedProducts.filter((p): p is Product => p !== null));
         }
 
-        // Return sorted by name for a consistent storefront appearance
+        // Return sorted alphabetically for consistent display
         return allDetailedProducts.sort((a, b) => a.name.localeCompare(b.name));
     } catch (err) {
         return [];
