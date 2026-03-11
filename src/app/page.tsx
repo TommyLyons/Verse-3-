@@ -110,15 +110,19 @@ export default function Home() {
     if (!email || !firestore) return;
 
     setIsSubmitting(true);
-    const subscriptionsCol = collection(firestore, 'newsletterSubscriptions');
-    addDocumentNonBlocking(subscriptionsCol, {
-      email: email,
-      subscribedAt: serverTimestamp(),
-    });
-
-    toast({ title: "Welcome to the Family!", description: "You've been added to our list." });
-    setEmail('');
-    setIsSubmitting(false);
+    try {
+        const subscriptionsCol = collection(firestore, 'newsletterSubscriptions');
+        addDocumentNonBlocking(subscriptionsCol, {
+          email: email,
+          subscribedAt: serverTimestamp(),
+        });
+        toast({ title: "Welcome to the Family!", description: "You've been added to our list." });
+        setEmail('');
+    } catch (err) {
+        console.error("Newsletter submission failed:", err);
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   return (
@@ -214,7 +218,7 @@ export default function Home() {
                         >
                             <CarouselContent className="-ml-4">
                                 {merchProducts.map((item) => (
-                                    <CarouselItem key={item.id} className="pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/4">
+                                    <CarouselItem key={item.id || item.slug} className="pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/4">
                                         <Card className="border-none shadow-none bg-transparent group cursor-pointer" onClick={() => handleProductClick(item)}>
                                             <div className="aspect-square relative bg-secondary rounded-none overflow-hidden border-2 border-black/5">
                                                 <Image
@@ -250,7 +254,7 @@ export default function Home() {
        <section className="py-24 bg-secondary/30">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
-                    <h2 className="font-headline text-5 font-bold text-black uppercase italic tracking-tighter">Latest <span className="text-chart-1">Music</span></h2>
+                    <h2 className="font-headline text-5xl font-bold text-black uppercase italic tracking-tighter">Latest <span className="text-chart-1">Music</span></h2>
                     <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mt-2">Authorized Audio Masters</p>
                 </div>
 
@@ -267,7 +271,7 @@ export default function Home() {
                         >
                             <CarouselContent className="-ml-4">
                                 {musicProducts.map((item) => (
-                                    <CarouselItem key={item.id} className="pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/4">
+                                    <CarouselItem key={item.id || item.slug} className="pl-4 basis-[85%] sm:basis-1/2 lg:basis-1/4">
                                         <Card className="border-none shadow-none bg-transparent group cursor-pointer" onClick={() => handleProductClick(item)}>
                                             <div className="aspect-square relative bg-white rounded-none overflow-hidden shadow-sm border-2 border-black/5">
                                                 <Image
