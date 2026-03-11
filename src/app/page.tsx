@@ -124,16 +124,17 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Optimized for 20% smaller mobile visibility (Centered) */}
+      {/* Hero Section - Optimized for mobile cutoff (20% smaller width, centered) */}
       <section className="relative w-full h-[85dvh] flex flex-col items-center justify-center bg-black overflow-hidden">
-        <div className="absolute inset-0 z-0 flex items-center justify-center px-[10%] md:px-0">
-          <video
-            src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
-            autoPlay loop muted playsInline
-            className="w-full h-full object-contain md:object-cover"
-          />
+        <div className="absolute inset-0 z-0 flex items-center justify-center">
+          <div className="w-[80%] h-full md:w-full">
+            <video
+              src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
+              autoPlay loop muted playsInline
+              className="w-full h-full object-contain md:object-cover"
+            />
+          </div>
         </div>
-        {/* Navigation buttons sitting optimally for mobile ergonomics */}
         <div className="absolute bottom-20 z-10 flex gap-4 px-6 w-full max-w-sm mx-auto">
           <Button asChild className="flex-1 bg-black text-chart-1 font-bold h-11 rounded-none uppercase italic tracking-wider shadow-lg hover:bg-chart-1 hover:text-black transition-all">
             <Link href="/store">SHOP MERCH</Link>
@@ -155,7 +156,7 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image - Fitted layout (Version 34172f3 Restore) */}
+      {/* Impact Image */}
       {vibeHero && (
         <section className="w-full bg-black py-4">
           <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto px-6 md:px-0">
@@ -195,7 +196,7 @@ export default function Home() {
           </div>
        </section>
 
-       {/* Featured Merch Carousel (V3 Only) - Fitted images with Autoplay */}
+       {/* Featured Merch Carousel (V3 Only) - Fitted images with zero padding */}
        <section className="py-24 bg-white">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
@@ -223,7 +224,7 @@ export default function Home() {
                                                     src={item.imageUrl || ''}
                                                     alt={item.name}
                                                     fill
-                                                    className="object-contain p-2 transition-transform duration-500 group-hover:scale-105"
+                                                    className="object-contain p-0 transition-transform duration-500 group-hover:scale-105"
                                                     sizes="(max-width: 640px) 100vw, 25vw"
                                                 />
                                             </div>
@@ -248,7 +249,7 @@ export default function Home() {
             </div>
        </section>
 
-       {/* Latest Music Carousel - Fitted images with Autoplay */}
+       {/* Latest Music Carousel - Fitted images with zero padding */}
        <section className="py-24 bg-secondary/30">
             <div className="container max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
@@ -276,7 +277,7 @@ export default function Home() {
                                                     src={item.imageUrl || ''}
                                                     alt={item.name}
                                                     fill
-                                                    className="object-contain p-2 transition-transform duration-500 group-hover:scale-105"
+                                                    className="object-contain p-0 transition-transform duration-500 group-hover:scale-105"
                                                     sizes="(max-width: 640px) 100vw, 25vw"
                                                 />
                                             </div>

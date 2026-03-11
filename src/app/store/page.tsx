@@ -58,7 +58,7 @@ const ProductGrid = ({ products, isLoading, type, onProductClick }: { products: 
                                 src={item.imageUrl || 'https://picsum.photos/seed/placeholder/600/600'}
                                 alt={item.name}
                                 fill
-                                className="object-contain p-2 transition-transform duration-500 group-hover:scale-105"
+                                className="object-contain p-0 transition-transform duration-500 group-hover:scale-105"
                                 sizes="(max-width: 640px) 100vw, 25vw"
                             />
                         </div>
