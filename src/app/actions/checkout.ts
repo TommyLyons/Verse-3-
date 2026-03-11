@@ -1,6 +1,5 @@
-'use server';
+'use client';
 
-import { headers } from 'next/headers';
 import { getStripeClient } from '@/lib/stripe';
 
 /**
@@ -8,33 +7,25 @@ import { getStripeClient } from '@/lib/stripe';
  * Strictly uses STRIPE_SECRET_KEY from environment with robust validation.
  */
 export async function fetchClientSecret(cart: any[]) {
-  const headersList = await headers();
-  const host = headersList.get('host');
-  const proto = headersList.get('x-forwarded-proto') || 'http';
-  const origin = headersList.get('origin') || `${proto}://${host}`;
-  
-  // Ensure the secret key is fresh and trimmed of any accidental spaces
+  // In a production environment, STRIPE_SECRET_KEY must be set in the Firebase/App Hosting environment.
   const secretKey = (process.env.STRIPE_SECRET_KEY || '').trim();
 
+  // If the key is missing or is a placeholder, we provide a descriptive error.
   if (!secretKey || secretKey.includes('*') || secretKey.length < 10) {
     console.error("CRITICAL ERROR: STRIPE_SECRET_KEY is missing or invalid in environment.");
-    throw new Error("Payment gateway configuration error. Please ensure your Stripe Secret Key is correctly set in the environment variables.");
+    throw new Error("Payment gateway configuration error. Please ensure your Stripe Secret Key is correctly set in the environment variables (STRIPE_SECRET_KEY).");
   }
 
   if (!cart || cart.length === 0) {
     throw new Error("Your cart is empty.");
   }
 
-  // fresh client initialization for this request
   const stripe = getStripeClient();
 
   try {
     const line_items = cart.map((item: any) => {
-      // Clean price string (e.g., "£25.00" -> 25.00)
       const priceStr = item.price.replace(/[^0-9.]/g, '');
       const amount = Math.round(parseFloat(priceStr) * 100);
-      
-      // Auto-detect currency based on price symbol
       const currency = item.price.includes('€') ? 'eur' : 'gbp';
 
       if (isNaN(amount) || amount <= 0) {
@@ -52,7 +43,6 @@ export async function fetchClientSecret(cart: any[]) {
               product_id: String(item.id),
               size: item.size || '',
               type: item.type,
-              digital: item.digital ? 'true' : 'false'
             }
           },
           unit_amount: amount,
@@ -70,9 +60,8 @@ export async function fetchClientSecret(cart: any[]) {
       },
       metadata: {
         order_source: 'verse3_v3_production',
-        has_digital: cart.some(i => i.digital) ? 'true' : 'false'
       },
-      return_url: `${origin}/return?session_id={CHECKOUT_SESSION_ID}`,
+      return_url: `${window.location.origin}/return?session_id={CHECKOUT_SESSION_ID}`,
     });
 
     return session.client_secret;
