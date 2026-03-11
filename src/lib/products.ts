@@ -44,6 +44,7 @@ export async function serializeData(data: any): Promise<any> {
     const serialized: any = {};
     for (const key in data) {
       if (Object.prototype.hasOwnProperty.call(data, key)) {
+        // Skip functions and internal underscores
         if (typeof data[key] !== 'function' && !key.startsWith('_')) {
           serialized[key] = await serializeData(data[key]);
         }
@@ -85,22 +86,25 @@ export const getAllProducts = async (): Promise<Product[]> => {
         });
     }
   } catch (error) {
-    console.warn("Database fetch deferred:", error);
+    console.warn("Database fetch deferred during build phase:", error);
   }
 
   try {
     const results = await getFlowProducts();
     flowProducts = results || [];
   } catch (error) {
-    console.warn("External sync deferred:", error);
+    console.warn("External sync deferred during build phase:", error);
   }
 
   const uniqueMap = new Map<string, Product>();
   
+  // Combine, prioritizing local entries for slug collisions
   flowProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));
   dbProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));
 
   const sorted = Array.from(uniqueMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+  
+  // Definitive serialization for Client Component compatibility
   return await serializeData(sorted);
 };
 
