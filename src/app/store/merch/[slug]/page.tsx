@@ -2,16 +2,15 @@ import { getAllProducts } from '@/lib/products';
 import { notFound } from 'next/navigation';
 import { ProductClientPage } from './product-client-page';
 
+// Prevent build-time static generation failures if API/DB is unreachable
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function MerchPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   
-  // Fetch fresh products and strictly find by slug and type
   const allProducts = await getAllProducts();
   
-  // Implement strict case-insensitive lookup for consistency across the store
   const product = allProducts.find(p => 
     p.slug.toLowerCase() === slug.toLowerCase() && 
     p.type === 'merch'

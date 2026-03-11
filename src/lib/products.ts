@@ -7,16 +7,18 @@ import { firebaseConfig } from '@/firebase/config';
 export type { Product };
 
 /**
- * Robust recursive serialization for Firestore data.
- * Converts Timestamps to ISO strings and ensures plain objects for Client Components.
+ * Deep recursive serialization for Firestore data.
+ * Ensures ALL nested Timestamps and complex types are plain objects for Client Components.
  */
 function serializeData(data: any): any {
   if (data === null || data === undefined) return data;
 
-  // Handle Firestore Timestamps (both from SDK and plain objects with seconds/nanoseconds)
+  // Handle Firestore Timestamps
   if (typeof data === 'object' && typeof data.toDate === 'function') {
     return data.toDate().toISOString();
   }
+  
+  // Handle objects that look like Timestamps ({seconds, nanoseconds})
   if (typeof data === 'object' && 'seconds' in data && 'nanoseconds' in data) {
     return new Date(data.seconds * 1000).toISOString();
   }
@@ -61,10 +63,11 @@ export const getAllProducts = async (): Promise<Product[]> => {
     
     dbProducts = snapshot.docs.map(doc => {
       const data = doc.data();
+      // Apply deep serialization to each document
       return { ...serializeData(data), id: doc.id } as Product;
     });
   } catch (error) {
-    console.warn("Firestore products fetch failed or collection is empty.");
+    console.warn("Firestore products fetch failed.");
   }
 
   try {
@@ -76,20 +79,23 @@ export const getAllProducts = async (): Promise<Product[]> => {
 
   const uniqueMap = new Map<string, Product>();
   
+  // Combine both sources, prioritizing local DB entries for custom overrides
   flowProducts.forEach(p => {
-    const serialized = serializeData(p);
-    uniqueMap.set(serialized.slug.toLowerCase(), serialized);
+    uniqueMap.set(p.slug.toLowerCase(), p);
   });
   
   dbProducts.forEach(p => {
-    const serialized = serializeData(p);
-    uniqueMap.set(serialized.slug.toLowerCase(), serialized);
+    uniqueMap.set(p.slug.toLowerCase(), p);
   });
 
-  return Array.from(uniqueMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+  const sorted = Array.from(uniqueMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+  
+  // Final deep serialization pass for build safety
+  return serializeData(sorted);
 };
 
 export const getProductBySlug = async (slug: string): Promise<Product | undefined> => {
   const allProducts = await getAllProducts();
-  return allProducts.find(p => p.slug.toLowerCase() === slug.toLowerCase());
+  const product = allProducts.find(p => p.slug.toLowerCase() === slug.toLowerCase());
+  return serializeData(product);
 };
