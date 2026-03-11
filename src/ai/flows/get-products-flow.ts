@@ -35,7 +35,7 @@ const getProductsFlow = ai.defineFlow(
     };
 
     try {
-        // Step 1: Fetch ALL stores in the account
+        // Step 1: Fetch ALL stores in the account to ensure we hit all 3 stores
         const storesResponse = await fetch('https://api.printful.com/stores', { headers });
         if (!storesResponse.ok) {
             console.error("Printful Stores Fetch Failed:", await storesResponse.text());
@@ -72,63 +72,71 @@ const getProductsFlow = ai.defineFlow(
                 const data = await productsResponse.json();
                 const products = data.result || [];
 
-                // Parallel fetch details to speed up sync
-                const productPromises = products.map(async (item: any) => {
-                    try {
-                        const slug = item.name.toLowerCase()
-                            .replace(/ /g, '-')
-                            .replace(/[^\w-]+/g, '')
-                            .trim();
+                // Sequential processing in chunks of 5 to respect rate limits while maintaining speed
+                const chunk = <T>(arr: T[], size: number) =>
+                    Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+                        arr.slice(i * size, i * size + size)
+                    );
 
-                        if (globalProductsMap.has(slug)) return;
+                const productChunks = chunk(products, 5);
+                for (const pChunk of productChunks) {
+                    await Promise.all(pChunk.map(async (item: any) => {
+                        try {
+                            const slug = item.name.toLowerCase()
+                                .replace(/ /g, '-')
+                                .replace(/[^\w-]+/g, '')
+                                .trim();
 
-                        const detailResponse = await fetch(`https://api.printful.com/sync/products/${item.id}?store_id=${storeId}`, { headers });
-                        if (!detailResponse.ok) return;
-                        
-                        const detailData = await detailResponse.json();
-                        const syncProduct = detailData.result.sync_product;
-                        const syncVariants = detailData.result.sync_variants;
+                            // Prevent duplicates across stores
+                            if (globalProductsMap.has(slug)) return;
 
-                        if (!syncProduct) return;
+                            const detailResponse = await fetch(`https://api.printful.com/sync/products/${item.id}?store_id=${storeId}`, { headers });
+                            if (!detailResponse.ok) return;
+                            
+                            const detailData = await detailResponse.json();
+                            const syncProduct = detailData.result.sync_product;
+                            const syncVariants = detailData.result.sync_variants;
 
-                        const targetBrand = isCrudeStore ? 'Crude City' : 'Verse 3 Merch';
+                            if (!syncProduct) return;
 
-                        const sizes = syncVariants 
-                            ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
-                            : [];
-                        
-                        let minPrice = 0;
-                        if (syncVariants && syncVariants.length > 0) {
-                            const validPrices = syncVariants
-                                .map((v: any) => parseFloat(v.retail_price))
-                                .filter((p: number) => !isNaN(p) && p > 0);
-                            if (validPrices.length > 0) minPrice = Math.min(...validPrices);
-                        }
+                            const targetBrand = isCrudeStore ? 'Crude City' : 'Verse 3 Merch';
 
-                        if (minPrice > 0) {
-                            minPrice += isUKStore ? 5 : 6;
-                            minPrice = Math.round(minPrice / 5) * 5;
-                        }
+                            const sizes = syncVariants 
+                                ? [...new Set(syncVariants.map((v: any) => v.size).filter(Boolean))] as string[] 
+                                : [];
+                            
+                            let minPrice = 0;
+                            if (syncVariants && syncVariants.length > 0) {
+                                const validPrices = syncVariants
+                                    .map((v: any) => parseFloat(v.retail_price))
+                                    .filter((p: number) => !isNaN(p) && p > 0);
+                                if (validPrices.length > 0) minPrice = Math.min(...validPrices);
+                            }
 
-                        const formattedPrice = minPrice === 0 ? 'N/A' : `${currencySymbol}${minPrice.toFixed(0)}`;
+                            // Professional Pricing Strategy: Included Shipping + Branding Markup
+                            if (minPrice > 0) {
+                                minPrice += isUKStore ? 5 : 6;
+                                minPrice = Math.round(minPrice / 5) * 5;
+                            }
 
-                        globalProductsMap.set(slug, {
-                            id: String(syncProduct.id),
-                            name: syncProduct.name,
-                            slug: slug,
-                            price: formattedPrice,
-                            description: syncProduct.description || `Official ${targetBrand} merchandise. Premium quality. Global shipping included.`,
-                            imageUrl: syncProduct.thumbnail_url || item.thumbnail_url,
-                            revolutLink: 'https://checkout.stripe.com/',
-                            type: 'merch',
-                            brand: targetBrand as any,
-                            availableRegions: [region as any],
-                            sizes: sizes.length > 0 ? sizes : undefined,
-                        });
-                    } catch (err) { }
-                });
+                            const formattedPrice = minPrice === 0 ? 'N/A' : `${currencySymbol}${minPrice.toFixed(0)}`;
 
-                await Promise.all(productPromises);
+                            globalProductsMap.set(slug, {
+                                id: String(syncProduct.id),
+                                name: syncProduct.name,
+                                slug: slug,
+                                price: formattedPrice,
+                                description: syncProduct.description || `Official ${targetBrand} merchandise. Premium quality. Global shipping included.`,
+                                imageUrl: syncProduct.thumbnail_url || item.thumbnail_url,
+                                revolutLink: 'https://checkout.stripe.com/',
+                                type: 'merch',
+                                brand: targetBrand as any,
+                                availableRegions: [region as any],
+                                sizes: sizes.length > 0 ? sizes : undefined,
+                            });
+                        } catch (err) { }
+                    }));
+                }
             } catch (err) { continue; }
         }
 
