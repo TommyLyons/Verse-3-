@@ -123,9 +123,9 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Optimized Hero - 20% Smaller on Mobile to fit without cutoff */}
-      <section className="relative w-full h-[85dvh] flex items-center justify-center bg-black overflow-hidden px-4 md:px-0">
-        <div className="relative w-[85%] md:w-full h-full flex items-center justify-center">
+      {/* Centered Hero - 20% Smaller on Mobile (80% width) */}
+      <section className="relative w-full h-[85dvh] flex items-center justify-center bg-black overflow-hidden">
+        <div className="relative w-[80%] md:w-full h-full flex items-center justify-center">
             <video
               src="https://firebasestorage.googleapis.com/v0/b/studio-6967403383-a8bb0.firebasestorage.app/o/WhatsApp%20Video%202025-11-19%20at%2018.15.08.mp4?alt=media&token=c2aaa55b-f264-4ef6-a86c-13e63d82cb85"
               autoPlay loop muted playsInline
