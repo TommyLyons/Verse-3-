@@ -26,7 +26,7 @@ const ProductGrid = ({ products, isLoading, type, onProductClick }: { products: 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                 {[...Array(4)].map((_, i) => (
                     <div key={i} className="flex flex-col space-y-3">
-                        <Skeleton className="aspect-square w-full rounded-xl" />
+                        <Skeleton className="aspect-square w-full rounded-none" />
                         <div className="space-y-2">
                             <Skeleton className="h-4 w-[200px]" />
                             <Skeleton className="h-4 w-[150px]" />
@@ -52,7 +52,7 @@ const ProductGrid = ({ products, isLoading, type, onProductClick }: { products: 
                     <CardContent className="p-0">
                         <div 
                           onClick={() => onProductClick?.(item)}
-                          className="cursor-pointer block aspect-square relative bg-secondary rounded-lg overflow-hidden border-2 border-black/5"
+                          className="cursor-pointer block aspect-square relative bg-secondary rounded-none overflow-hidden border-2 border-black/5"
                         >
                             <Image
                                 src={item.imageUrl || 'https://picsum.photos/seed/placeholder/600/600'}
@@ -91,17 +91,22 @@ function StoreContent() {
   const [activeBrand, setActiveBrand] = useState<'Verse 3' | 'Crude City'>('Verse 3');
   const [isAgeGateOpen, setIsAgeGateOpen] = useState(false);
   const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
-  const [isAgeVerified, setIsAgeVerified] = useState(false);
+
+  const checkAgeVerified = () => {
+    if (typeof window === 'undefined') return false;
+    return sessionStorage.getItem('v3_age_verified') === 'true';
+  };
 
   useEffect(() => {
-    const verified = sessionStorage.getItem('v3_age_verified') === 'true';
-    setIsAgeVerified(verified);
-
+    const verified = checkAgeVerified();
     const initialBrand = searchParams.get('brand');
-    if (initialBrand === 'crude' && verified) {
-      setActiveBrand('Crude City');
-    } else if (initialBrand === 'crude' && !verified) {
-      setIsAgeGateOpen(true);
+    
+    if (initialBrand === 'crude') {
+      if (verified) {
+        setActiveBrand('Crude City');
+      } else {
+        setIsAgeGateOpen(true);
+      }
     }
 
     async function fetchProducts() {
@@ -119,7 +124,7 @@ function StoreContent() {
   }, [searchParams]);
 
   const handleBrandSwitch = (brand: 'Verse 3' | 'Crude City') => {
-    if (brand === 'Crude City' && !isAgeVerified) {
+    if (brand === 'Crude City' && !checkAgeVerified()) {
       setIsAgeGateOpen(true);
       return;
     }
@@ -127,7 +132,7 @@ function StoreContent() {
   };
 
   const handleProductClick = (product: Product) => {
-    if (product.brand === 'Crude City' && !isAgeVerified) {
+    if (product.brand === 'Crude City' && !checkAgeVerified()) {
       setPendingProduct(product);
       setIsAgeGateOpen(true);
       return;
@@ -137,7 +142,6 @@ function StoreContent() {
 
   const onAgeConfirm = () => {
     sessionStorage.setItem('v3_age_verified', 'true');
-    setIsAgeVerified(true);
     setIsAgeGateOpen(false);
     if (pendingProduct) {
       router.push(`/store/${pendingProduct.type}/${pendingProduct.slug}`);

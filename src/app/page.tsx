@@ -37,12 +37,8 @@ export default function Home() {
   const [isAgeGateOpen, setIsAgeGateOpen] = useState(false);
   const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
   const [pendingBrand, setPendingBrand] = useState<string | null>(null);
-  const [isAgeVerified, setIsAgeVerified] = useState(false);
 
   useEffect(() => {
-    const verified = sessionStorage.getItem('v3_age_verified') === 'true';
-    setIsAgeVerified(verified);
-
     async function fetchProducts() {
         setIsLoading(true);
         try {
@@ -67,18 +63,22 @@ export default function Home() {
 
   const vibeHero = PlaceHolderImages.find(img => img.id === 'vibe-hero');
 
+  const checkAgeVerified = () => {
+    if (typeof window === 'undefined') return false;
+    return sessionStorage.getItem('v3_age_verified') === 'true';
+  };
+
   const handleProductClick = (product: Product) => {
-    if (product.brand === 'Crude City' && !isAgeVerified) {
+    if (product.brand === 'Crude City' && !checkAgeVerified()) {
       setPendingProduct(product);
       setIsAgeGateOpen(true);
       return;
     }
-    const targetPath = `/store/${product.type}/${product.slug}`;
-    router.push(targetPath);
+    router.push(`/store/${product.type}/${product.slug}`);
   };
 
   const handleBrandClick = (brand: 'Verse 3' | 'Crude City') => {
-    if (brand === 'Crude City' && !isAgeVerified) {
+    if (brand === 'Crude City' && !checkAgeVerified()) {
       setPendingBrand(brand);
       setIsAgeGateOpen(true);
       return;
@@ -88,7 +88,6 @@ export default function Home() {
 
   const onAgeConfirm = () => {
     sessionStorage.setItem('v3_age_verified', 'true');
-    setIsAgeVerified(true);
     setIsAgeGateOpen(false);
     
     if (pendingProduct) {
@@ -124,7 +123,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Optimized for mobile cutoff (20% smaller width, centered) */}
+      {/* Hero Section - Optimized for mobile: centered 80% width for perfect fit */}
       <section className="relative w-full h-[85dvh] flex flex-col items-center justify-center bg-black overflow-hidden">
         <div className="absolute inset-0 z-0 flex items-center justify-center">
           <div className="w-[80%] h-full md:w-full">
@@ -156,7 +155,7 @@ export default function Home() {
           </div>
       </section>
 
-      {/* Impact Image */}
+      {/* Impact Image (Version 34172f3 Restore) */}
       {vibeHero && (
         <section className="w-full bg-black py-4">
           <div className="relative w-full aspect-[21/9] max-w-screen-2xl mx-auto px-6 md:px-0">

@@ -28,14 +28,15 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
   const [addedToCart, setAddedToCart] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [quantity, setQuantity] = useState(1);
-
   const [isAgeGateOpen, setIsAgeGateOpen] = useState(false);
-  const [isAgeVerified, setIsAgeVerified] = useState(false);
+
+  const checkAgeVerified = () => {
+    if (typeof window === 'undefined') return false;
+    return sessionStorage.getItem('v3_age_verified') === 'true';
+  };
 
   useEffect(() => {
-    const verified = sessionStorage.getItem('v3_age_verified') === 'true';
-    setIsAgeVerified(verified);
-
+    const verified = checkAgeVerified();
     if (product.brand === 'Crude City' && !verified) {
       setIsAgeGateOpen(true);
     }
@@ -47,7 +48,6 @@ export function ProductClientPage({ product, allProducts }: { product: Product, 
 
   const onAgeConfirm = () => {
     sessionStorage.setItem('v3_age_verified', 'true');
-    setIsAgeVerified(true);
     setIsAgeGateOpen(false);
   };
 
