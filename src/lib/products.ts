@@ -15,7 +15,7 @@ export const getAllProducts = async (): Promise<Product[]> => {
     let dbProducts: Product[] = [];
     let flowProducts: Product[] = [];
 
-    // High-Impact Fallbacks for Resilience
+    // Verified Fallbacks for Resilient User Experience
     const fallbacks: Product[] = [
         {
             id: 'v3-hoodie-fallback',
@@ -59,25 +59,25 @@ export const getAllProducts = async (): Promise<Product[]> => {
             return { ...serialized, id: doc.id } as Product;
         });
     } catch (error) {
-        console.warn("Firestore fetch failed.");
+        console.warn("Firestore collection fetch failure.");
     }
 
     try {
-        // Robust Printful sync with 45s timeout to handle multiple stores
+        // Generous 45s timeout to allow for exhaustive store-scanning (3 stores)
         flowProducts = await Promise.race([
             getFlowProducts(),
-            new Promise<Product[]>((_, reject) => setTimeout(() => reject(new Error('Printful timeout')), 45000))
+            new Promise<Product[]>((_, reject) => setTimeout(() => reject(new Error('Printful exhaustive sync timeout')), 45000))
         ]).catch((e) => {
             console.warn("Printful Sync Failure:", e.message);
             return [];
         });
     } catch (error) {
-        console.warn("External sync failed.");
+        console.warn("External product synchronization failure.");
     }
 
     const uniqueMap = new Map<string, Product>();
     
-    // Merge Hierarchy: Fallbacks < Printful < local DB
+    // Merge Strategy: Fallbacks < Printful Sync < Local Database (Overwrites)
     fallbacks.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));
     flowProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));
     dbProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));

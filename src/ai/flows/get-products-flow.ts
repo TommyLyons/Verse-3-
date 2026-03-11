@@ -32,9 +32,12 @@ const getProductsFlow = ai.defineFlow(
     };
 
     try {
-        // Step 1: Fetch ALL stores in the account
+        // Step 1: Fetch ALL stores in the account (User has 3 stores)
         const storesResponse = await fetch('https://api.printful.com/stores', { headers });
-        if (!storesResponse.ok) return [];
+        if (!storesResponse.ok) {
+            console.error("Printful Stores Fetch Failed:", await storesResponse.text());
+            return [];
+        }
         
         const storesData = await storesResponse.json();
         const allStores = storesData.result || [];
@@ -42,13 +45,13 @@ const getProductsFlow = ai.defineFlow(
 
         const globalProductsMap = new Map<string, Product>();
 
-        // Step 2: Iterate through every store (User mentioned 3 stores)
+        // Step 2: Iterate through every store to gather all products
         for (const store of allStores) {
             try {
                 const storeId = store.id;
                 const storeNameUpper = store.name.toUpperCase();
                 
-                // Detection logic for brand assignment
+                // Brand detection logic
                 const isCrudeStore = storeNameUpper.includes('CRUDE') || storeNameUpper.includes('CITY');
                 
                 const currency = store.currency || 'USD';
@@ -70,7 +73,7 @@ const getProductsFlow = ai.defineFlow(
                             .replace(/[^\w-]+/g, '')
                             .trim();
 
-                        // De-duplication: prioritize first found or existing items
+                        // De-duplication: skip if already processed
                         if (globalProductsMap.has(slug)) continue;
 
                         // Step 4: Fetch product details to resolve variants (pricing/sizes)
@@ -99,7 +102,7 @@ const getProductsFlow = ai.defineFlow(
                             if (validPrices.length > 0) minPrice = Math.min(...validPrices);
                         }
 
-                        // Rounding logic for clean retail pricing
+                        // Pricing logic for retail (including global shipping)
                         if (minPrice > 0) {
                             minPrice += isUKStore ? 5 : 6;
                             minPrice = Math.round(minPrice / 5) * 5;
@@ -127,7 +130,7 @@ const getProductsFlow = ai.defineFlow(
 
         return Array.from(globalProductsMap.values());
     } catch (err) {
-        console.error("Printful sync flow error:", err);
+        console.error("Printful exhaustive sync error:", err);
         return [];
     }
   }
