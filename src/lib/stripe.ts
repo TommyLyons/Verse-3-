@@ -5,7 +5,6 @@ import Stripe from 'stripe';
  * This is a server-side only utility. The Secret Key is never exposed to the client.
  */
 export const getStripeClient = () => {
-  // Use trim() to ensure any accidentally pasted whitespace in .env doesn't break initialization
   const secretKey = (process.env.STRIPE_SECRET_KEY || '').trim();
 
   if (!secretKey) {
@@ -16,5 +15,3 @@ export const getStripeClient = () => {
     apiVersion: '2025-01-27.acacia',
   });
 };
-
-export const stripe = null; // Prevent top-level singleton export that might be bundled on client

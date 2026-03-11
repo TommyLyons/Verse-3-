@@ -1,9 +1,6 @@
 'use server';
 /**
  * @fileOverview Exhaustive synchronization flow for multiple Printful stores.
- * - Optimized to fetch all stores associated with the account.
- * - Global de-duplication based on product slugs.
- * - Robust brand categorization based on store names.
  */
 
 import {ai} from '@/ai/genkit';
@@ -24,10 +21,7 @@ const getProductsFlow = ai.defineFlow(
   },
   async () => {
     const apiKey = await getPrintfulApiKey();
-    if (!apiKey) {
-      console.warn("Printful Sync: No API key provided.");
-      return [];
-    }
+    if (!apiKey) return [];
 
     const headers = { 
         'Authorization': `Bearer ${apiKey}`,
@@ -35,29 +29,18 @@ const getProductsFlow = ai.defineFlow(
     };
 
     try {
-        // Step 1: Fetch ALL stores in the account
         const storesResponse = await fetch('https://api.printful.com/stores', { headers });
-        if (!storesResponse.ok) {
-            console.error("Printful Stores Fetch Failed:", await storesResponse.text());
-            return [];
-        }
+        if (!storesResponse.ok) return [];
         
         const storesData = await storesResponse.json();
         const allStores = storesData.result || [];
-        if (allStores.length === 0) {
-            console.warn("Printful Sync: No stores found for this account.");
-            return [];
-        }
-
+        
         const globalProductsMap = new Map<string, Product>();
 
-        // Step 2: Iterate through every store to gather all products
         for (const store of allStores) {
             try {
                 const storeId = store.id;
                 const storeNameUpper = (store.name || '').toUpperCase();
-                
-                // Brand detection logic: If store name contains CRUDE or CITY, assign to Crude City
                 const isCrudeStore = storeNameUpper.includes('CRUDE') || storeNameUpper.includes('CITY');
                 
                 const currency = store.currency || 'GBP';
@@ -65,14 +48,12 @@ const getProductsFlow = ai.defineFlow(
                 const region = isUKStore ? 'UK' : 'EU';
                 const currencySymbol = isUKStore ? '£' : '€';
 
-                // Step 3: Fetch all synced products for this specific store
                 const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
                 if (!productsResponse.ok) continue;
 
                 const data = await productsResponse.json();
                 const products = data.result || [];
 
-                // Sequential processing to respect rate limits
                 for (const item of products) {
                     try {
                         const slug = (item.name || '').toLowerCase()
@@ -80,7 +61,6 @@ const getProductsFlow = ai.defineFlow(
                             .replace(/[^\w-]+/g, '')
                             .trim();
 
-                        // Prevent duplicates across stores (prefer first store encountered)
                         if (globalProductsMap.has(slug)) continue;
 
                         const detailResponse = await fetch(`https://api.printful.com/sync/products/${item.id}?store_id=${storeId}`, { headers });
@@ -106,7 +86,6 @@ const getProductsFlow = ai.defineFlow(
                             if (validPrices.length > 0) minPrice = Math.min(...validPrices);
                         }
 
-                        // Pricing: Include estimated shipping buffer + round for aesthetics
                         if (minPrice > 0) {
                             minPrice += isUKStore ? 5 : 6;
                             minPrice = Math.round(minPrice / 5) * 5;
@@ -119,7 +98,7 @@ const getProductsFlow = ai.defineFlow(
                             name: syncProduct.name,
                             slug: slug,
                             price: formattedPrice,
-                            description: syncProduct.description || `Official ${targetBrand} merchandise. Premium quality. Global shipping included.`,
+                            description: syncProduct.description || `Official ${targetBrand} merchandise. Premium quality.`,
                             imageUrl: syncProduct.thumbnail_url || item.thumbnail_url,
                             revolutLink: 'https://checkout.stripe.com/',
                             type: 'merch',
@@ -129,12 +108,11 @@ const getProductsFlow = ai.defineFlow(
                         });
                     } catch (err) { }
                 }
-            } catch (err) { continue; }
+            } catch (err) { }
         }
 
         return Array.from(globalProductsMap.values());
     } catch (err) {
-        console.error("Printful exhaustive sync error:", err);
         return [];
     }
   }

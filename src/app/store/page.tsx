@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Product, getAllProducts } from '@/lib/products';
+import { type Product, getAllProducts } from '@/lib/products';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BackButton } from '@/components/ui/back-button';
@@ -73,7 +73,7 @@ const ProductGrid = ({ products, isLoading, onProductClick }: { products: any[],
                           onClick={() => onProductClick?.(item)}
                           className="bg-black text-chart-1 font-bold hover:bg-black/80 rounded-none h-10 w-10 p-0"
                         >
-                            {item.digital ? <DownloadCloud className="h-5 v-5"/> : <Eye className="h-5 w-5"/>}
+                            {item.digital ? <DownloadCloud className="h-5 w-5"/> : <Eye className="h-5 w-5"/>}
                         </Button>
                     </div>
                 </Card>

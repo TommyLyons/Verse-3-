@@ -4,7 +4,7 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { firebaseConfig } from '@/firebase/config';
 
-export { type Product };
+export type { Product };
 
 /**
  * Robust recursive serialization for Firestore data.
@@ -62,7 +62,6 @@ export const getAllProducts = async (): Promise<Product[]> => {
   }
 
   try {
-    // Fetch products from Printful Flow
     flowProducts = await getFlowProducts().catch((e) => {
       console.warn("Printful Sync Failure:", e.message);
       return [];
@@ -73,8 +72,6 @@ export const getAllProducts = async (): Promise<Product[]> => {
 
   const uniqueMap = new Map<string, Product>();
   
-  // Merge strategy: Printful first, then DB (DB overrides Printful if slugs match)
-  // Ensure everything added to the map is serialized
   flowProducts.forEach(p => {
     const serialized = serializeData(p);
     uniqueMap.set(serialized.slug.toLowerCase(), serialized);
