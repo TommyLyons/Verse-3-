@@ -5,12 +5,11 @@ import Stripe from 'stripe';
  * This is a server-side only utility. The Secret Key is never exposed to the client.
  */
 export const getStripeClient = () => {
-  const secretKey = process.env.STRIPE_SECRET_KEY;
+  // Use trim() to ensure any accidentally pasted whitespace in .env doesn't break initialization
+  const secretKey = (process.env.STRIPE_SECRET_KEY || '').trim();
 
   if (!secretKey) {
-    // We throw a descriptive error if the key is missing. 
-    // This function should only be called in a server environment.
-    throw new Error('STRIPE_SECRET_KEY is missing from environment variables.');
+    throw new Error('STRIPE_SECRET_KEY is missing from environment variables. Please check your .env configuration.');
   }
 
   return new Stripe(secretKey, {
@@ -18,5 +17,4 @@ export const getStripeClient = () => {
   });
 };
 
-// Note: We no longer export a singleton 'stripe' instance at the top level
-// to prevent accidental execution/bundling in client-side contexts.
+export const stripe = null; // Prevent top-level singleton export that might be bundled on client

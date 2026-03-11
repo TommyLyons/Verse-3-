@@ -6,79 +6,89 @@ import { firebaseConfig } from '@/firebase/config';
 
 export { type Product };
 
-function getServerFirestore() {
-    const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-    return getFirestore(app);
-}
-
 /**
- * Recursively serializes data to ensure only plain objects are passed to Client Components.
- * This explicitly handles Firestore Timestamps by converting them to ISO strings.
+ * Robust recursive serialization for Firestore data.
+ * Converts Timestamps to strings and ensures plain objects for Client Components.
  */
 function serializeData(data: any): any {
-    if (data === null || typeof data !== 'object') {
-        return data;
-    }
+  if (data === null || data === undefined) return data;
 
-    // Handle Firestore Timestamps
-    if (typeof data.seconds === 'number' && typeof data.nanoseconds === 'number') {
-        return new Date(data.seconds * 1000).toISOString();
-    }
+  // Handle Firestore Timestamps specifically
+  if (typeof data === 'object' && 'seconds' in data && 'nanoseconds' in data) {
+    return new Date(data.seconds * 1000).toISOString();
+  }
 
-    if (data instanceof Date) {
-        return data.toISOString();
-    }
+  if (data instanceof Date) {
+    return data.toISOString();
+  }
 
-    if (Array.isArray(data)) {
-        return data.map(serializeData);
-    }
+  if (Array.isArray(data)) {
+    return data.map(item => serializeData(item));
+  }
 
+  if (typeof data === 'object') {
     const serialized: any = {};
     for (const key in data) {
-        if (Object.prototype.hasOwnProperty.call(data, key)) {
-            serialized[key] = serializeData(data[key]);
-        }
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
+        serialized[key] = serializeData(data[key]);
+      }
     }
     return serialized;
+  }
+
+  return data;
+}
+
+function getServerFirestore() {
+  const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+  return getFirestore(app);
 }
 
 export const getAllProducts = async (): Promise<Product[]> => {
-    let dbProducts: Product[] = [];
-    let flowProducts: Product[] = [];
+  let dbProducts: Product[] = [];
+  let flowProducts: Product[] = [];
 
-    try {
-        const db = getServerFirestore();
-        const productsCol = collection(db, 'products');
-        const snapshot = await getDocs(productsCol);
-        
-        dbProducts = snapshot.docs.map(doc => {
-            const data = doc.data();
-            return { ...serializeData(data), id: doc.id } as Product;
-        });
-    } catch (error) {
-        console.warn("Firestore products fetch failure.");
-    }
-
-    try {
-        // Fetch products from Printful Flow
-        flowProducts = await getFlowProducts().catch((e) => {
-            console.warn("Printful Sync Failure:", e.message);
-            return [];
-        });
-    } catch (error) {
-        console.warn("External product synchronization failure.");
-    }
-
-    const uniqueMap = new Map<string, Product>();
+  try {
+    const db = getServerFirestore();
+    const productsCol = collection(db, 'products');
+    const snapshot = await getDocs(productsCol);
     
-    // Merge strategy: Printful first, then DB (DB overrides Printful if slugs match)
-    flowProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), serializeData(p)));
-    dbProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), serializeData(p)));
+    dbProducts = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return { ...serializeData(data), id: doc.id } as Product;
+    });
+  } catch (error) {
+    console.warn("Firestore products fetch failure.");
+  }
 
-    return Array.from(uniqueMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+  try {
+    // Fetch products from Printful Flow
+    flowProducts = await getFlowProducts().catch((e) => {
+      console.warn("Printful Sync Failure:", e.message);
+      return [];
+    });
+  } catch (error) {
+    console.warn("External product synchronization failure.");
+  }
+
+  const uniqueMap = new Map<string, Product>();
+  
+  // Merge strategy: Printful first, then DB (DB overrides Printful if slugs match)
+  // Ensure everything added to the map is serialized
+  flowProducts.forEach(p => {
+    const serialized = serializeData(p);
+    uniqueMap.set(serialized.slug.toLowerCase(), serialized);
+  });
+  
+  dbProducts.forEach(p => {
+    const serialized = serializeData(p);
+    uniqueMap.set(serialized.slug.toLowerCase(), serialized);
+  });
+
+  return Array.from(uniqueMap.values()).sort((a, b) => a.name.localeCompare(b.name));
 };
 
 export const getProductBySlug = async (slug: string): Promise<Product | undefined> => {
-    const allProducts = await getAllProducts();
-    return allProducts.find(p => p.slug.toLowerCase() === slug.toLowerCase());
-}
+  const allProducts = await getAllProducts();
+  return allProducts.find(p => p.slug.toLowerCase() === slug.toLowerCase());
+};

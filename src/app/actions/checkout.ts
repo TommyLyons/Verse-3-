@@ -67,7 +67,6 @@ export async function fetchClientSecret(cart: any[], origin: string) {
     return session.client_secret;
   } catch (error: any) {
     console.error('Stripe Session Creation Error:', error.message);
-    // Return a user-friendly error or the specific Stripe error if it's an API issue
     throw new Error(error.message || 'Secure payment session could not be established.');
   }
 }
