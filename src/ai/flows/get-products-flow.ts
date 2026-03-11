@@ -1,9 +1,9 @@
 'use server';
 /**
- * @fileOverview Exhaustive synchronization flow for Printful inventory.
- * - Optimized for speed by fetching all brands in a single execution.
+ * @fileOverview Exhaustive synchronization flow for multiple Printful stores.
+ * - Optimized to fetch all stores associated with the account.
  * - Global de-duplication based on product slugs.
- * - Robust brand categorization based on store name and content.
+ * - Robust brand categorization based on store names and product metadata.
  */
 
 import {ai} from '@/ai/genkit';
@@ -32,6 +32,7 @@ const getProductsFlow = ai.defineFlow(
     };
 
     try {
+        // Step 1: Fetch ALL stores in the account
         const storesResponse = await fetch('https://api.printful.com/stores', { headers });
         if (!storesResponse.ok) return [];
         
@@ -41,10 +42,13 @@ const getProductsFlow = ai.defineFlow(
 
         const globalProductsMap = new Map<string, Product>();
 
+        // Step 2: Iterate through every store (User mentioned 3 stores)
         for (const store of allStores) {
             try {
                 const storeId = store.id;
                 const storeNameUpper = store.name.toUpperCase();
+                
+                // Detection logic for brand assignment
                 const isCrudeStore = storeNameUpper.includes('CRUDE') || storeNameUpper.includes('CITY');
                 
                 const currency = store.currency || 'USD';
@@ -52,6 +56,7 @@ const getProductsFlow = ai.defineFlow(
                 const region = isUKStore ? 'UK' : 'EU';
                 const currencySymbol = isUKStore ? '£' : '€';
 
+                // Step 3: Fetch all synced products for this specific store
                 const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&status=synced&limit=100`, { headers });
                 if (!productsResponse.ok) continue;
 
@@ -60,14 +65,15 @@ const getProductsFlow = ai.defineFlow(
 
                 for (const item of products) {
                     try {
-                        const prodName = item.name.toLowerCase();
                         const slug = item.name.toLowerCase()
                             .replace(/ /g, '-')
                             .replace(/[^\w-]+/g, '')
                             .trim();
 
+                        // De-duplication: prioritize first found or existing items
                         if (globalProductsMap.has(slug)) continue;
 
+                        // Step 4: Fetch product details to resolve variants (pricing/sizes)
                         const detailResponse = await fetch(`https://api.printful.com/sync/products/${item.id}?store_id=${storeId}`, { headers });
                         if (!detailResponse.ok) continue;
                         
@@ -77,6 +83,7 @@ const getProductsFlow = ai.defineFlow(
 
                         if (!syncProduct) continue;
 
+                        const prodName = syncProduct.name.toLowerCase();
                         const isCrudeItem = isCrudeStore || prodName.includes('crude') || prodName.includes('city');
                         const targetBrand = isCrudeItem ? 'Crude City' : 'Verse 3 Merch';
 
@@ -92,6 +99,7 @@ const getProductsFlow = ai.defineFlow(
                             if (validPrices.length > 0) minPrice = Math.min(...validPrices);
                         }
 
+                        // Rounding logic for clean retail pricing
                         if (minPrice > 0) {
                             minPrice += isUKStore ? 5 : 6;
                             minPrice = Math.round(minPrice / 5) * 5;
