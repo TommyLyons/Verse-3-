@@ -157,20 +157,21 @@ function StoreContent() {
     if (activeBrand === 'Crude City') setActiveBrand('Verse 3');
   };
 
+  // Improved filtering by checking brand and region strictly
   const verse3Merch = useMemo(() => {
     return allProducts.filter(p => 
       p.type === 'merch' && 
       p.brand === 'Verse 3 Merch' && 
       (!p.availableRegions || p.availableRegions.length === 0 || p.availableRegions.includes(region))
-    ).sort((a, b) => a.name.localeCompare(b.name));
+    );
   }, [allProducts, region]);
 
   const physicalMusic = useMemo(() => 
-    allProducts.filter(p => p.type === 'music' && !p.digital).sort((a, b) => a.name.localeCompare(b.name)),
+    allProducts.filter(p => p.type === 'music' && !p.digital),
   [allProducts]);
 
   const digitalMusic = useMemo(() => 
-    allProducts.filter(p => p.type === 'music' && p.digital).sort((a, b) => a.name.localeCompare(b.name)),
+    allProducts.filter(p => p.type === 'music' && p.digital),
   [allProducts]);
 
   const crudeCityMerch = useMemo(() => 
@@ -178,7 +179,7 @@ function StoreContent() {
       p.brand === 'Crude City' && 
       p.type === 'merch' && 
       (!p.availableRegions || p.availableRegions.length === 0 || p.availableRegions.includes(region))
-    ).sort((a, b) => a.name.localeCompare(b.name)),
+    ),
   [allProducts, region]);
 
   const regionLabel = region === 'UK' ? 'United Kingdom' : 'Europe';
