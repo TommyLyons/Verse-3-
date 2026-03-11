@@ -50,7 +50,11 @@ export async function serializeData(data: any): Promise<any> {
 
   // Fallback for non-plain objects that might have data (like Firestore documents)
   if (typeof data === 'object') {
-    return JSON.parse(JSON.stringify(data));
+    try {
+        return JSON.parse(JSON.stringify(data));
+    } catch (e) {
+        return String(data);
+    }
   }
 
   return data;
