@@ -17,6 +17,7 @@ export async function fetchClientSecret(cart: any[], origin: string) {
     throw new Error("Your cart is empty.");
   }
 
+  // Initialize client INSIDE the function to be build-safe
   const stripe = getStripeClient();
 
   try {

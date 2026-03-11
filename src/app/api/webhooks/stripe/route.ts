@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
   const signature = req.headers.get('stripe-signature') as string;
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
+  // Initialize client INSIDE the function to be build-safe
   const stripe = getStripeClient();
 
   let event;
@@ -54,13 +55,15 @@ async function processPrintfulOrder(session: any) {
   const lineItems = session.line_items.data;
   const printfulItems = [];
 
+  const apiKeyHeader = { 'Authorization': `Bearer ${apiKey}` };
+
   for (const item of lineItems) {
     const productData = item.price.product;
     const metadata = productData.metadata;
 
     if (metadata.type === 'merch' && metadata.printful_id) {
       const variantsResponse = await fetch(`https://api.printful.com/sync/products/${metadata.printful_id}`, {
-        headers: { 'Authorization': `Bearer ${apiKey}` }
+        headers: apiKeyHeader
       });
 
       if (variantsResponse.ok) {

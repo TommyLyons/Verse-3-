@@ -2,7 +2,10 @@ import { getAllProducts } from '@/lib/products';
 import { notFound } from 'next/navigation';
 import { ProductClientPage } from './product-client-page';
 
-// Prevent build-time static generation failures if API/DB is unreachable
+/**
+ * Force dynamic rendering to prevent build-time static generation failures
+ * when API keys or database connections are unavailable in the CI/CD environment.
+ */
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 

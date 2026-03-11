@@ -9,11 +9,12 @@ export type { Product };
 /**
  * Deep recursive serialization for Firestore data.
  * Ensures ALL nested Timestamps and complex types are plain objects for Client Components.
+ * This resolves the "Only plain objects can be passed to Client Components" error.
  */
 function serializeData(data: any): any {
   if (data === null || data === undefined) return data;
 
-  // Handle Firestore Timestamps
+  // Handle Firestore Timestamps (class instance)
   if (typeof data === 'object' && typeof data.toDate === 'function') {
     return data.toDate().toISOString();
   }
@@ -33,12 +34,15 @@ function serializeData(data: any): any {
     return data.map(item => serializeData(item));
   }
 
-  // Handle Objects
-  if (typeof data === 'object' && data.constructor === Object) {
+  // Handle Objects (plain objects and class instances we want to flatten)
+  if (typeof data === 'object') {
     const serialized: any = {};
     for (const key in data) {
       if (Object.prototype.hasOwnProperty.call(data, key)) {
-        serialized[key] = serializeData(data[key]);
+        // Skip functions and internal private members
+        if (typeof data[key] !== 'function' && !key.startsWith('_')) {
+          serialized[key] = serializeData(data[key]);
+        }
       }
     }
     return serialized;

@@ -29,7 +29,12 @@ const getProductsFlow = ai.defineFlow(
     };
 
     try {
-        const storesResponse = await fetch('https://api.printful.com/stores', { headers });
+        // Fetch all stores linked to the account
+        const storesResponse = await fetch('https://api.printful.com/stores', { 
+          headers,
+          next: { revalidate: 300 } // Cache store list for 5 minutes
+        });
+        
         if (!storesResponse.ok) return [];
         
         const storesData = await storesResponse.json();
@@ -42,6 +47,7 @@ const getProductsFlow = ai.defineFlow(
                 const storeId = store.id;
                 const storeNameUpper = (store.name || '').toUpperCase();
                 
+                // Determine brand based on store name
                 const isCrudeStore = storeNameUpper.includes('CRUDE') || storeNameUpper.includes('CITY');
                 const targetBrand = isCrudeStore ? 'Crude City' : 'Verse 3 Merch';
                 
@@ -50,6 +56,7 @@ const getProductsFlow = ai.defineFlow(
                 const region = isUKStore ? 'UK' : 'EU';
                 const currencySymbol = isUKStore ? '£' : '€';
 
+                // Fetch up to 100 products per store
                 const productsResponse = await fetch(`https://api.printful.com/sync/products?store_id=${storeId}&limit=100`, { headers });
                 if (!productsResponse.ok) continue;
 
@@ -63,6 +70,7 @@ const getProductsFlow = ai.defineFlow(
                             .replace(/[^\w-]+/g, '')
                             .trim();
 
+                        // Prevent duplicate items across stores
                         if (globalProductsMap.has(slug)) continue;
 
                         const detailResponse = await fetch(`https://api.printful.com/sync/products/${item.id}?store_id=${storeId}`, { headers });
@@ -86,9 +94,10 @@ const getProductsFlow = ai.defineFlow(
                             if (validPrices.length > 0) minPrice = Math.min(...validPrices);
                         }
 
-                        // Apply standard brand markup
+                        // Apply standard brand markup logic
                         if (minPrice > 0) {
                             minPrice += isUKStore ? 5 : 6;
+                            // Round to nearest 5 for premium feel
                             minPrice = Math.round(minPrice / 5) * 5;
                         }
 
@@ -107,13 +116,18 @@ const getProductsFlow = ai.defineFlow(
                             availableRegions: [region as any],
                             sizes: sizes.length > 0 ? sizes : undefined,
                         });
-                    } catch (err) {}
+                    } catch (err) {
+                        console.error(`Error processing product ${item.id}:`, err);
+                    }
                 }
-            } catch (err) {}
+            } catch (err) {
+                console.error(`Error scanning store ${store.id}:`, err);
+            }
         }
 
         return Array.from(globalProductsMap.values());
     } catch (err) {
+        console.error("Master product synchronization failure:", err);
         return [];
     }
   }
