@@ -22,7 +22,6 @@ export const getAllProducts = async (): Promise<Product[]> => {
         
         dbProducts = snapshot.docs.map(doc => {
             const data = doc.data() as any;
-            // Convert Firestore Timestamps to ISO strings to avoid Next.js serialization errors
             const serialized = { ...data };
             if (serialized.createdAt && typeof serialized.createdAt.toDate === 'function') {
                 serialized.createdAt = serialized.createdAt.toDate().toISOString();
@@ -43,12 +42,20 @@ export const getAllProducts = async (): Promise<Product[]> => {
         console.warn("Warning: Could not fetch products from Printful Flow during build.");
     }
 
-    const combined = [...dbProducts, ...flowProducts];
+    // De-duplicate by slug to handle overlaps between Firestore (local) and Printful (flow)
+    const uniqueMap = new Map<string, Product>();
+    
+    // Process Printful products first
+    flowProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));
+    
+    // Process DB products second so they override flow products if slug matches (local overrides)
+    dbProducts.forEach(p => uniqueMap.set(p.slug.toLowerCase(), p));
+
+    const combined = Array.from(uniqueMap.values());
 
     // Enforce consistent alphabetical sorting across all stores
     const sorted = combined.sort((a, b) => a.name.localeCompare(b.name));
 
-    // Final fallback for static build safety if no products could be retrieved
     if (sorted.length === 0) {
         return [
             {
@@ -84,7 +91,6 @@ export const getAllProducts = async (): Promise<Product[]> => {
 export const getProductBySlug = async (slug: string): Promise<Product | undefined> => {
     try {
         const allProducts = await getAllProducts();
-        // Use case-insensitive lookup for URL safety
         return allProducts.find(p => p.slug.toLowerCase() === slug.toLowerCase());
     } catch (error) {
         console.error("Error in getProductBySlug:", error);
